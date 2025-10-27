@@ -1,0 +1,103 @@
+version: "1"
+
+services:
+  - type: web
+    name: rork-r3al-backend
+    runtime: node
+    plan: standard
+    region: virginia
+    repo: https://github.com/azpn21-hue/rork-render-integration-blueprint
+    rootDir: ./
+    
+    buildCommand: |
+      echo "🔧 Installing backend dependencies..."
+      npm install --legacy-peer-deps
+      echo "✅ Backend build complete"
+    
+    startCommand: node server.js
+    
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+    
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+
+  - type: web
+    name: rork-r3al-frontend
+    runtime: node
+    plan: standard
+    region: virginia
+    repo: https://github.com/azpn21-hue/rork-render-integration-blueprint
+    rootDir: ./
+    
+    buildCommand: |
+      echo "🔧 Installing frontend dependencies..."
+      npm install --legacy-peer-deps
+      echo "📦 Building Expo web bundle..."
+      npx expo export:web
+      echo "✅ Frontend build complete"
+    
+    startCommand: npx serve web-build -p 8080
+    
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: EXPO_PUBLIC_RORK_API_BASE_URL
+        value: https://rork-r3al-backend.onrender.com
+      - key: EXPO_PUBLIC_AI_BASE_URL
+        value: https://optima-ai-gateway.onrender.com
+    
+    healthCheckPath: /
+    autoDeployTrigger: commit
+
+  - type: web
+    name: optima-ai-gateway
+    runtime: node
+    plan: standard
+    region: virginia
+    repo: https://github.com/azpn21-hue/rork-render-integration-blueprint
+    rootDir: ./ai-gateway/src
+
+    buildCommand: |
+      echo "🔧 Installing dependencies..."
+      npm install --legacy-peer-deps
+      echo "📦 Building TypeScript..."
+      npm run build
+      echo "✅ Build complete"
+
+    startCommand: node dist/index.js
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 9000
+      - key: AI_PROVIDER
+        value: anthropic
+      - key: MODEL_ID
+        value: claude-3-5-sonnet-20241022
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OLLAMA_HOST
+        value: http://127.0.0.1:11434
+      - key: REQUEST_TIMEOUT_MS
+        value: "45000"
+      - key: MAX_TOKENS
+        value: "1024"
+      - key: TEMPERATURE
+        value: "0.3"
+      - key: CORS_ALLOW_ORIGIN
+        value: "*"
+
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+

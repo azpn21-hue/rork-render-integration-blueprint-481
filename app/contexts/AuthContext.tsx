@@ -1,0 +1,189 @@
+import createContextHook from "@nkzw/create-context-hook";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
+import { trpc } from "@/lib/trpc";
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  isGuest: boolean;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  ndaAccepted: boolean;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterCredentials {
+  email: string;
+  password: string;
+  name: string;
+}
+
+export const [AuthProvider, useAuth] = createContextHook(() => {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [ndaAccepted, setNdaAccepted] = useState<boolean>(false);
+
+  const userQuery = useQuery({
+    queryKey: ["auth", "user"],
+    queryFn: async () => {
+      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.user);
+      const storedToken = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.token);
+      const storedNda = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.ndaAccepted);
+      
+      return {
+        user: storedUser ? JSON.parse(storedUser) : null,
+        token: storedToken,
+        ndaAccepted: storedNda === "true",
+      };
+    },
+  });
+
+  useEffect(() => {
+    if (userQuery.data) {
+      setUser(userQuery.data.user);
+      setToken(userQuery.data.token);
+      setNdaAccepted(userQuery.data.ndaAccepted);
+    }
+  }, [userQuery.data]);
+
+  const trpcUtils = trpc.useUtils();
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onError: (error) => {
+      console.error("[Auth] Login failed:", error);
+    },
+    onSuccess: async (data) => {
+      if (data.success) {
+        const userData = {
+          id: data.userId,
+          email: data.email,
+          name: data.name,
+          isGuest: false,
+        };
+        
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.token, data.token);
+        
+        setUser(userData);
+        setToken(data.token);
+        
+        console.log("[Auth] Login successful:", userData.email);
+        router.replace("/nda");
+      }
+    },
+  });
+
+  const registerMutation = trpc.auth.register.useMutation({
+    onError: (error) => {
+      console.error("[Auth] Registration failed:", error);
+    },
+    onSuccess: async (data) => {
+      if (data.success) {
+        const userData = {
+          id: data.userId,
+          email: data.email,
+          name: data.name,
+          isGuest: false,
+        };
+        
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.token, data.token);
+        
+        setUser(userData);
+        setToken(data.token);
+        
+        console.log("[Auth] Registration successful:", userData.email);
+        router.replace("/nda");
+      }
+    },
+  });
+
+  const guestLoginMutation = useMutation({
+    mutationFn: async () => {
+      console.log("[Auth] Logging in as guest");
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const guestId = `guest_${Date.now()}`;
+      return {
+        id: guestId,
+        email: `${guestId}@guest.r3al.app`,
+        name: "Guest User",
+        isGuest: true,
+      };
+    },
+    onSuccess: async (userData) => {
+      await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
+      setUser(userData);
+      console.log("[Auth] Guest login successful:", userData.id);
+      router.replace("/nda");
+    },
+  });
+
+  const acceptNdaMutation = useMutation({
+    mutationFn: async () => {
+      await AsyncStorage.setItem(AUTH_STORAGE_KEYS.ndaAccepted, "true");
+      return true;
+    },
+    onSuccess: () => {
+      setNdaAccepted(true);
+      console.log("[Auth] NDA accepted");
+      router.replace("/home");
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await AsyncStorage.multiRemove([
+        AUTH_STORAGE_KEYS.user,
+        AUTH_STORAGE_KEYS.token,
+        AUTH_STORAGE_KEYS.ndaAccepted,
+      ]);
+    },
+    onSuccess: () => {
+      setUser(null);
+      setToken(null);
+      setNdaAccepted(false);
+      console.log("[Auth] Logout successful");
+      router.replace("/login");
+    },
+  });
+
+  const authState: AuthState = {
+    user,
+    token,
+    ndaAccepted,
+    isLoading: userQuery.isLoading,
+    isAuthenticated: !!user,
+  };
+
+  return {
+    ...authState,
+    login: loginMutation.mutate,
+    register: registerMutation.mutate,
+    guestLogin: guestLoginMutation.mutate,
+    acceptNda: acceptNdaMutation.mutate,
+    logout: logoutMutation.mutate,
+    isLoggingIn: loginMutation.isPending,
+    isRegistering: registerMutation.isPending,
+    isGuestLoggingIn: guestLoginMutation.isPending,
+    isAcceptingNda: acceptNdaMutation.isPending,
+    isLoggingOut: logoutMutation.isPending,
+    loginError: loginMutation.error,
+    registerError: registerMutation.error,
+  };
+});
