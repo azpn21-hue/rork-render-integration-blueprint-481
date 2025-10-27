@@ -7,6 +7,7 @@ import { ollamaStream } from "../providers/ollama.js";
 import { EthicsEngine } from "../core/ethics.js";
 import { ForesightModule } from "../core/foresight.js";
 import { handleAIRequest } from "../core/learning.js";
+import { SelfEducation } from "../core/selfEducation.js";
 
 export const startGateway = () => {
   const app = express();
@@ -61,4 +62,15 @@ export const startGateway = () => {
     console.log(`🤖 Provider: ${process.env.AI_PROVIDER || "anthropic"}`);
     console.log(`📡 Model: ${process.env.MODEL_ID || "default"}`);
   });
+
+  const se = new SelfEducation();
+  const intervalMs = Number(process.env.SELF_EDUCATION_INTERVAL ?? 600000);
+  setInterval(async () => {
+    try {
+      const reflection = await se.periodicReflection();
+      console.log(reflection);
+    } catch (e: any) {
+      console.error("Self-education reflection error:", e?.message || String(e));
+    }
+  }, intervalMs);
 };

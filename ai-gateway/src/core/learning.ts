@@ -1,6 +1,9 @@
 import { EthicsEngine } from "./ethics.js";
 import { ForesightModule } from "./foresight.js";
+import { SelfEducation } from "./selfEducation.js";
 import { invokeAnthropic } from "../providers/anthropic.js";
+
+const selfEdu = new SelfEducation();
 
 export async function handleAIRequest(
   data: any,
@@ -17,6 +20,8 @@ export async function handleAIRequest(
   const infused = ethics.infuse(prompt);
   const result = await invokeAnthropic(infused);
   const projection = foresight.projectPath([infused]);
+
+  await selfEdu.recordInsight(prompt, result);
 
   return `${result}\n\n${projection}`;
 }
