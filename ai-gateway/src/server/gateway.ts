@@ -18,6 +18,7 @@ export const startGateway = () => {
 
   const ethics = new EthicsEngine();
   const foresight = new ForesightModule();
+  const se = new SelfEducation();
 
   app.get("/healthz", (_req: Request, res: Response) => {
     res.status(200).json({
@@ -27,6 +28,37 @@ export const startGateway = () => {
       ethics: ethics.status(),
       timestamp: new Date().toISOString(),
     });
+  });
+
+  app.get("/introspect", async (_req: Request, res: Response) => {
+    try {
+      const reflections = await se.periodicReflection();
+      const stats = se.stats();
+      res.status(200).json({ reflections, stats });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  });
+
+  app.get("/reflections", (req: Request, res: Response) => {
+    try {
+      const limit = Number(req.query.limit ?? 50);
+      const offset = Number(req.query.offset ?? 0);
+      const entries = se.list({ limit: Number.isFinite(limit) ? limit : 50, offset: Number.isFinite(offset) ? offset : 0 });
+      const stats = se.stats();
+      res.status(200).json({ entries, limit, offset, total: stats.total });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  });
+
+  app.get("/foresight/logs", (_req: Request, res: Response) => {
+    try {
+      const entries = se.list({ limit: 1000, offset: 0 });
+      res.status(200).json({ entries });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
   });
 
   app.post("/v1/chat", async (req: Request, res: Response) => {
@@ -63,7 +95,6 @@ export const startGateway = () => {
     console.log(`📡 Model: ${process.env.MODEL_ID || "default"}`);
   });
 
-  const se = new SelfEducation();
   const intervalMs = Number(process.env.SELF_EDUCATION_INTERVAL ?? 600000);
   setInterval(async () => {
     try {
