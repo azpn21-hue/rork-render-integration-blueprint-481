@@ -85,3 +85,22 @@ export async function chatCompletion(
   
   return fullResponse;
 }
+
+export async function feedOptimaMemory(data: Record<string, unknown>): Promise<{ success: boolean }>{
+  const apiBase = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "http://localhost:10000";
+  try {
+    const resp = await fetch(`${apiBase}/ai/memory`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!resp.ok) {
+      console.log("feedOptimaMemory upstream status", resp.status);
+      return { success: false };
+    }
+    return { success: true };
+  } catch (err) {
+    console.log("feedOptimaMemory error", err);
+    return { success: false };
+  }
+}

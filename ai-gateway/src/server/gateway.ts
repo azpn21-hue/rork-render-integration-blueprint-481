@@ -20,6 +20,22 @@ export const startGateway = () => {
   const foresight = new ForesightModule();
   const se = new SelfEducation();
 
+  app.post("/memory/update", async (req: Request, res: Response) => {
+    try {
+      const entry = req.body ?? {};
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const memoryPath = path.resolve("./memory.json");
+      const exists = fs.existsSync(memoryPath);
+      const current = exists ? JSON.parse(fs.readFileSync(memoryPath, "utf8")) : [];
+      current.push({ ...entry, timestamp: Date.now() });
+      fs.writeFileSync(memoryPath, JSON.stringify(current, null, 2));
+      res.status(200).json({ success: true, count: current.length });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e?.message || String(e) });
+    }
+  });
+
   app.get("/healthz", (_req: Request, res: Response) => {
     res.status(200).json({
       status: "ok",

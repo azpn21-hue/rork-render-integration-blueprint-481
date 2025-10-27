@@ -38,4 +38,24 @@ app.get("/health", (c) => {
   });
 });
 
+app.post("/ai/memory", async (c) => {
+  try {
+    const memoryData = await c.req.json();
+    const aiBase = process.env.EXPO_PUBLIC_AI_BASE_URL || process.env.AI_BASE_URL || "http://localhost:9000";
+    const resp = await fetch(`${aiBase}/memory/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(memoryData),
+    });
+    if (!resp.ok) {
+      const text = await resp.text();
+      return c.json({ error: "Upstream error", status: resp.status, text }, 502);
+    }
+    const json = await resp.json();
+    return c.json({ success: true, upstream: json });
+  } catch (e: any) {
+    return c.json({ success: false, error: e?.message || String(e) }, 500);
+  }
+});
+
 export default app;
