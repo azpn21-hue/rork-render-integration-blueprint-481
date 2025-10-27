@@ -68,27 +68,27 @@ services:
     buildCommand: |
       echo "🔧 Installing dependencies..."
       npm install --legacy-peer-deps
-      echo "🛠️ Writing TypeScript config..."
-      cat > ../tsconfig.json << 'EOF'
+      echo "🛠️ Using ephemeral tsconfig to avoid repo conflicts..."
+      cat > ./tsconfig.render.json << 'EOF'
       {
         "compilerOptions": {
           "target": "ES2022",
           "module": "ES2022",
           "moduleResolution": "Bundler",
-          "outDir": "src/dist",
-          "rootDir": "src",
+          "outDir": "dist",
+          "rootDir": ".",
           "strict": true,
           "esModuleInterop": true,
           "skipLibCheck": true,
           "resolveJsonModule": true,
           "allowSyntheticDefaultImports": true
         },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules", "src/dist"]
+        "include": ["./"],
+        "exclude": ["node_modules", "dist"]
       }
       EOF
       echo "📦 Building TypeScript..."
-      npx tsc -p ../tsconfig.json
+      npx tsc -p ./tsconfig.render.json
       echo "✅ Build complete"
 
     startCommand: node dist/index.js
