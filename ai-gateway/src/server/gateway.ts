@@ -1,5 +1,4 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
+import express, { Request, Response, NextFunction } from "express";
 import { ChatRequest, type TChatRequest } from "../schema.js";
 import { anthropicStream } from "../providers/anthropic.js";
 import { openaiStream } from "../providers/openai.js";
@@ -15,7 +14,17 @@ export const startGateway = () => {
   const port = process.env.PORT || 9000;
 
   app.use(express.json({ limit: "2mb" }));
-  app.use(cors({ origin: process.env.CORS_ALLOW_ORIGIN || "*" }));
+  const allowOrigin = process.env.CORS_ALLOW_ORIGIN || "*";
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header("Access-Control-Allow-Origin", allowOrigin);
+    res.header("Vary", "Origin");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+    next();
+  });
 
   const ethics = new EthicsEngine();
   const foresight = new ForesightModule();
