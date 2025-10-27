@@ -8,6 +8,7 @@ import { EthicsEngine } from "../core/ethics.js";
 import { ForesightModule } from "../core/foresight.js";
 import { handleAIRequest } from "../core/learning.js";
 import { SelfEducation } from "../core/selfEducation.js";
+import { evaluateTruthScore } from "../core/truthScoringEngine.js";
 
 export const startGateway = () => {
   const app = express();
@@ -74,6 +75,19 @@ export const startGateway = () => {
       res.status(200).json({ entries });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
+    }
+  });
+
+  app.post("/rewards/evaluate", (req: Request, res: Response) => {
+    try {
+      const { userId } = req.body ?? {};
+      if (!userId || typeof userId !== "string") {
+        return res.status(400).json({ success: false, error: "userId required" });
+      }
+      const result = evaluateTruthScore(userId);
+      return res.status(200).json({ success: true, ...result });
+    } catch (e: any) {
+      return res.status(500).json({ success: false, error: e?.message || String(e) });
     }
   });
 

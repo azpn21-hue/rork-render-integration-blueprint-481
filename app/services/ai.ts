@@ -104,3 +104,26 @@ export async function feedOptimaMemory(data: Record<string, unknown>): Promise<{
     return { success: false };
   }
 }
+
+export type TruthScoreResponse = {
+  success: boolean;
+  score: number;
+  tier: string;
+  nextGoal: string;
+} | { success: false; score?: number; tier?: string; nextGoal?: string };
+
+export async function getTruthScore(userId: string): Promise<TruthScoreResponse> {
+  try {
+    const aiBase = process.env.EXPO_PUBLIC_AI_BASE_URL || "http://localhost:9000";
+    const res = await fetch(`${aiBase}/rewards/evaluate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await res.json();
+    return data as TruthScoreResponse;
+  } catch (err) {
+    console.log("getTruthScore error", err);
+    return { success: false };
+  }
+}
