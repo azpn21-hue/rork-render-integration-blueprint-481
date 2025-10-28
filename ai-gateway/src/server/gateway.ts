@@ -236,3 +236,13 @@ export const startGateway = () => {
     }
   }, intervalMs);
 };
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  try {
+    startGateway();
+  } catch (e) {
+    console.error("Gateway start failed:", e);
+    process.exit(1);
+  }
+}
+

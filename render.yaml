@@ -91,7 +91,7 @@ services:
       npx tsc -p ./tsconfig.render.json
       echo "✅ Build complete"
 
-    startCommand: node dist/index.js
+    startCommand: node dist/server/gateway.js
 
     envVars:
       - key: NODE_ENV
