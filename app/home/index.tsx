@@ -1,122 +1,166 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, Animated, Dimensions } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Activity, Settings, User, Zap, TrendingUp, MessageCircle } from "lucide-react-native";
+import { Users, Sparkles, Heart, MessageCircle, TrendingUp, Eye } from "lucide-react-native";
 import ThemeSelector from "@/components/ThemeSelector";
+import ProfileCard from "@/components/ProfileCard";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { APP_CONFIG } from "@/app/config/constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/app/contexts/ThemeContext";
+import { useState, useRef } from "react";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { theme, pulse } = useTheme();
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const profiles = [
+    {
+      id: "1",
+      imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+      name: "Emma",
+      age: 26,
+      location: "New York, NY",
+      bio: "Adventure seeker, coffee enthusiast, and photography lover. Always looking for the next great story.",
+      occupation: "Photographer",
+    },
+    {
+      id: "2",
+      imageUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=800&q=80",
+      name: "Alex",
+      age: 28,
+      location: "Los Angeles, CA",
+      bio: "Tech entrepreneur with a passion for innovation. Weekend hiker and amateur chef.",
+      occupation: "Founder",
+    },
+    {
+      id: "3",
+      imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
+      name: "Sophie",
+      age: 24,
+      location: "San Francisco, CA",
+      bio: "Designer by day, artist by night. Love exploring new places and meeting interesting people.",
+      occupation: "Designer",
+    },
+  ];
+
+  const currentProfile = profiles[activeIndex];
+
+  const handleSwipeLeft = () => {
+    console.log("Swiped left on", currentProfile.name);
+    setActiveIndex((prev) => (prev + 1) % profiles.length);
+  };
+
+  const handleSwipeRight = () => {
+    console.log("Swiped right on", currentProfile.name);
+    setActiveIndex((prev) => (prev + 1) % profiles.length);
+  };
 
   const stats = [
-    { label: "Active Sessions", value: "12", icon: Activity, color: "#3B82F6" },
-    { label: "Total Users", value: "248", icon: User, color: "#10B981" },
-    { label: "API Calls", value: "1.2K", icon: Zap, color: "#F59E0B" },
-    { label: "Uptime", value: "99.9%", icon: TrendingUp, color: "#8B5CF6" },
+    { label: "Active", value: "2.4K", icon: Users, color: theme.accent },
+    { label: "Matches", value: "143", icon: Heart, color: "#FF4757" },
+    { label: "Views", value: "892", icon: Eye, color: "#00D4FF" },
+    { label: "Likes", value: "321", icon: Sparkles, color: "#FCD34D" },
   ];
 
   return (
     <>
       <Stack.Screen
         options={{
-          title: APP_CONFIG.name,
-          headerStyle: { backgroundColor: "#0F172A" },
-          headerTintColor: "#F1F5F9",
-          headerRight: () => (
-            <TouchableOpacity onPress={() => router.push("/home/profile")} testID="home-profile-button">
-              <Settings color="#94A3B8" size={24} />
-            </TouchableOpacity>
-          ),
+          headerShown: false,
         }}
       />
-      <LinearGradient colors={["#0F172A", "#1E293B"]} style={[styles.gradient, { paddingTop: insets.top, paddingBottom: Math.max(8, insets.bottom) }]}>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <LinearGradient colors={theme.gradient} style={[styles.gradient, { paddingTop: insets.top }]}>
+        <ScrollView
+          contentContainerStyle={[styles.container, { paddingBottom: Math.max(20, insets.bottom) }]}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>{user?.name || "Guest"}</Text>
-            {user?.isGuest && (
-              <View style={styles.guestBadge}>
-                <Text style={styles.guestBadgeText}>Guest Mode</Text>
-              </View>
-            )}
+            <View>
+              <Text style={[styles.welcomeText, { color: theme.textMuted }]}>Welcome back,</Text>
+              <Text style={[styles.userName, { color: theme.text }]}>{user?.name || "Guest"}</Text>
+            </View>
+            <Pressable
+              onPress={() => router.push("/home/profile")}
+              style={[styles.profileButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
+              testID="home-profile-button"
+            >
+              <Text style={[styles.profileInitial, { color: theme.accent }]}>
+                {(user?.name?.[0] || "G").toUpperCase()}
+              </Text>
+            </Pressable>
           </View>
 
           <ThemeSelector />
 
-          <View style={styles.statusCard}>
-            <View style={styles.statusIndicator} />
-            <View style={styles.statusContent}>
-              <Text style={styles.statusTitle}>System Status</Text>
-              <Text style={styles.statusSubtitle}>All systems operational</Text>
-            </View>
-          </View>
-
-          <View style={styles.statsGrid}>
+          <View style={styles.statsRow}>
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <View key={index} style={styles.statCard}>
-                  <View style={[styles.statIconContainer, { backgroundColor: `${stat.color}20` }]}>
-                    <Icon color={stat.color} size={24} />
-                  </View>
-                  <Text style={styles.statValue}>{stat.value}</Text>
-                  <Text style={styles.statLabel}>{stat.label}</Text>
-                </View>
+                <Animated.View
+                  key={index}
+                  style={[
+                    styles.statCard,
+                    { backgroundColor: theme.surface, borderColor: theme.borderLight, transform: [{ scale: pulse }] },
+                  ]}
+                >
+                  <Icon color={stat.color} size={20} strokeWidth={2} />
+                  <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
+                  <Text style={[styles.statLabel, { color: theme.textMuted }]}>{stat.label}</Text>
+                </Animated.View>
               );
             })}
           </View>
 
-          <View style={styles.infoSection}>
-            <Text style={styles.sectionTitle}>Connection Info</Text>
-            <View style={styles.infoCard}>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Service</Text>
-                <Text style={styles.infoValue}>{APP_CONFIG.optimaName}</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Mode</Text>
-                <Text style={styles.infoValue}>{APP_CONFIG.optimaMode.toUpperCase()}</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Version</Text>
-                <Text style={styles.infoValue}>{APP_CONFIG.version}</Text>
-              </View>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Discover</Text>
+              <Pressable>
+                <Text style={[styles.seeAll, { color: theme.accent }]}>Filters</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.cardContainer}>
+              <ProfileCard
+                {...currentProfile}
+                onSwipeLeft={handleSwipeLeft}
+                onSwipeRight={handleSwipeRight}
+                onInfoPress={() => console.log("Info pressed")}
+              />
             </View>
           </View>
 
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => console.log("Test connection")}
-              testID="home-test-connection-button"
-            >
-              <Zap color="#3B82F6" size={20} />
-              <Text style={styles.actionButtonText}>Test API</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonPrimary]}
+          <View style={[styles.quickActions, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Pressable
               onPress={() => router.push("/home/ai-chat")}
+              style={[styles.quickAction, { backgroundColor: theme.surfaceHover }]}
               testID="home-ai-chat-button"
             >
-              <MessageCircle color="#fff" size={20} />
-              <Text style={[styles.actionButtonText, styles.actionButtonPrimaryText]}>Chat with Optima II</Text>
-            </TouchableOpacity>
+              <MessageCircle color={theme.accent} size={22} strokeWidth={2} />
+              <Text style={[styles.quickActionText, { color: theme.text }]}>Chat</Text>
+            </Pressable>
 
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonPrimary]}
+            <Pressable
               onPress={() => router.push("/home/truth-pays")}
+              style={[styles.quickAction, { backgroundColor: theme.surfaceHover }]}
               testID="home-truth-pays-button"
             >
-              <MessageCircle color="#fff" size={20} />
-              <Text style={[styles.actionButtonText, styles.actionButtonPrimaryText]}>Truth Pays</Text>
-            </TouchableOpacity>
+              <TrendingUp color={theme.accent} size={22} strokeWidth={2} />
+              <Text style={[styles.quickActionText, { color: theme.text }]}>Truth Pays</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => console.log("Explore")}
+              style={[styles.quickAction, { backgroundColor: theme.accent }]}
+            >
+              <Sparkles color="#FFFFFF" size={22} strokeWidth={2} />
+              <Text style={[styles.quickActionText, { color: "#FFFFFF" }]}>Explore</Text>
+            </Pressable>
           </View>
         </ScrollView>
       </LinearGradient>
@@ -129,158 +173,98 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    padding: 20,
-    gap: 24,
+    padding: 16,
+    gap: 20,
   },
   header: {
-    marginBottom: 8,
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: "#94A3B8",
-    marginBottom: 4,
-  },
-  userName: {
-    fontSize: 28,
-    fontWeight: "700" as const,
-    color: "#F1F5F9",
-  },
-  guestBadge: {
-    backgroundColor: "rgba(251, 191, 36, 0.2)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    marginTop: 8,
-  },
-  guestBadgeText: {
-    color: "#FDE68A",
-    fontSize: 12,
-    fontWeight: "600" as const,
-  },
-  statusCard: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
-  },
-  statusIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#10B981",
-    marginRight: 12,
-  },
-  statusContent: {
-    flex: 1,
-  },
-  statusTitle: {
-    fontSize: 16,
-    fontWeight: "600" as const,
-    color: "#F1F5F9",
-    marginBottom: 2,
-  },
-  statusSubtitle: {
-    fontSize: 14,
-    color: "#94A3B8",
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: "47%",
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.2)",
-    alignItems: "center",
-  },
-  statIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "700" as const,
-    color: "#F1F5F9",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 13,
-    color: "#94A3B8",
-    textAlign: "center",
-  },
-  infoSection: {
-    gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600" as const,
-    color: "#F1F5F9",
-  },
-  infoCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.2)",
-  },
-  infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
-  infoLabel: {
-    fontSize: 15,
-    color: "#94A3B8",
+  welcomeText: {
+    fontSize: 14,
+    fontWeight: "500" as const,
+    marginBottom: 2,
   },
-  infoValue: {
-    fontSize: 15,
-    fontWeight: "600" as const,
-    color: "#F1F5F9",
+  userName: {
+    fontSize: 32,
+    fontWeight: "800" as const,
+    letterSpacing: -1,
   },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(148, 163, 184, 0.1)",
-  },
-  actionsRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: "row",
+  profileButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    borderWidth: 2,
+  },
+  profileInitial: {
+    fontSize: 22,
+    fontWeight: "700" as const,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  statCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 14,
+    alignItems: "center",
+    gap: 6,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.3)",
   },
-  actionButtonPrimary: {
-    backgroundColor: "#00d4ff",
-    borderColor: "#00d4ff",
+  statValue: {
+    fontSize: 20,
+    fontWeight: "700" as const,
   },
-  actionButtonText: {
-    fontSize: 14,
+  statLabel: {
+    fontSize: 11,
     fontWeight: "600" as const,
-    color: "#60A5FA",
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.5,
   },
-  actionButtonPrimaryText: {
-    color: "#0a0f1c",
+  section: {
+    gap: 16,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "700" as const,
+    letterSpacing: -0.5,
+  },
+  seeAll: {
+    fontSize: 15,
+    fontWeight: "600" as const,
+  },
+  cardContainer: {
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  quickActions: {
+    flexDirection: "row",
+    gap: 12,
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  quickAction: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 8,
+  },
+  quickActionText: {
+    fontSize: 13,
+    fontWeight: "600" as const,
   },
 });
