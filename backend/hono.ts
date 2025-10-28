@@ -58,4 +58,33 @@ app.post("/ai/memory", async (c) => {
   }
 });
 
+app.get("/probe/gateway", async (c) => {
+  const aiBase = process.env.EXPO_PUBLIC_AI_BASE_URL || process.env.AI_BASE_URL || "http://localhost:9000";
+  try {
+    const res = await fetch(`${aiBase.replace(/\/$/, "")}/healthz`, { cache: "no-store" });
+    const json = await res.json().catch(() => ({}));
+    return c.json({ ok: res.ok, status: res.status, upstream: json });
+  } catch (e: any) {
+    return c.json({ ok: false, status: 0, error: e?.message || String(e) }, 500);
+  }
+});
+
+// lightweight internal watchdog
+const WATCH_INTERVAL = Number(process.env.INTERNAL_WATCH_INTERVAL_MS || 60000);
+setInterval(async () => {
+  const aiBase = process.env.EXPO_PUBLIC_AI_BASE_URL || process.env.AI_BASE_URL || "http://localhost:9000";
+  const url = `${aiBase.replace(/\/$/, "")}/healthz`;
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      console.error("[WATCHDOG] gateway unhealthy", res.status);
+    } else {
+      const j = await res.json().catch(() => ({}));
+      console.log("[WATCHDOG] gateway ok", j?.status || res.status);
+    }
+  } catch (e: any) {
+    console.error("[WATCHDOG] gateway error", e?.message || String(e));
+  }
+}, WATCH_INTERVAL);
+
 export default app;
