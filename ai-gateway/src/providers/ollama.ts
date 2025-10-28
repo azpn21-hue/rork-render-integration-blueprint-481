@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { Response } from "express";
+import type { ServerResponse } from "http";
 import type { TChatRequest } from "../schema.js";
 
-export async function ollamaStream(req: TChatRequest, res: Response) {
+export async function ollamaStream(req: TChatRequest, res: ServerResponse) {
   const host = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
   const model = req.model || process.env.MODEL_ID || "llama3.1:8b";
 
@@ -36,6 +36,7 @@ export async function ollamaStream(req: TChatRequest, res: Response) {
       res.end();
     });
   } catch (e: any) {
-    res.status(e?.response?.status || 500).end(e?.response?.data || String(e));
+    if (!res.headersSent) res.writeHead(e?.response?.status || 500, { "Content-Type": "text/plain" });
+    res.end(e?.response?.data || String(e));
   }
 }

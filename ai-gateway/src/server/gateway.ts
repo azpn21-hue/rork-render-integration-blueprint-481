@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
+import { createServer, IncomingMessage, ServerResponse } from "http";
+import { parse as parseUrl } from "url";
 import { ChatRequest, type TChatRequest } from "../schema.js";
 import { anthropicStream } from "../providers/anthropic.js";
 import { openaiStream } from "../providers/openai.js";
@@ -9,126 +10,166 @@ import { handleAIRequest } from "../core/learning.js";
 import { SelfEducation } from "../core/selfEducation.js";
 import { evaluateTruthScore } from "../core/truthScoringEngine.js";
 
-export const startGateway = () => {
-  const app = express();
-  const port = process.env.PORT || 9000;
-
-  app.use(express.json({ limit: "2mb" }));
+function setCors(res: ServerResponse) {
   const allowOrigin = process.env.CORS_ALLOW_ORIGIN || "*";
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    res.header("Access-Control-Allow-Origin", allowOrigin);
-    res.header("Vary", "Origin");
-    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-    if (req.method === "OPTIONS") {
-      return res.sendStatus(204);
-    }
-    next();
+  res.setHeader("Access-Control-Allow-Origin", allowOrigin);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+}
+
+async function parseBody(req: IncomingMessage): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+    req.on("end", () => {
+      if (!chunks.length) return resolve({});
+      try {
+        const text = Buffer.concat(chunks).toString("utf8");
+        resolve(text ? JSON.parse(text) : {});
+      } catch (e) {
+        reject(e);
+      }
+    });
+    req.on("error", reject);
   });
+}
+
+function sendJson(res: ServerResponse, code: number, data: unknown) {
+  if (!res.headersSent) {
+    res.writeHead(code, { "Content-Type": "application/json" });
+  }
+  res.end(JSON.stringify(data));
+}
+
+export const startGateway = () => {
+  const port = Number(process.env.PORT || 9000);
 
   const ethics = new EthicsEngine();
   const foresight = new ForesightModule();
   const se = new SelfEducation();
 
-  app.post("/memory/update", async (req: Request, res: Response) => {
+  const server = createServer(async (req, res) => {
     try {
-      const entry = req.body ?? {};
-      const fs = await import("node:fs");
-      const path = await import("node:path");
-      const memoryPath = path.resolve("./memory.json");
-      const exists = fs.existsSync(memoryPath);
-      const current = exists ? JSON.parse(fs.readFileSync(memoryPath, "utf8")) : [];
-      current.push({ ...entry, timestamp: Date.now() });
-      fs.writeFileSync(memoryPath, JSON.stringify(current, null, 2));
-      res.status(200).json({ success: true, count: current.length });
-    } catch (e: any) {
-      res.status(500).json({ success: false, error: e?.message || String(e) });
-    }
-  });
+      setCors(res);
+      const { pathname, query } = parseUrl(req.url || "", true);
 
-  app.get("/healthz", (_req: Request, res: Response) => {
-    res.status(200).json({
-      status: "ok",
-      provider: process.env.AI_PROVIDER || "unset",
-      model: process.env.MODEL_ID || "unset",
-      ethics: ethics.status(),
-      timestamp: new Date().toISOString(),
-    });
-  });
-
-  app.get("/introspect", async (_req: Request, res: Response) => {
-    try {
-      const reflections = await se.periodicReflection();
-      const stats = se.stats();
-      res.status(200).json({ reflections, stats });
-    } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
-    }
-  });
-
-  app.get("/reflections", (req: Request, res: Response) => {
-    try {
-      const limit = Number(req.query.limit ?? 50);
-      const offset = Number(req.query.offset ?? 0);
-      const entries = se.list({ limit: Number.isFinite(limit) ? limit : 50, offset: Number.isFinite(offset) ? offset : 0 });
-      const stats = se.stats();
-      res.status(200).json({ entries, limit, offset, total: stats.total });
-    } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
-    }
-  });
-
-  app.get("/foresight/logs", (_req: Request, res: Response) => {
-    try {
-      const entries = se.list({ limit: 1000, offset: 0 });
-      res.status(200).json({ entries });
-    } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
-    }
-  });
-
-  app.post("/rewards/evaluate", (req: Request, res: Response) => {
-    try {
-      const { userId } = req.body ?? {};
-      if (!userId || typeof userId !== "string") {
-        return res.status(400).json({ success: false, error: "userId required" });
+      if (req.method === "OPTIONS") {
+        res.writeHead(204);
+        return res.end();
       }
-      const result = evaluateTruthScore(userId);
-      return res.status(200).json({ success: true, ...result });
+
+      if (req.method === "GET" && pathname === "/healthz") {
+        return sendJson(res, 200, {
+          status: "ok",
+          provider: process.env.AI_PROVIDER || "unset",
+          model: process.env.MODEL_ID || "unset",
+          ethics: ethics.status(),
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      if (req.method === "POST" && pathname === "/memory/update") {
+        try {
+          const body = await parseBody(req);
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const memoryPath = path.resolve("./memory.json");
+          const exists = fs.existsSync(memoryPath);
+          const current = exists ? JSON.parse(fs.readFileSync(memoryPath, "utf8")) : [];
+          current.push({ ...(body ?? {}), timestamp: Date.now() });
+          fs.writeFileSync(memoryPath, JSON.stringify(current, null, 2));
+          return sendJson(res, 200, { success: true, count: current.length });
+        } catch (e: any) {
+          return sendJson(res, 500, { success: false, error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "GET" && pathname === "/introspect") {
+        try {
+          const reflections = await se.periodicReflection();
+          const stats = se.stats();
+          return sendJson(res, 200, { reflections, stats });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "GET" && pathname === "/reflections") {
+        try {
+          const limit = Number((query as any).limit ?? 50);
+          const offset = Number((query as any).offset ?? 0);
+          const entries = se.list({
+            limit: Number.isFinite(limit) ? limit : 50,
+            offset: Number.isFinite(offset) ? offset : 0,
+          });
+          const stats = se.stats();
+          return sendJson(res, 200, { entries, limit, offset, total: stats.total });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "GET" && pathname === "/foresight/logs") {
+        try {
+          const entries = se.list({ limit: 1000, offset: 0 });
+          return sendJson(res, 200, { entries });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "POST" && pathname === "/rewards/evaluate") {
+        try {
+          const body = await parseBody(req);
+          const userId = body?.userId;
+          if (!userId || typeof userId !== "string") {
+            return sendJson(res, 400, { success: false, error: "userId required" });
+          }
+          const result = evaluateTruthScore(userId);
+          return sendJson(res, 200, { success: true, ...result });
+        } catch (e: any) {
+          return sendJson(res, 500, { success: false, error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "POST" && pathname === "/v1/chat") {
+        const body = await parseBody(req);
+        const parsed = ChatRequest.safeParse(body);
+        if (!parsed.success) {
+          return sendJson(res, 400, { error: parsed.error.flatten() });
+        }
+        const data: TChatRequest = parsed.data;
+        const provider = (process.env.AI_PROVIDER || "anthropic").toLowerCase();
+        try {
+          if (provider === "anthropic") return anthropicStream(data, res);
+          if (provider === "openai") return openaiStream(data, res);
+          if (provider === "ollama") return ollamaStream(data, res);
+          return sendJson(res, 400, { error: `Unsupported AI_PROVIDER: ${provider}` });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "POST" && pathname === "/inference") {
+        try {
+          const body = await parseBody(req);
+          const output = await handleAIRequest(body, ethics, foresight);
+          return sendJson(res, 200, { response: output });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      sendJson(res, 404, { error: "Not Found" });
     } catch (e: any) {
-      return res.status(500).json({ success: false, error: e?.message || String(e) });
+      try {
+        sendJson(res, 500, { error: e?.message || String(e) });
+      } catch {}
     }
   });
 
-  app.post("/v1/chat", async (req: Request, res: Response) => {
-    const parsed = ChatRequest.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.flatten() });
-    }
-
-    const data: TChatRequest = parsed.data;
-    const provider = (process.env.AI_PROVIDER || "anthropic").toLowerCase();
-
-    try {
-      if (provider === "anthropic") return anthropicStream(data, res);
-      if (provider === "openai") return openaiStream(data, res);
-      if (provider === "ollama") return ollamaStream(data, res);
-      return res.status(400).json({ error: `Unsupported AI_PROVIDER: ${provider}` });
-    } catch (e: any) {
-      return res.status(500).json({ error: e?.message || String(e) });
-    }
-  });
-
-  app.post("/inference", async (req: Request, res: Response) => {
-    try {
-      const output = await handleAIRequest(req.body, ethics, foresight);
-      res.status(200).json({ response: output });
-    } catch (err: any) {
-      res.status(500).json({ error: err?.message || String(err) });
-    }
-  });
-
-  app.listen(port, () => {
+  server.listen(port, () => {
     console.log(`🧠 Optima II Gateway live on port ${port}`);
     console.log(`🤖 Provider: ${process.env.AI_PROVIDER || "anthropic"}`);
     console.log(`📡 Model: ${process.env.MODEL_ID || "default"}`);

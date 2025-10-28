@@ -1,13 +1,14 @@
 import axios from "axios";
-import type { Response } from "express";
+import type { ServerResponse } from "http";
 import type { TChatRequest } from "../schema.js";
 
 const API = "https://api.anthropic.com/v1/messages";
 
-export async function anthropicStream(req: TChatRequest, res: Response) {
+export async function anthropicStream(req: TChatRequest, res: ServerResponse) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "Missing ANTHROPIC_API_KEY" });
+    if (!res.headersSent) res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Missing ANTHROPIC_API_KEY" }));
     return;
   }
 
@@ -65,7 +66,8 @@ export async function anthropicStream(req: TChatRequest, res: Response) {
       clearTimeout(timer);
     });
   } catch (e: any) {
-    res.status(e?.response?.status || 500).end(e?.response?.data || String(e));
+    if (!res.headersSent) res.writeHead(e?.response?.status || 500, { "Content-Type": "text/plain" });
+    res.end(e?.response?.data || String(e));
     clearTimeout(timer);
   }
 }
