@@ -22,7 +22,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.render_integration_blueprint"
+      "package": "app.rork.render_integration_blueprint",
+      "permissions": [
+        "android.permission.VIBRATE"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

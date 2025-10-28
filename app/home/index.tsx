@@ -4,9 +4,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Activity, Settings, User, Zap, TrendingUp, MessageCircle } from "lucide-react-native";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { APP_CONFIG } from "@/app/config/constants";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
   const stats = [
@@ -30,7 +32,7 @@ export default function HomeScreen() {
           ),
         }}
       />
-      <LinearGradient colors={["#0F172A", "#1E293B"]} style={styles.gradient}>
+      <LinearGradient colors={["#0F172A", "#1E293B"]} style={[styles.gradient, { paddingTop: insets.top, paddingBottom: Math.max(8, insets.bottom) }]}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={styles.welcomeText}>Welcome back,</Text>
@@ -102,6 +104,15 @@ export default function HomeScreen() {
             >
               <MessageCircle color="#fff" size={20} />
               <Text style={[styles.actionButtonText, styles.actionButtonPrimaryText]}>Chat with Optima II</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.actionButtonPrimary]}
+              onPress={() => router.push("/home/truth-pays")}
+              testID="home-truth-pays-button"
+            >
+              <MessageCircle color="#fff" size={20} />
+              <Text style={[styles.actionButtonText, styles.actionButtonPrimaryText]}>Truth Pays</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
