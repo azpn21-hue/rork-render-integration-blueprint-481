@@ -41,7 +41,11 @@ function RootLayoutNav() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
+
+    SplashScreen.hideAsync().catch(() => {});
 
     const inAuthGroup = ["login", "register", "guest", "nda"].includes(segments[0] as string);
     const inHomeGroup = segments[0] === "home";
@@ -67,10 +71,6 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
