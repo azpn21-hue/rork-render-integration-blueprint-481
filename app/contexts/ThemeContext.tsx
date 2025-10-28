@@ -136,13 +136,13 @@ export const [ThemeProvider, useTheme] = createContextHook<ThemeContextValue>(()
           toValue: 1,
           duration: 3200,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: Platform.OS !== "web",
+          useNativeDriver: false,
         }),
         Animated.timing(glow, {
           toValue: 0,
           duration: 3200,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: Platform.OS !== "web",
+          useNativeDriver: false,
         }),
       ])
     );
