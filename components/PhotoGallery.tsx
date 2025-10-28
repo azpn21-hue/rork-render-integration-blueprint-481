@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
-import { View, Image, StyleSheet, Dimensions, Pressable, Animated, ScrollView } from "react-native";
+import { View, StyleSheet, Dimensions, Pressable, Animated, ScrollView } from "react-native";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { X, Share2, Heart } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import SafeImage from "@/components/SafeImage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -79,7 +80,7 @@ export default function PhotoGallery({ photos, initialIndex = 0, onClose }: Phot
       >
         {photos.map((photo, index) => (
           <View key={index} style={styles.photoContainer}>
-            <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" />
+            <SafeImage source={{ uri: photo }} style={styles.photo} resizeMode="cover" />
             <LinearGradient
               colors={["rgba(0,0,0,0.7)", "transparent", "rgba(0,0,0,0.9)"]}
               style={styles.photoGradient}

@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
-import { View, Text, StyleSheet, Animated, Pressable, Dimensions, PanResponder, Image } from "react-native";
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions, PanResponder } from "react-native";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Heart, X, Info, MapPin, Briefcase } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import SafeImage from "@/components/SafeImage";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 32;
@@ -122,7 +123,7 @@ export default function ProfileCard({
       ]}
     >
       <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+        <SafeImage source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.95)"]}
           style={styles.gradient}

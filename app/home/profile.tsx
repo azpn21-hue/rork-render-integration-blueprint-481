@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Animated, Image } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Animated } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Camera, Settings, Share2, Edit3, Shield, Award, Heart, TrendingUp, Users } from "lucide-react-native";
@@ -7,6 +7,7 @@ import { APP_CONFIG } from "@/app/config/constants";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState, useRef, useEffect } from "react";
+import SafeImage from "@/components/SafeImage";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -89,7 +90,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.avatarSection}>
               <View style={[styles.avatarContainer, { borderColor: theme.accent }]}>
-                <Image
+                <SafeImage
                   source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80" }}
                   style={styles.avatar}
                 />
@@ -161,7 +162,7 @@ export default function ProfileScreen() {
             <View style={styles.photoGrid}>
               {userPhotos.map((photo, index) => (
                 <Pressable key={index} style={styles.photoItem} onPress={() => console.log("View photo", index)}>
-                  <Image source={{ uri: photo }} style={styles.photo} />
+                  <SafeImage source={{ uri: photo }} style={styles.photo} />
                   <View style={[styles.photoOverlay, { backgroundColor: theme.photoOverlay }]} />
                 </Pressable>
               ))}
