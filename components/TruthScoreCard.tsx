@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { View, Text, StyleSheet, Animated, Easing, Platform } from "react-native";
+import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 import { ShieldCheck, Trophy } from "lucide-react-native";
 import { theme } from "@/app/theme";
 
@@ -21,7 +21,7 @@ export default function TruthScoreCard({ score, tier, nextGoal, loading, testID 
       toValue: progress,
       duration: 900,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: Platform.OS !== "web",
+      useNativeDriver: false,
     }).start();
   }, [animated, progress]);
 
