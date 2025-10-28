@@ -119,6 +119,57 @@ export const startGateway = () => {
         }
       }
 
+      // HIVE endpoints
+      if (req.method === "POST" && pathname === "/hive/feed") {
+        try {
+          const body = await parseBody(req);
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const hivePath = path.resolve("./hive.json");
+          const hive = fs.existsSync(hivePath) ? JSON.parse(fs.readFileSync(hivePath, "utf8")) : [];
+          hive.push({ ...(body ?? {}), timestamp: Date.now() });
+          fs.writeFileSync(hivePath, JSON.stringify(hive, null, 2));
+          return sendJson(res, 200, { ok: true, entries: hive.length });
+        } catch (e: any) {
+          return sendJson(res, 500, { ok: false, error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "GET" && pathname === "/hive/status") {
+        try {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const hivePath = path.resolve("./hive.json");
+          if (!fs.existsSync(hivePath)) return sendJson(res, 200, { hiveHealth: "dormant", topActions: [], totalEntries: 0 });
+          const data: Array<{ action?: string }> = JSON.parse(fs.readFileSync(hivePath, "utf8"));
+          const activityByAction: Record<string, number> = {};
+          for (const e of data) {
+            if (!e?.action) continue;
+            activityByAction[e.action] = (activityByAction[e.action] || 0) + 1;
+          }
+          const topActions = Object.entries(activityByAction).sort((a, b) => b[1] - a[1]).slice(0, 5);
+          const hiveHealth = topActions.length ? "active" : "dormant";
+          return sendJson(res, 200, { hiveHealth, topActions, totalEntries: data.length });
+        } catch (e: any) {
+          return sendJson(res, 500, { error: e?.message || String(e) });
+        }
+      }
+
+      if (req.method === "POST" && pathname === "/hive/sync") {
+        try {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const hivePath = path.resolve("./hive.json");
+          if (!fs.existsSync(hivePath)) return sendJson(res, 200, { synced: true, empty: true });
+          const data: Array<{ action?: string }> = JSON.parse(fs.readFileSync(hivePath, "utf8"));
+          const summary = { totalEntries: data.length };
+          console.log("[HIVE SYNC]", summary);
+          return sendJson(res, 200, { synced: true, ...summary });
+        } catch (e: any) {
+          return sendJson(res, 500, { synced: false, error: e?.message || String(e) });
+        }
+      }
+
       if (req.method === "POST" && pathname === "/rewards/evaluate") {
         try {
           const body = await parseBody(req);
