@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Activity, Settings, User, Zap, TrendingUp, MessageCircle } from "lucide-react-native";
+import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { APP_CONFIG } from "@/app/config/constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -43,6 +44,8 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
+
+          <ThemeSelector />
 
           <View style={styles.statusCard}>
             <View style={styles.statusIndicator} />
