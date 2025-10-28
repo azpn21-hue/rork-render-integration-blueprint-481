@@ -41,16 +41,30 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
   const userQuery = useQuery({
     queryKey: ["auth", "user"],
     queryFn: async () => {
-      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.user);
-      const storedToken = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.token);
-      const storedNda = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.ndaAccepted);
-      
-      return {
-        user: storedUser ? JSON.parse(storedUser) : null,
-        token: storedToken,
-        ndaAccepted: storedNda === "true",
-      };
+      try {
+        const [storedUser, storedToken, storedNda] = await Promise.all([
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.token),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.ndaAccepted),
+        ]);
+        
+        return {
+          user: storedUser ? JSON.parse(storedUser) : null,
+          token: storedToken,
+          ndaAccepted: storedNda === "true",
+        };
+      } catch (error) {
+        console.warn("[Auth] Failed to load stored auth:", error);
+        return {
+          user: null,
+          token: null,
+          ndaAccepted: false,
+        };
+      }
     },
+    staleTime: Infinity,
+    gcTime: Infinity,
+    networkMode: 'offlineFirst',
   });
 
   useEffect(() => {
@@ -61,7 +75,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     }
   }, [userQuery.data]);
 
-  const trpcUtils = trpc.useUtils();
+
 
   const loginMutation = trpc.auth.login.useMutation({
     onError: (error) => {

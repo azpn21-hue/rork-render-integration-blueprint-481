@@ -1,26 +1,30 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "@/app/contexts/AuthContext";
 import { ThemeProvider, ThemedRoot } from "@/app/contexts/ThemeContext";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 
-SplashScreen.preventAutoHideAsync();
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync().catch(() => {});
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: Platform.OS === 'web' ? 0 : 1,
       retryDelay: 1000,
       staleTime: 5000,
       refetchOnWindowFocus: false,
+      networkMode: 'offlineFirst',
     },
     mutations: {
       retry: 0,
+      networkMode: 'offlineFirst',
     },
   },
 });
@@ -39,25 +43,48 @@ function RootLayoutNav() {
   const { isAuthenticated, ndaAccepted, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    if (isLoading) {
+    const timer = setTimeout(() => {
+      setIsHydrated(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated || isLoading) {
       return;
     }
 
-    SplashScreen.hideAsync().catch(() => {});
-
-    const inAuthGroup = ["login", "register", "guest", "nda"].includes(segments[0] as string);
-    const inHomeGroup = segments[0] === "home";
-
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace("/login");
-    } else if (isAuthenticated && !ndaAccepted && segments[0] !== "nda") {
-      router.replace("/nda");
-    } else if (isAuthenticated && ndaAccepted && !inHomeGroup) {
-      router.replace("/home");
+    if (Platform.OS !== 'web') {
+      SplashScreen.hideAsync().catch(() => {});
     }
-  }, [isAuthenticated, ndaAccepted, isLoading, segments, router]);
+
+    const timer = setTimeout(() => {
+      const inAuthGroup = ["login", "register", "guest", "nda"].includes(segments[0] as string);
+      const inHomeGroup = segments[0] === "home";
+
+      if (!isAuthenticated && !inAuthGroup) {
+        router.replace("/login");
+      } else if (isAuthenticated && !ndaAccepted && segments[0] !== "nda") {
+        router.replace("/nda");
+      } else if (isAuthenticated && ndaAccepted && !inHomeGroup) {
+        router.replace("/home");
+      }
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, ndaAccepted, isLoading, segments, router, isHydrated]);
+
+  if (!isHydrated) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3B82F6" />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
@@ -113,5 +140,11 @@ const styles = StyleSheet.create({
   errorHelp: {
     fontSize: 14,
     color: "#888888",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#0F172A",
   },
 });
