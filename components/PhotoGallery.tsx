@@ -81,8 +81,12 @@ export default function PhotoGallery({ photos, initialIndex = 0, onClose }: Phot
           <View key={index} style={styles.photoContainer}>
             <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" />
             <LinearGradient
-              colors={["rgba(0,0,0,0.6)", "transparent", "rgba(0,0,0,0.8)"]}
+              colors={["rgba(0,0,0,0.7)", "transparent", "rgba(0,0,0,0.9)"]}
               style={styles.photoGradient}
+            />
+            <LinearGradient
+              colors={["transparent", "rgba(212,137,31,0.08)" ]}
+              style={styles.goldAccent}
             />
           </View>
         ))}
@@ -170,6 +174,13 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  goldAccent: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "25%",
+  },
   topBar: {
     position: "absolute",
     top: 50,
@@ -192,16 +203,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   iconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowColor: "#D4891F",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
   },
   likeButton: {
     width: 56,

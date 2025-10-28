@@ -124,8 +124,12 @@ export default function ProfileCard({
       <View style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.4)", "rgba(0,0,0,0.85)"]}
+          colors={["transparent", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.95)"]}
           style={styles.gradient}
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(212,137,31,0.05)"]}
+          style={styles.goldGlow}
         />
 
         <Animated.View style={[styles.badge, styles.likeBadge, { opacity: likeOpacity }]}>
@@ -190,15 +194,15 @@ export default function ProfileCard({
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    height: 580,
-    borderRadius: 24,
+    height: 620,
+    borderRadius: 28,
     overflow: "hidden",
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 16,
+    borderWidth: 1.5,
+    shadowColor: "#D4891F",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 18,
   },
   imageContainer: {
     flex: 1,
@@ -213,7 +217,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: "50%",
+    height: "60%",
+  },
+  goldGlow: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "30%",
   },
   badge: {
     position: "absolute",
@@ -242,8 +253,8 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   infoContainer: {
-    padding: 20,
-    gap: 8,
+    padding: 24,
+    gap: 10,
   },
   nameRow: {
     flexDirection: "row",
@@ -251,9 +262,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   name: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "700" as const,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   infoButton: {
     width: 36,

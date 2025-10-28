@@ -102,7 +102,7 @@ function ThemePill({ themeName, isActive, onPress, currentTheme }: ThemePillProp
           style={[
             styles.label,
             {
-              color: isActive ? (themeName === "Ink" ? currentTheme.background : "#FFFFFF") : currentTheme.textSecondary,
+              color: isActive ? (themeName === "Sovereign" || themeName === "Royal" ? currentTheme.background : "#FFFFFF") : currentTheme.textSecondary,
               fontWeight: isActive ? "700" : "500",
             },
           ]}

@@ -2,7 +2,7 @@ import createContextHook from "@nkzw/create-context-hook";
 import React, { useEffect, useMemo, useState } from "react";
 import { Animated, Appearance, Easing, Platform, View } from "react-native";
 
-export type ThemeName = "Midnight" | "Carbon" | "Obsidian" | "Velvet" | "Ink";
+export type ThemeName = "R3AL" | "Sovereign" | "Phantom" | "Royal" | "Midnight";
 
 export interface PrivateTheme {
   name: ThemeName;
@@ -23,90 +23,90 @@ export interface PrivateTheme {
 }
 
 const THEMES: Record<ThemeName, PrivateTheme> = {
+  R3AL: {
+    name: "R3AL",
+    background: "#000000",
+    backgroundSecondary: "#0A0A0A",
+    surface: "#121212",
+    surfaceHover: "#1A1A1A",
+    accent: "#D4891F",
+    accentGlow: "#F5A842",
+    text: "#FFFFFF",
+    textSecondary: "#E8E8E8",
+    textMuted: "#8A8A8A",
+    border: "#2A2A2A",
+    borderLight: "#1A1A1A",
+    overlay: "rgba(0, 0, 0, 0.96)",
+    gradient: ["#000000", "#1A1206"],
+    photoOverlay: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(212,137,31,0.1) 100%)",
+  },
+  Sovereign: {
+    name: "Sovereign",
+    background: "#0D0D0D",
+    backgroundSecondary: "#141414",
+    surface: "#1C1C1C",
+    surfaceHover: "#252525",
+    accent: "#E5C558",
+    accentGlow: "#F4D982",
+    text: "#F8F8F8",
+    textSecondary: "#E0E0E0",
+    textMuted: "#999999",
+    border: "#333333",
+    borderLight: "#242424",
+    overlay: "rgba(13, 13, 13, 0.95)",
+    gradient: ["#0D0D0D", "#1C1810"],
+    photoOverlay: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(229,197,88,0.08) 100%)",
+  },
+  Phantom: {
+    name: "Phantom",
+    background: "#050505",
+    backgroundSecondary: "#0F0F0F",
+    surface: "#161616",
+    surfaceHover: "#1F1F1F",
+    accent: "#00C1D4",
+    accentGlow: "#3DE0F0",
+    text: "#FAFAFA",
+    textSecondary: "#E5E5E5",
+    textMuted: "#7A7A7A",
+    border: "#282828",
+    borderLight: "#1A1A1A",
+    overlay: "rgba(5, 5, 5, 0.97)",
+    gradient: ["#050505", "#0A1214"],
+    photoOverlay: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,193,212,0.06) 100%)",
+  },
+  Royal: {
+    name: "Royal",
+    background: "#08080A",
+    backgroundSecondary: "#11111A",
+    surface: "#1A1A24",
+    surfaceHover: "#24242E",
+    accent: "#B8860B",
+    accentGlow: "#DAA520",
+    text: "#FFFFFF",
+    textSecondary: "#EBEBEB",
+    textMuted: "#8F8F8F",
+    border: "#2D2D37",
+    borderLight: "#1E1E28",
+    overlay: "rgba(8, 8, 10, 0.96)",
+    gradient: ["#08080A", "#141408"],
+    photoOverlay: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(184,134,11,0.1) 100%)",
+  },
   Midnight: {
     name: "Midnight",
-    background: "#0A0B0F",
-    backgroundSecondary: "#12141A",
-    surface: "#1A1C24",
-    surfaceHover: "#22252F",
-    accent: "#FF4757",
-    accentGlow: "#FF6B7A",
+    background: "#000000",
+    backgroundSecondary: "#0C0C10",
+    surface: "#151519",
+    surfaceHover: "#1E1E22",
+    accent: "#FF6B35",
+    accentGlow: "#FF8F66",
     text: "#FFFFFF",
-    textSecondary: "#E0E2E8",
-    textMuted: "#8B8E98",
-    border: "#2A2D37",
-    borderLight: "#1F2129",
-    overlay: "rgba(10, 11, 15, 0.92)",
-    gradient: ["#0A0B0F", "#1A1C24"],
-    photoOverlay: "rgba(0, 0, 0, 0.15)",
-  },
-  Carbon: {
-    name: "Carbon",
-    background: "#0D0D0D",
-    backgroundSecondary: "#161616",
-    surface: "#1F1F1F",
-    surfaceHover: "#2A2A2A",
-    accent: "#00D4FF",
-    accentGlow: "#3DE0FF",
-    text: "#F5F5F5",
-    textSecondary: "#D4D4D4",
+    textSecondary: "#E6E6E6",
     textMuted: "#8C8C8C",
-    border: "#2E2E2E",
-    borderLight: "#1F1F1F",
-    overlay: "rgba(13, 13, 13, 0.94)",
-    gradient: ["#0D0D0D", "#1F1F1F"],
-    photoOverlay: "rgba(0, 0, 0, 0.2)",
-  },
-  Obsidian: {
-    name: "Obsidian",
-    background: "#080A12",
-    backgroundSecondary: "#0F1219",
-    surface: "#171B26",
-    surfaceHover: "#1F2433",
-    accent: "#A78BFA",
-    accentGlow: "#C4B5FD",
-    text: "#FAFAFA",
-    textSecondary: "#E2E4EA",
-    textMuted: "#898C95",
-    border: "#262C3C",
-    borderLight: "#1A1F2D",
-    overlay: "rgba(8, 10, 18, 0.93)",
-    gradient: ["#080A12", "#171B26"],
-    photoOverlay: "rgba(0, 0, 0, 0.18)",
-  },
-  Velvet: {
-    name: "Velvet",
-    background: "#0F0811",
-    backgroundSecondary: "#1A0F1F",
-    surface: "#251A2D",
-    surfaceHover: "#31243A",
-    accent: "#F472B6",
-    accentGlow: "#FBCFE8",
-    text: "#FAF5FF",
-    textSecondary: "#E9DFF5",
-    textMuted: "#9D8AAA",
-    border: "#3A2847",
-    borderLight: "#2B1F37",
-    overlay: "rgba(15, 8, 17, 0.94)",
-    gradient: ["#0F0811", "#251A2D"],
-    photoOverlay: "rgba(15, 8, 25, 0.15)",
-  },
-  Ink: {
-    name: "Ink",
-    background: "#050A14",
-    backgroundSecondary: "#0A1220",
-    surface: "#111C2E",
-    surfaceHover: "#19263A",
-    accent: "#FCD34D",
-    accentGlow: "#FDE68A",
-    text: "#F8FAFC",
-    textSecondary: "#DDE3EA",
-    textMuted: "#7B8594",
-    border: "#1F2B3D",
-    borderLight: "#14202F",
-    overlay: "rgba(5, 10, 20, 0.95)",
-    gradient: ["#050A14", "#111C2E"],
-    photoOverlay: "rgba(0, 10, 25, 0.12)",
+    border: "#2B2B2F",
+    borderLight: "#1C1C20",
+    overlay: "rgba(0, 0, 0, 0.95)",
+    gradient: ["#000000", "#1A0C06"],
+    photoOverlay: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(255,107,53,0.08) 100%)",
   },
 };
 
@@ -121,7 +121,7 @@ interface ThemeContextValue {
 
 export const [ThemeProvider, useTheme] = createContextHook<ThemeContextValue>(() => {
   const colorScheme = Appearance.getColorScheme();
-  const initial: ThemeName = "Midnight";
+  const initial: ThemeName = "R3AL";
   const [themeName, setThemeName] = useState<ThemeName>(initial);
   const theme = useMemo(() => THEMES[themeName], [themeName]);
 
@@ -205,4 +205,4 @@ export function ThemedRoot({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const ALL_THEMES: ThemeName[] = ["Midnight", "Carbon", "Obsidian", "Velvet", "Ink"];
+export const ALL_THEMES: ThemeName[] = ["R3AL", "Sovereign", "Phantom", "Royal", "Midnight"];
