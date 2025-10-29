@@ -212,6 +212,48 @@ export const startGateway = () => {
         }
       }
 
+      // -------------------------------------------------------
+// 📤 Export Endpoints for Hive, TrustVault, and Circles
+// -------------------------------------------------------
+if (req.method === "GET" && pathname.startsWith("/export/")) {
+  try {
+    const auth = (query as any).auth;
+    const AUTH_KEY = process.env.EXPORT_AUTH_KEY || "supersecretkey";
+    if (auth !== AUTH_KEY) {
+      return sendJson(res, 401, { error: "Unauthorized" });
+    }
+
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+
+    const map = {
+      "/export/hive": "./hive.json",
+      "/export/trust": "./trustVault.json",
+      "/export/circles": "./circleRegistry.json",
+    };
+
+    const filePath = map[pathname as keyof typeof map];
+    if (!filePath) return sendJson(res, 404, { error: "Unknown export target" });
+
+    const absPath = path.resolve(filePath);
+    const exists = fs.existsSync(absPath);
+    if (!exists) return sendJson(res, 200, { type: pathname, entries: [] });
+
+    const content = JSON.parse(fs.readFileSync(absPath, "utf8"));
+    const payload = {
+      type: pathname.replace("/export/", ""),
+      timestamp: new Date().toISOString(),
+      entries: content,
+    };
+
+    res.setHeader("Content-Disposition", `attachment; filename=${pathname.replace("/export/", "")}-export.json`);
+    return sendJson(res, 200, payload);
+  } catch (e: any) {
+    console.error("Export error:", e);
+    return sendJson(res, 500, { error: e?.message || String(e) });
+  }
+}
+
       sendJson(res, 404, { error: "Not Found" });
     } catch (e: any) {
       try {
@@ -246,3 +288,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 }
 
+Add export endpoints for Hive, TrustVault, and Circles to gateway.ts
