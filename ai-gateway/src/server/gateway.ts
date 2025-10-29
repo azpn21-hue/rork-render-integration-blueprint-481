@@ -288,4 +288,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 }
 
-Add export endpoints for Hive, TrustVault, and Circles to gateway.ts
