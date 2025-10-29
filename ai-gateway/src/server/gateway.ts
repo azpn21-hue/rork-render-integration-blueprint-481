@@ -21,7 +21,7 @@ function setCors(res: ServerResponse) {
 async function parseBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
-    req.on("data", (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+    req.on("data", (c: Buffer | string) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
     req.on("end", () => {
       if (!chunks.length) return resolve({});
       try {
@@ -49,7 +49,7 @@ export const startGateway = () => {
   const foresight = new ForesightModule();
   const se = new SelfEducation();
 
-  const server = createServer(async (req, res) => {
+  const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     try {
       setCors(res);
       const { pathname, query } = parseUrl(req.url || "", true);
