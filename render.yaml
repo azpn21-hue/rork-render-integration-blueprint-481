@@ -93,8 +93,3 @@ services:
     healthCheckPath: /healthz
     autoDeployTrigger: commit
 
-      - key: CORS_ALLOW_ORIGIN
-        value: "*"
-
-    healthCheckPath: /healthz
-    autoDeployTrigger: commit
