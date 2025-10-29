@@ -68,30 +68,11 @@ services:
     buildCommand: |
       echo "🔧 Installing dependencies..."
       npm install --legacy-peer-deps
-      echo "🛠️ Using ephemeral tsconfig to avoid repo conflicts..."
-      cat > ./tsconfig.render.json << 'EOF'
-      {
-        "compilerOptions": {
-          "target": "ES2022",
-          "module": "ES2022",
-          "moduleResolution": "Bundler",
-          "outDir": "dist",
-          "rootDir": ".",
-          "strict": true,
-          "esModuleInterop": true,
-          "skipLibCheck": true,
-          "resolveJsonModule": true,
-          "allowSyntheticDefaultImports": true
-        },
-        "include": ["./"],
-        "exclude": ["node_modules", "dist"]
-      }
-      EOF
       echo "📦 Building TypeScript..."
-      npx tsc -p ./tsconfig.render.json
+      npx tsc -p tsconfig.json
       echo "✅ Build complete"
 
-    startCommand: node dist/server/gateway.js
+    startCommand: node dist/index.js
 
     envVars:
       - key: NODE_ENV
