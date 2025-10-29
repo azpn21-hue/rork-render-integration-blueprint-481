@@ -102,6 +102,10 @@ services:
         value: anthropic
       - key: MODEL_ID
         value: claude-3-5-sonnet-20241022
+      - key: EXPORT_AUTH_KEY
+        value: change-me-strong-secret
+      - key: SELF_EDUCATION_INTERVAL
+        value: "600000"
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: OPENAI_API_KEY
@@ -119,4 +123,3 @@ services:
 
     healthCheckPath: /healthz
     autoDeployTrigger: commit
-
