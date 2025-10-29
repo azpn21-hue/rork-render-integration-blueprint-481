@@ -60,7 +60,7 @@ services:
       echo "🔧 Installing dependencies..."
       npm install --legacy-peer-deps
       echo "📦 Building TypeScript..."
-      npx tsc -p tsconfig.json
+      npm run build
       echo "✅ Build complete"
     startCommand: node dist/index.js
     envVars:
