@@ -16,8 +16,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
+
       - key: JWT_SECRET
         sync: false
       - key: DATABASE_URL
@@ -38,7 +37,7 @@ services:
       echo "📦 Building Expo web bundle..."
       npx expo export:web
       echo "✅ Frontend build complete"
-    startCommand: npx serve web-build -p 8080
+    startCommand: npx serve -l $PORT web-build
     envVars:
       - key: NODE_ENV
         value: production
@@ -66,8 +65,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 9000
+
       - key: AI_PROVIDER
         value: anthropic
       - key: MODEL_ID
