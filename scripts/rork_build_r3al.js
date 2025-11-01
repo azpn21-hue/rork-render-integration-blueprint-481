@@ -5,7 +5,8 @@
  *  1. Creates the R3AL app directory structure.
  *  2. Generates manifest.json and theme/ui_tokens.json.
  *  3. Writes placeholder legal files and brand notes.
- *  4. Registers the app in the RORK kernel registry.
+ *  4. Creates behaviour and layout schema (app_schema.json).
+ *  5. Registers the app in the RORK kernel registry.
  */
 
 import fs from "fs";
@@ -117,6 +118,63 @@ See manifest.json for asset mapping.`
 );
 
 log("Brand guide stub written.");
+
+// ──────────────────────────────────────────────────────────────
+// 7️⃣  Behaviour + Layout Schema
+const appSchema = {
+  ui: {
+    layout: {
+      splash: {
+        background: "#0A0A0A",
+        logo: "./assets/logo.svg",
+        animation: "./assets/intro_anim.mp4",
+        audio: "./assets/pulse_60bpm.mp3",
+        motto: "Reveal • Relate • Respect",
+        pulseBPM: 60
+      },
+      verify: {
+        animation: "./assets/verify_anim.mp4",
+        audio: "./assets/verify_pulse.mp3",
+        onSuccess: {
+          eyeGlow: "intensify",
+          wordmarkSweep: true,
+          caption: "Identity Verified — Reveal • Relate • Respect"
+        }
+      },
+      main: {
+        theme: "./theme/ui_tokens.json",
+        footer: "Reveal • Relate • Respect — Privacy Act of 1974 Compliant",
+        sections: ["Feed", "Verify", "Profile", "Settings"]
+      }
+    }
+  },
+  behaviour: {
+    startupSequence: [
+      "fadeInGrid",
+      "animateLogo",
+      "playAudio:pulse",
+      "showMotto"
+    ],
+    verifySequence: [
+      "triggerAnimation:verify",
+      "playAudio:verifyPulse",
+      "displayCaption"
+    ],
+    security: {
+      encryption: "AES-256",
+      transport: "TLS1.3",
+      jwt: true,
+      consentRequired: true
+    }
+  },
+  accessibility: {
+    captions: true,
+    altAudio: true
+  }
+};
+
+write(`${root}/theme/app_schema.json`, JSON.stringify(appSchema, null, 2));
+log("Behaviour + layout schema created.");
 
 const registryPath = path.resolve(__dirname, "../rork_registry.json");
 let registry = {};
