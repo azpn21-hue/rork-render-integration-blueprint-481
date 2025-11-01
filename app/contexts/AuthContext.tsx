@@ -96,7 +96,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         setUser(userData);
         setToken(data.token);
         
-        console.log("[Auth] Login successful:", userData.email);
+        console.log("[Auth] Login successful:", userData?.email || userData.id);
         router.replace("/nda");
       }
     },
@@ -121,7 +121,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         setUser(userData);
         setToken(data.token);
         
-        console.log("[Auth] Registration successful:", userData.email);
+        console.log("[Auth] Registration successful:", userData?.email || userData.id);
         router.replace("/nda");
       }
     },
@@ -143,7 +143,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     onSuccess: async (userData) => {
       await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
       setUser(userData);
-      console.log("[Auth] Guest login successful:", userData.id);
+      console.log("[Auth] Guest login successful:", userData?.id);
       router.replace("/nda");
     },
   });

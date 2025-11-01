@@ -3,9 +3,11 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import { useR3al } from "@/app/contexts/R3alContext";
 
 export default function R3alSplash() {
   const router = useRouter();
+  const { hasConsented } = useR3al();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -37,14 +39,18 @@ export default function R3alSplash() {
     pulseAnimation.start();
 
     const navigationTimer = setTimeout(() => {
-      router.replace("/r3al/onboarding/welcome");
+      if (!hasConsented) {
+        router.replace("/r3al/onboarding/consent");
+      } else {
+        router.replace("/r3al/onboarding/welcome");
+      }
     }, 3000);
 
     return () => {
       pulseAnimation.stop();
       clearTimeout(navigationTimer);
     };
-  }, [pulseAnim, fadeAnim, router]);
+  }, [pulseAnim, fadeAnim, router, hasConsented]);
 
   return (
     <LinearGradient

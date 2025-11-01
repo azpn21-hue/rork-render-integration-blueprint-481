@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "Truth-verified social app with identity verification and questionnaire-based truth scoring.",
   "entry_screen": "splash",
+  "preload_assets": [
+    "./assets/logo.svg",
+    "./assets/intro_anim.mp4"
+  ],
   "permissions": [
     "camera",
     "biometric"
