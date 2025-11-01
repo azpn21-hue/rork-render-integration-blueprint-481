@@ -1,0 +1,66 @@
+{
+  "events": {
+    "verification.start": {
+      "audio": "tone_start.wav",
+      "haptic": "light"
+    },
+    "verification.success": {
+      "audio": "success_chime.wav",
+      "haptic": "success"
+    },
+    "verification.failure": {
+      "audio": "error_buzz.wav",
+      "haptic": "error",
+      "visual": "shake"
+    },
+    "message.received": {
+      "audio": "notify_ping.wav",
+      "haptic": "light"
+    },
+    "truthscore.calculated": {
+      "audio": "drumroll.wav",
+      "haptic": "success"
+    },
+    "onboarding.next": {
+      "haptic": "light"
+    },
+    "questionnaire.submit": {
+      "haptic": "medium"
+    },
+    "profile.complete": {
+      "audio": "success_chime.wav",
+      "haptic": "success"
+    }
+  },
+  "components": {
+    "button": {
+      "focus_outline": true,
+      "accessibility_label": "default_button_label"
+    },
+    "ImagePicker": {
+      "voiceover": "pick_image_instructions",
+      "accessibility_label": "avatar"
+    },
+    "TextField": {
+      "focus_outline": true,
+      "accessibility_hint": "Enter text"
+    },
+    "Checkbox": {
+      "focus_outline": true,
+      "accessibility_role": "checkbox"
+    },
+    "Slider": {
+      "accessibility_role": "adjustable",
+      "accessibility_hint": "Swipe up or down to adjust value"
+    }
+  },
+  "screen_reader": {
+    "enabled": true,
+    "announce_navigation": true,
+    "announce_score_changes": true
+  },
+  "reduced_motion": {
+    "respect_system_preference": true,
+    "fallback_animation": "fade"
+  }
+}

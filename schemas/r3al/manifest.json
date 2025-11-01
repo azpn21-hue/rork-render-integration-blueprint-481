@@ -1,0 +1,26 @@
+{
+  "app_id": "com.r3al.app",
+  "name": "R3AL",
+  "version": "1.0.0",
+  "description": "Truth-verified social app with identity verification and questionnaire-based truth scoring.",
+  "entry_screen": "splash",
+  "permissions": [
+    "camera",
+    "biometric"
+  ],
+  "schemas": {
+    "app": "app_schema.json",
+    "questionnaire": "questionnaire_schema.json",
+    "truthscore": "truthscore_schema.json",
+    "theme": "theme/ui_tokens.json",
+    "accessibility": "accessibility_map.json",
+    "locales": "locale_tokens.json"
+  },
+  "features": {
+    "useRiseN": true,
+    "useOptimaII": true,
+    "analytics_opt_in": false
+  },
+  "consent_required": true,
+  "last_legal_update": "2025-10-01"
+}

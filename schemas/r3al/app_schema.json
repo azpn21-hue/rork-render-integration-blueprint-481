@@ -1,0 +1,118 @@
+{
+  "screens": [
+    {
+      "id": "splash",
+      "type": "SplashScreen",
+      "properties": {
+        "animation": "pulse",
+        "duration": 1000,
+        "bpm": 60
+      },
+      "next": "onboard_welcome"
+    },
+    {
+      "id": "onboard_welcome",
+      "type": "OnboardingScreen",
+      "properties": {
+        "phase": 1,
+        "title": "welcome_title",
+        "subtitle": "welcome_subtitle",
+        "message": "welcome_message"
+      },
+      "next": "onboard_consent"
+    },
+    {
+      "id": "onboard_consent",
+      "type": "OnboardingScreen",
+      "properties": {
+        "phase": 2,
+        "title": "consent_title",
+        "message": "consent_message",
+        "requiresConsent": true
+      },
+      "next": "id_verify_intro"
+    },
+    {
+      "id": "id_verify_intro",
+      "type": "VerificationIntroScreen",
+      "properties": {
+        "title": "verify_id_title",
+        "instructions": "verify_id_instructions"
+      },
+      "next": "id_verification"
+    },
+    {
+      "id": "id_verification",
+      "type": "IdentityVerificationScreen",
+      "properties": {
+        "useBiometric": true,
+        "useDocumentScan": true
+      },
+      "events": {
+        "onVerified": "questionnaire"
+      },
+      "next": "questionnaire"
+    },
+    {
+      "id": "questionnaire",
+      "type": "QuestionnaireScreen",
+      "properties": {
+        "schema": "questionnaire_schema",
+        "title": "questionnaire_title",
+        "intro": "questionnaire_intro"
+      },
+      "events": {
+        "onSubmit": "calcTruthScore"
+      },
+      "next": "score_result"
+    },
+    {
+      "id": "score_result",
+      "type": "ScoreResultScreen",
+      "properties": {
+        "showDetails": true,
+        "allowExpansion": true
+      },
+      "next": "profile_setup"
+    },
+    {
+      "id": "truth_expansion",
+      "type": "TruthExpansionScreen",
+      "properties": {
+        "showCharts": true,
+        "showAnalysis": true
+      }
+    },
+    {
+      "id": "profile_setup",
+      "type": "ProfileSetupScreen",
+      "properties": {
+        "title": "profile_title",
+        "subtitle": "profile_subtitle",
+        "required_fields": ["name"]
+      },
+      "next": "home"
+    },
+    {
+      "id": "home",
+      "type": "HomeScreen",
+      "properties": {
+        "title": "home_welcome"
+      }
+    },
+    {
+      "id": "messages",
+      "type": "MessagingScreen",
+      "properties": {}
+    },
+    {
+      "id": "user_profile",
+      "type": "UserProfileScreen",
+      "properties": {}
+    }
+  ],
+  "navigation": {
+    "stack": ["home", "messages", "user_profile"],
+    "modal": ["truth_expansion"]
+  }
+}

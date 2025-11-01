@@ -93,6 +93,7 @@ function RootLayoutNav() {
       <Stack.Screen name="guest" options={{ headerShown: false }} />
       <Stack.Screen name="nda" options={{ headerShown: false }} />
       <Stack.Screen name="home" options={{ headerShown: false }} />
+      <Stack.Screen name="r3al" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -1,0 +1,121 @@
+{
+  "questions": [
+    {
+      "id": "Q1",
+      "text": "Have you ever provided false information on an official document?",
+      "type": "multiple-choice",
+      "options": ["Never", "Rarely", "Sometimes", "Often"],
+      "weight": 10,
+      "truth_indicator": "honesty"
+    },
+    {
+      "id": "Q2",
+      "text": "How frequently do you double-check facts before sharing them?",
+      "type": "multiple-choice",
+      "options": ["Always", "Sometimes", "Rarely", "Never"],
+      "weight": 8,
+      "truth_indicator": "diligence"
+    },
+    {
+      "id": "Q3",
+      "text": "Describe a situation where you had to tell an uncomfortable truth.",
+      "type": "free-text",
+      "max_length": 200,
+      "weight": 5,
+      "truth_indicator": "transparency"
+    },
+    {
+      "id": "Q4",
+      "text": "Do you tend to exaggerate when telling stories?",
+      "type": "multiple-choice",
+      "options": ["Never", "Rarely", "Sometimes", "Often"],
+      "weight": 7,
+      "truth_indicator": "honesty"
+    },
+    {
+      "id": "Q5",
+      "text": "When you make a mistake, how quickly do you admit it?",
+      "type": "multiple-choice",
+      "options": ["Immediately", "After some time", "Only if asked", "Rarely admit"],
+      "weight": 9,
+      "truth_indicator": "accountability"
+    },
+    {
+      "id": "Q6",
+      "text": "How important is it for you to be seen as honest?",
+      "type": "likert",
+      "scale": 5,
+      "labels": ["Not important", "Somewhat important", "Important", "Very important", "Extremely important"],
+      "weight": 6,
+      "truth_indicator": "values"
+    },
+    {
+      "id": "Q7",
+      "text": "Have you ever taken credit for someone else's work?",
+      "type": "multiple-choice",
+      "options": ["Never", "Once or twice", "A few times", "Multiple times"],
+      "weight": 8,
+      "truth_indicator": "integrity"
+    },
+    {
+      "id": "Q8",
+      "text": "When faced with a difficult truth, what do you typically do?",
+      "type": "free-text",
+      "max_length": 150,
+      "weight": 6,
+      "truth_indicator": "transparency"
+    },
+    {
+      "id": "Q9",
+      "text": "How often do you tell 'white lies' to avoid hurting someone's feelings?",
+      "type": "multiple-choice",
+      "options": ["Never", "Rarely", "Sometimes", "Often"],
+      "weight": 7,
+      "truth_indicator": "honesty"
+    },
+    {
+      "id": "Q10",
+      "text": "On a scale of 1-10, how would you rate your overall truthfulness?",
+      "type": "slider",
+      "min": 1,
+      "max": 10,
+      "weight": 10,
+      "truth_indicator": "self_assessment"
+    }
+  ],
+  "logic": {
+    "autoscoring": true,
+    "consistency_checks": [
+      {
+        "question_ids": ["Q1", "Q7"],
+        "expectation": "if Q1 == 'Never', then Q7 should also be 'Never'"
+      },
+      {
+        "question_ids": ["Q6", "Q10"],
+        "expectation": "Q6 and Q10 should correlate positively"
+      }
+    ],
+    "follow_ups": [
+      {
+        "question_id": "Q1",
+        "trigger_answer": "Often",
+        "follow_question": {
+          "text": "You indicated you often falsify documents. Would you like to elaborate why?",
+          "type": "free-text",
+          "id": "Q1_follow",
+          "max_length": 200
+        }
+      },
+      {
+        "question_id": "Q7",
+        "trigger_answer": "Multiple times",
+        "follow_question": {
+          "text": "Can you describe the circumstances that led to this?",
+          "type": "free-text",
+          "id": "Q7_follow",
+          "max_length": 200
+        }
+      }
+    ]
+  }
+}

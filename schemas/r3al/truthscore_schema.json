@@ -1,0 +1,117 @@
+{
+  "score_model": "weighted_sum",
+  "weights": {
+    "Q1": 10,
+    "Q2": 8,
+    "Q3": 5,
+    "Q4": 7,
+    "Q5": 9,
+    "Q6": 6,
+    "Q7": 8,
+    "Q8": 6,
+    "Q9": 7,
+    "Q10": 10
+  },
+  "truth_points": {
+    "Q1": {
+      "Never": 10,
+      "Rarely": 7,
+      "Sometimes": 4,
+      "Often": 0
+    },
+    "Q2": {
+      "Always": 10,
+      "Sometimes": 5,
+      "Rarely": 2,
+      "Never": 0
+    },
+    "Q4": {
+      "Never": 10,
+      "Rarely": 7,
+      "Sometimes": 4,
+      "Often": 0
+    },
+    "Q5": {
+      "Immediately": 10,
+      "After some time": 6,
+      "Only if asked": 3,
+      "Rarely admit": 0
+    },
+    "Q6": {
+      "Not important": 0,
+      "Somewhat important": 3,
+      "Important": 6,
+      "Very important": 8,
+      "Extremely important": 10
+    },
+    "Q7": {
+      "Never": 10,
+      "Once or twice": 6,
+      "A few times": 3,
+      "Multiple times": 0
+    },
+    "Q9": {
+      "Never": 10,
+      "Rarely": 7,
+      "Sometimes": 5,
+      "Often": 2
+    }
+  },
+  "text_scoring": {
+    "Q3": {
+      "min_length": 20,
+      "keywords": ["honest", "truth", "difficult", "admitted"],
+      "max_points": 5
+    },
+    "Q8": {
+      "min_length": 20,
+      "keywords": ["face", "tell", "truth", "confront"],
+      "max_points": 6
+    }
+  },
+  "slider_scoring": {
+    "Q10": {
+      "multiplier": 1.0
+    }
+  },
+  "algorithms": [
+    {
+      "name": "RiseN_AI",
+      "enabled": true,
+      "function": "analyzeTruth",
+      "output": {
+        "consistency": "number",
+        "anomalies": "array"
+      }
+    },
+    {
+      "name": "Optima_II",
+      "enabled": true,
+      "function": "optimizeScore",
+      "output": {
+        "adjustedScore": "number"
+      }
+    }
+  ],
+  "output_schema": {
+    "score": "number",
+    "level": "string",
+    "summary": "string",
+    "details": {
+      "honesty": "number",
+      "diligence": "number",
+      "transparency": "number",
+      "integrity": "number",
+      "accountability": "number",
+      "values": "number",
+      "self_assessment": "number",
+      "consistencyChart": "object",
+      "analysisText": "string"
+    }
+  },
+  "thresholds": {
+    "high": 80,
+    "medium": 50,
+    "low": 0
+  }
+}
