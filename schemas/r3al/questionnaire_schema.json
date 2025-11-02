@@ -1,121 +1,259 @@
 {
-  "questions": [
+  "version": "2.0.0",
+  "settings": {
+    "saveProgress": true,
+    "perPage": 1,
+    "allowBack": true,
+    "attentionChecks": true,
+    "measureResponseTimeMs": true
+  },
+  "sections": [
     {
-      "id": "Q1",
-      "text": "Have you ever provided false information on an official document?",
-      "type": "multiple-choice",
-      "options": ["Never", "Rarely", "Sometimes", "Often"],
-      "weight": 10,
-      "truth_indicator": "honesty"
+      "id": "identity_integrity",
+      "title": "Identity & Integrity",
+      "questions": [
+        {
+          "id": "id_name_match",
+          "type": "single",
+          "label": "Does your display name match a real-world identity you actively use?",
+          "options": ["Yes", "No"],
+          "required": true
+        },
+        {
+          "id": "id_verif_consent",
+          "type": "single",
+          "label": "I consent to identity & background verification.",
+          "options": ["Yes", "No"],
+          "required": true
+        },
+        {
+          "id": "id_truth_exception",
+          "type": "single",
+          "label": "In what situations is it acceptable to hide important facts from a partner?",
+          "options": ["Never", "Rarely", "Sometimes", "Often"]
+        },
+        {
+          "id": "id_liescale_perfect",
+          "type": "single",
+          "label": "I have never told a lie of any kind.",
+          "options": ["True", "False"],
+          "meta": { "lieScale": true }
+        }
+      ]
     },
     {
-      "id": "Q2",
-      "text": "How frequently do you double-check facts before sharing them?",
-      "type": "multiple-choice",
-      "options": ["Always", "Sometimes", "Rarely", "Never"],
-      "weight": 8,
-      "truth_indicator": "diligence"
+      "id": "relationship_history_risk",
+      "title": "History & Risk",
+      "questions": [
+        {
+          "id": "rh_past_partners",
+          "type": "number",
+          "label": "# of serious relationships (2+ months) in last 5 years",
+          "min": 0,
+          "max": 50
+        },
+        {
+          "id": "rh_overlap",
+          "type": "single",
+          "label": "Any overlap between relationships?",
+          "options": ["No", "Unsure", "Yes"]
+        },
+        {
+          "id": "rh_order_restrain",
+          "type": "single",
+          "label": "Have you been subject to or sought a restraining order?",
+          "options": ["No", "Prefer not to say", "Yes"]
+        },
+        {
+          "id": "rh_accountability",
+          "type": "scale",
+          "label": "When relationships end, how often do you take responsibility for your part?",
+          "min": 1,
+          "max": 5
+        }
+      ]
     },
     {
-      "id": "Q3",
-      "text": "Describe a situation where you had to tell an uncomfortable truth.",
-      "type": "free-text",
-      "max_length": 200,
-      "weight": 5,
-      "truth_indicator": "transparency"
+      "id": "boundaries_safety",
+      "title": "Boundaries & Safety",
+      "questions": [
+        {
+          "id": "bs_first_meet_public",
+          "type": "single",
+          "label": "First meetings in public places?",
+          "options": ["Always", "Usually", "Depends", "No"]
+        },
+        {
+          "id": "bs_location_share",
+          "type": "single",
+          "label": "Share live location with a trusted contact for first 3 meets?",
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "bs_escalation_style",
+          "type": "single",
+          "label": "When conflicts escalate, I usually…",
+          "options": [
+            "Pause & cool off",
+            "Seek dialogue",
+            "Withdraw completely",
+            "Confront aggressively"
+          ]
+        }
+      ]
     },
     {
-      "id": "Q4",
-      "text": "Do you tend to exaggerate when telling stories?",
-      "type": "multiple-choice",
-      "options": ["Never", "Rarely", "Sometimes", "Often"],
-      "weight": 7,
-      "truth_indicator": "honesty"
+      "id": "communication_conflict",
+      "title": "Communication & Conflict",
+      "questions": [
+        {
+          "id": "cc_honesty_under_cost",
+          "type": "scale",
+          "label": "Likelihood I tell an uncomfortable truth even if it costs me in the short term",
+          "min": 1,
+          "max": 5,
+          "reverse": false
+        },
+        {
+          "id": "cc_gray_zone",
+          "type": "single",
+          "label": "Is omission different from a lie in dating?",
+          "options": ["No", "Sometimes", "Yes"]
+        },
+        {
+          "id": "cc_always_honest_claim",
+          "type": "single",
+          "label": "I am always honest, even about trivial things.",
+          "options": ["True", "False"],
+          "meta": { "reverseTruth": true }
+        }
+      ]
     },
     {
-      "id": "Q5",
-      "text": "When you make a mistake, how quickly do you admit it?",
-      "type": "multiple-choice",
-      "options": ["Immediately", "After some time", "Only if asked", "Rarely admit"],
-      "weight": 9,
-      "truth_indicator": "accountability"
+      "id": "lifestyle_stability",
+      "title": "Lifestyle & Stability",
+      "questions": [
+        {
+          "id": "ls_financial_transparency",
+          "type": "single",
+          "label": "I am willing to discuss debt, obligations, and financial constraints when serious.",
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "ls_substances",
+          "type": "multi",
+          "label": "Current regular use (select all that apply).",
+          "options": [
+            "None",
+            "Alcohol",
+            "Nicotine/Vape",
+            "Cannabis",
+            "Prescription",
+            "Other"
+          ],
+          "allowOther": true
+        },
+        {
+          "id": "ls_sleep_routine",
+          "type": "scale",
+          "label": "Sleep routine consistency (avg last 30 days).",
+          "min": 1,
+          "max": 5
+        }
+      ]
     },
     {
-      "id": "Q6",
-      "text": "How important is it for you to be seen as honest?",
-      "type": "likert",
-      "scale": 5,
-      "labels": ["Not important", "Somewhat important", "Important", "Very important", "Extremely important"],
-      "weight": 6,
-      "truth_indicator": "values"
+      "id": "digital_footprint_privacy",
+      "title": "Digital Footprint & Privacy",
+      "questions": [
+        {
+          "id": "df_account_sharing",
+          "type": "single",
+          "label": "Would you ever share device passwords with a partner?",
+          "options": ["Never", "Maybe when serious", "Yes"]
+        },
+        {
+          "id": "df_past_catfish",
+          "type": "single",
+          "label": "Have you ever used a false persona online when dating?",
+          "options": ["No", "Yes (long ago)", "Yes (recently)"]
+        }
+      ]
     },
     {
-      "id": "Q7",
-      "text": "Have you ever taken credit for someone else's work?",
-      "type": "multiple-choice",
-      "options": ["Never", "Once or twice", "A few times", "Multiple times"],
-      "weight": 8,
-      "truth_indicator": "integrity"
+      "id": "values_dealbreakers",
+      "title": "Values & Dealbreakers",
+      "questions": [
+        {
+          "id": "vd_nonnegotiables",
+          "type": "free",
+          "label": "Name 3 non-negotiables for you.",
+          "maxLength": 200
+        },
+        {
+          "id": "vd_disclosures",
+          "type": "multi",
+          "label": "I will proactively disclose (visible to matches only after mutual opt-in):",
+          "options": [
+            "Prior marriages",
+            "Children",
+            "Debt",
+            "Health boundaries",
+            "Religious commitments",
+            "Legal issues",
+            "None"
+          ],
+          "allowOther": true
+        }
+      ]
     },
     {
-      "id": "Q8",
-      "text": "When faced with a difficult truth, what do you typically do?",
-      "type": "free-text",
-      "max_length": 150,
-      "weight": 6,
-      "truth_indicator": "transparency"
-    },
-    {
-      "id": "Q9",
-      "text": "How often do you tell 'white lies' to avoid hurting someone's feelings?",
-      "type": "multiple-choice",
-      "options": ["Never", "Rarely", "Sometimes", "Often"],
-      "weight": 7,
-      "truth_indicator": "honesty"
-    },
-    {
-      "id": "Q10",
-      "text": "On a scale of 1-10, how would you rate your overall truthfulness?",
-      "type": "slider",
-      "min": 1,
-      "max": 10,
-      "weight": 10,
-      "truth_indicator": "self_assessment"
+      "id": "optional_deep_disclosure",
+      "title": "Optional Deep Disclosure",
+      "optional": true,
+      "questions": [
+        {
+          "id": "od_sensitive_edges",
+          "type": "free",
+          "label": "What topics are sensitive that you still commit to address honestly if asked?",
+          "maxLength": 300
+        },
+        {
+          "id": "od_user_truthpoint",
+          "type": "user_defined",
+          "template": {
+            "type": "single",
+            "label": "Create your own truth question",
+            "options": ["Yes", "No"]
+          },
+          "allowAdd": true
+        }
+      ]
     }
   ],
   "logic": {
-    "autoscoring": true,
-    "consistency_checks": [
+    "attention": [
       {
-        "question_ids": ["Q1", "Q7"],
-        "expectation": "if Q1 == 'Never', then Q7 should also be 'Never'"
-      },
-      {
-        "question_ids": ["Q6", "Q10"],
-        "expectation": "Q6 and Q10 should correlate positively"
+        "id": "attn_check_1",
+        "injectAfter": "cc_gray_zone",
+        "type": "single",
+        "label": "Select 'Yes' to confirm you are paying attention.",
+        "options": ["No", "Yes"],
+        "correct": "Yes"
       }
     ],
-    "follow_ups": [
+    "consistencyChecks": [
       {
-        "question_id": "Q1",
-        "trigger_answer": "Often",
-        "follow_question": {
-          "text": "You indicated you often falsify documents. Would you like to elaborate why?",
-          "type": "free-text",
-          "id": "Q1_follow",
-          "max_length": 200
-        }
+        "a": "cc_always_honest_claim",
+        "b": "id_liescale_perfect",
+        "rule": "not_both_true"
       },
       {
-        "question_id": "Q7",
-        "trigger_answer": "Multiple times",
-        "follow_question": {
-          "text": "Can you describe the circumstances that led to this?",
-          "type": "free-text",
-          "id": "Q7_follow",
-          "max_length": 200
-        }
+        "a": "id_truth_exception",
+        "b": "cc_gray_zone",
+        "rule": "coherent_rationale"
       }
-    ]
+    ],
+    "timingRules": { "minMsPerItem": 800, "flagFastResponses": true }
   }
 }

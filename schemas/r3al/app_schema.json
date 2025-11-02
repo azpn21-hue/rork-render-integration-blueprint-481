@@ -59,7 +59,20 @@
       "properties": {
         "schema": "questionnaire_schema",
         "title": "questionnaire_title",
-        "intro": "questionnaire_intro"
+        "intro": "questionnaire_intro",
+        "ui": {
+          "optionalToggleKey": "show_optional_deep_disclosure",
+          "showProgressBar": true,
+          "perPage": 1,
+          "allowBack": true,
+          "saveAsYouGo": true,
+          "accent": "#D4AF37",
+          "accessibility": {
+            "captions": true,
+            "largerTapTargets": true
+          }
+        },
+        "scoring": "./truthscore_schema.json"
       },
       "events": {
         "onSubmit": "calcTruthScore"

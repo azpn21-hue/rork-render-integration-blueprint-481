@@ -1,78 +1,119 @@
 {
-  "score_model": "weighted_sum",
-  "weights": {
-    "Q1": 10,
-    "Q2": 8,
-    "Q3": 5,
-    "Q4": 7,
-    "Q5": 9,
-    "Q6": 6,
-    "Q7": 8,
-    "Q8": 6,
-    "Q9": 7,
-    "Q10": 10
-  },
-  "truth_points": {
-    "Q1": {
-      "Never": 10,
-      "Rarely": 7,
-      "Sometimes": 4,
-      "Often": 0
+  "model": "composite",
+  "scales": {
+    "Integrity": {
+      "items": [
+        "id_name_match",
+        "id_verif_consent",
+        "cc_honesty_under_cost",
+        "cc_always_honest_claim"
+      ],
+      "weights": {
+        "id_name_match": 2,
+        "id_verif_consent": 3,
+        "cc_honesty_under_cost": 2,
+        "cc_always_honest_claim": -1
+      }
     },
-    "Q2": {
-      "Always": 10,
-      "Sometimes": 5,
-      "Rarely": 2,
-      "Never": 0
+    "Safety": {
+      "items": [
+        "bs_first_meet_public",
+        "bs_location_share",
+        "bs_escalation_style"
+      ],
+      "weights": {
+        "bs_first_meet_public": 1,
+        "bs_location_share": 1,
+        "bs_escalation_style": {
+          "Pause & cool off": 1,
+          "Seek dialogue": 1,
+          "Withdraw completely": 0,
+          "Confront aggressively": -1
+        }
+      }
     },
-    "Q4": {
-      "Never": 10,
-      "Rarely": 7,
-      "Sometimes": 4,
-      "Often": 0
+    "Transparency": {
+      "items": [
+        "ls_financial_transparency",
+        "vd_disclosures",
+        "df_past_catfish"
+      ],
+      "weights": {
+        "ls_financial_transparency": 2,
+        "vd_disclosures": "COUNT_SELECTED",
+        "df_past_catfish": {
+          "No": 1,
+          "Yes (long ago)": 0,
+          "Yes (recently)": -1
+        }
+      }
     },
-    "Q5": {
-      "Immediately": 10,
-      "After some time": 6,
-      "Only if asked": 3,
-      "Rarely admit": 0
+    "Stability": {
+      "items": ["ls_sleep_routine", "rh_accountability"],
+      "weights": { "ls_sleep_routine": 1, "rh_accountability": 1 }
     },
-    "Q6": {
-      "Not important": 0,
-      "Somewhat important": 3,
-      "Important": 6,
-      "Very important": 8,
-      "Extremely important": 10
-    },
-    "Q7": {
-      "Never": 10,
-      "Once or twice": 6,
-      "A few times": 3,
-      "Multiple times": 0
-    },
-    "Q9": {
-      "Never": 10,
-      "Rarely": 7,
-      "Sometimes": 5,
-      "Often": 2
+    "RiskHistory": {
+      "items": ["rh_overlap", "rh_order_restrain"],
+      "weights": {
+        "rh_overlap": { "No": 1, "Unsure": 0, "Yes": -1 },
+        "rh_order_restrain": { "No": 1, "Prefer not to say": 0, "Yes": -2 }
+      }
     }
   },
-  "text_scoring": {
-    "Q3": {
-      "min_length": 20,
-      "keywords": ["honest", "truth", "difficult", "admitted"],
-      "max_points": 5
-    },
-    "Q8": {
-      "min_length": 20,
-      "keywords": ["face", "tell", "truth", "confront"],
-      "max_points": 6
-    }
+  "lieScale": {
+    "items": ["id_liescale_perfect", "cc_always_honest_claim"],
+    "rules": { "improbableAllTrue": -2 }
   },
-  "slider_scoring": {
-    "Q10": {
-      "multiplier": 1.0
+  "attention": { "items": ["attn_check_1"], "failPenalty": -3 },
+  "consistency": {
+    "pairs": [["cc_always_honest_claim", "id_liescale_perfect"]],
+    "penaltyPerConflict": -1
+  },
+  "timing": { "minMsPerItem": 800, "penaltyFastBurst": -1 },
+  "normalizeTo": 100,
+  "levels": [
+    {
+      "min": 0,
+      "max": 39,
+      "label": "Low",
+      "color": "#B00020",
+      "summary": "Significant transparency/safety gaps or inconsistency detected."
+    },
+    {
+      "min": 40,
+      "max": 69,
+      "label": "Medium",
+      "color": "#FFC107",
+      "summary": "Moderate alignment with room to clarify boundaries and history."
+    },
+    {
+      "min": 70,
+      "max": 100,
+      "label": "High",
+      "color": "#16C784",
+      "summary": "Strong integrity, safety posture, and coherent disclosures."
     }
+  ],
+  "flags": {
+    "fakingGood": {
+      "threshold": true,
+      "rule": "lieScale.improbableAllTrue || consistency.conflicts>0"
+    },
+    "riskAlerts": [
+      { "when": { "rh_order_restrain": "Yes" }, "tag": "LegalHistory" },
+      {
+        "when": { "bs_escalation_style": "Confront aggressively" },
+        "tag": "AggressiveConflict"
+      }
+    ]
+  },
+  "outputs": {
+    "scorePath": "state.truthScore.value",
+    "levelPath": "state.truthScore.level",
+    "colorPath": "state.truthScore.color",
+    "summaryPath": "state.truthScore.summary",
+    "subscalePath": "state.truthScore.subscales",
+    "flagsPath": "state.truthScore.flags"
   },
   "algorithms": [
     {
@@ -92,26 +133,5 @@
         "adjustedScore": "number"
       }
     }
-  ],
-  "output_schema": {
-    "score": "number",
-    "level": "string",
-    "summary": "string",
-    "details": {
-      "honesty": "number",
-      "diligence": "number",
-      "transparency": "number",
-      "integrity": "number",
-      "accountability": "number",
-      "values": "number",
-      "self_assessment": "number",
-      "consistencyChart": "object",
-      "analysisText": "string"
-    }
-  },
-  "thresholds": {
-    "high": 80,
-    "medium": 50,
-    "low": 0
-  }
+  ]
 }
