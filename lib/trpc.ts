@@ -7,6 +7,9 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      return "http://localhost:10000";
+    }
     return window.location.origin;
   }
   
@@ -23,11 +26,23 @@ export const trpcClient = trpc.createClient({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
       fetch: (url, options) => {
+        console.log("[tRPC] Request:", url);
         return fetch(url, {
           ...options,
           signal: options?.signal,
+          headers: {
+            ...options?.headers,
+            "Content-Type": "application/json",
+          },
+        }).then(async (response) => {
+          if (!response.ok) {
+            const text = await response.text();
+            console.error("[tRPC] Response error:", response.status, text);
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+          }
+          return response;
         }).catch((error) => {
-          console.warn("[tRPC] Fetch failed:", error.message);
+          console.error("[tRPC] Fetch failed:", error.message);
           throw error;
         });
       },

@@ -43,10 +43,11 @@ export default function RegisterScreen() {
       return;
     }
     
+    console.log("[Register] Attempting registration for:", email);
     register({ name, email, password });
   };
 
-  const displayError = error || (registerError instanceof Error ? registerError.message : "");
+  const displayError = error || (registerError ? String(registerError).substring(0, 200) : "");
 
   return (
     <>

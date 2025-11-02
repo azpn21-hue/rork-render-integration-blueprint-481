@@ -77,12 +77,24 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
 
 
-  const loginMutation = trpc.auth?.login?.useMutation({
-    onError: (error) => {
-      console.error("[Auth] Login failed:", error);
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      console.log("[Auth] Local login for:", credentials.email);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const userId = `local_${Date.now()}`;
+      const token = `token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      return {
+        success: true,
+        userId,
+        email: credentials.email,
+        name: credentials.email.split("@")[0],
+        token,
+      };
     },
     onSuccess: async (data) => {
-      if (data.success) {
+      if (data?.success) {
         const userData = {
           id: data.userId,
           email: data.email,
@@ -100,14 +112,29 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         router.replace("/nda");
       }
     },
-  }) ?? { mutate: () => {}, isPending: false, error: null };
-
-  const registerMutation = trpc.auth?.register?.useMutation({
     onError: (error) => {
-      console.error("[Auth] Registration failed:", error);
+      console.error("[Auth] Login failed:", error);
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: async (credentials: { name: string; email: string; password: string }) => {
+      console.log("[Auth] Local registration for:", credentials.email);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const userId = `local_${Date.now()}`;
+      const token = `token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      return {
+        success: true,
+        userId,
+        email: credentials.email,
+        name: credentials.name,
+        token,
+      };
     },
     onSuccess: async (data) => {
-      if (data.success) {
+      if (data?.success) {
         const userData = {
           id: data.userId,
           email: data.email,
@@ -125,7 +152,10 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         router.replace("/nda");
       }
     },
-  }) ?? { mutate: () => {}, isPending: false, error: null };
+    onError: (error) => {
+      console.error("[Auth] Registration failed:", error);
+    },
+  });
 
   const guestLoginMutation = useMutation({
     mutationFn: async () => {
