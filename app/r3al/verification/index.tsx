@@ -43,12 +43,22 @@ export default function IdentityVerification() {
           console.log("[IdentityVerification] Requesting camera permission...");
           const result = await requestPermission();
           console.log("[IdentityVerification] Permission result:", result);
-          if (result.granted) {
+          if (result?.granted) {
+            console.log("[IdentityVerification] Camera permission granted");
             setCameraInitialized(true);
+          } else if (result?.canAskAgain === false) {
+            setError("Camera permission was denied. Please enable it in your device settings.");
           }
         } else if (permission.granted) {
+          console.log("[IdentityVerification] Permission already granted");
           setCameraInitialized(true);
-        } else if (!permission.canAskAgain) {
+        } else if (permission.canAskAgain) {
+          console.log("[IdentityVerification] Permission denied, can ask again");
+          const result = await requestPermission();
+          if (result?.granted) {
+            setCameraInitialized(true);
+          }
+        } else {
           setError("Camera permission was denied. Please enable it in your device settings.");
         }
       } catch (err) {
@@ -58,7 +68,7 @@ export default function IdentityVerification() {
     };
     
     initCamera();
-  }, []);
+  }, [permission]);
 
   useEffect(() => {
     const pulse = Animated.loop(
@@ -243,7 +253,7 @@ export default function IdentityVerification() {
               </View>
 
               <View style={styles.cameraContainer}>
-                {cameraInitialized ? (
+                {cameraInitialized && permission?.granted ? (
                   <CameraView
                     ref={cameraRef}
                     style={styles.camera}
@@ -255,7 +265,8 @@ export default function IdentityVerification() {
                     }}
                     onMountError={(error) => {
                       console.error("[Verification] Camera mount error:", error);
-                      setError(`Camera error: ${error.message}`);
+                      setError(`Camera error: ${error.message || "Unknown error"}`);
+                      setCameraInitialized(false);
                     }}
                   >
                     {step === "document" ? (
@@ -272,6 +283,9 @@ export default function IdentityVerification() {
                   <View style={styles.cameraPlaceholder}>
                     <ActivityIndicator size="large" color={tokens.colors.gold} />
                     <Text style={styles.processingHint}>Initializing camera...</Text>
+                    {!permission?.granted && (
+                      <Text style={styles.processingHint}>Requesting permissions...</Text>
+                    )}
                   </View>
                 )}
                 {error && (
