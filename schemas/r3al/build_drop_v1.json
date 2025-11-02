@@ -1,0 +1,130 @@
+{
+  "project": "R3AL",
+  "version": "1.0.0-beta",
+  "intent": "Full environment build-out for beta launch",
+  "branding": {
+    "primaryColor": "#000000",
+    "accentColor": "#d4af37",
+    "font": "Inter",
+    "heartbeatBpm": 60,
+    "logoAsset": "@assets/r3al_mask_beta.png"
+  },
+
+  "bootOrder": [
+    "splash_pulse",
+    "promo_learn",
+    "login_register",
+    "nda_consent",
+    "privacy_agreement",
+    "id_verification",
+    "twofactor_verify",
+    "questionnaire",
+    "integrity_dashboard",
+    "hive_home"
+  ],
+
+  "promoPolicy": {
+    "enabled": true,
+    "showLearnMore": true,
+    "trustTokenPreview": true,
+    "heartbeatAnimation": true,
+    "pricingTiers": [
+      { "name": "Free", "price": 0, "features": ["1 Circle join", "Basic questionnaire", "3 photo slots"] },
+      { "name": "Plus", "price": 9.99, "features": ["3 Circles", "Ad-free", "Vault edit", "4 photo scans/mo"] },
+      { "name": "Pro", "price": 19.99, "features": ["5 Circles", "Analytics", "Integrity insights", "Unlimited scans"] },
+      { "name": "Elite", "price": "Invite", "features": ["Unlimited Circles", "Host events", "Marketplace access"] }
+    ]
+  },
+
+  "authPolicy": {
+    "guestEnabled": false,
+    "betaGuestEnabled": true,
+    "ndaRequired": true,
+    "privacyRequired": true,
+    "twoFactorRequired": true,
+    "idVerificationRequired": true
+  },
+
+  "questionnairePolicy": {
+    "enabled": true,
+    "truthPointsEnabled": true,
+    "autoSave": true,
+    "encryptResponses": true,
+    "layout": "vertical_card",
+    "theme": "black_gold",
+    "sound": "heartbeat_loop"
+  },
+
+  "trustVault": {
+    "integrityWeights": { "behavior": 0.4, "community": 0.3, "photo": 0.3 },
+    "updateFrequencyDays": 7
+  },
+
+  "tokenPolicy": {
+    "activateAtUserCount": 100000,
+    "tokenValueUSD": 0.05,
+    "rewardPoolPercent": 5,
+    "rewards": {
+      "verify_profile": 10,
+      "high_integrity": 25,
+      "commendation": 15,
+      "bug_report": 20,
+      "quarter_no_violations": 30
+    }
+  },
+
+  "hivePolicy": {
+    "defaultCircleLimit": 1,
+    "plusCircleLimit": 3,
+    "proCircleLimit": 5,
+    "eliteCircleLimit": 999,
+    "rankColors": {
+      "verified": "#5cb85c",
+      "vanguard": "#f0ad4e",
+      "guardian": "#00bfff",
+      "luminary": "#8b00ff"
+    },
+    "eventHosting": { "plus": false, "pro": true, "elite": true }
+  },
+
+  "subscriptionPolicy": {
+    "billingGateway": "placeholder",
+    "trialDays": 7,
+    "currency": "USD",
+    "upsellBanners": true
+  },
+
+  "marketing": {
+    "coreMessage": "Earn credibility, not clout.",
+    "slogans": [
+      "Be R3AL. Be verified.",
+      "Integrity is influence.",
+      "Circles of truth build the Hive."
+    ],
+    "tone": "aspirational_but_grounded"
+  },
+
+  "securityPolicy": {
+    "screenshotBlock": true,
+    "captureStrikeLimit": 3,
+    "twoFactorModes": ["sms", "email", "totp"]
+  },
+
+  "buildInstructions": {
+    "action": "generate_full_ui",
+    "includeScreens": [
+      "splash_pulse",
+      "promo_learn",
+      "learn_more_modal",
+      "login_register",
+      "nda_consent",
+      "privacy_agreement",
+      "id_verification",
+      "twofactor_verify",
+      "questionnaire",
+      "integrity_dashboard",
+      "hive_home"
+    ],
+    "assets": ["@assets/r3al_mask_beta.png", "@assets/heartbeat.wav"]
+  }
+}

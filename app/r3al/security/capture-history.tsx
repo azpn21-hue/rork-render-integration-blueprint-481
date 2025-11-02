@@ -100,7 +100,7 @@ export default function CaptureHistory() {
         </View>
 
         <ScrollView style={styles.content}>
-          {security.captureStrikes > 0 && (
+          {security && security.captureStrikes > 0 && (
             <View style={styles.strikeCard}>
               <View style={styles.strikeHeader}>
                 <Text style={styles.strikeTitle}>Security Status</Text>
