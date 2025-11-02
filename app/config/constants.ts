@@ -22,4 +22,11 @@ export const AUTH_STORAGE_KEYS = {
   user: "@r3al_user",
   token: "@r3al_token",
   ndaAccepted: "@r3al_nda_accepted",
+  devMode: "@r3al_dev_mode",
+  verificationSkipped: "@r3al_verification_skipped",
+} as const;
+
+export const DEV_CREDENTIALS = {
+  adminEmail: "admin@r3al.app",
+  adminPassword: "R3alDev2025!",
 } as const;

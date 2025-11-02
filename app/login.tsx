@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,14 +13,25 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { LogIn, Mail, Lock } from "lucide-react-native";
+import { LogIn, Mail, Lock, Code } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { AUTH_STORAGE_KEYS, DEV_CREDENTIALS } from "@/app/config/constants";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoggingIn, loginError } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isDevMode, setIsDevMode] = useState(false);
+
+  useEffect(() => {
+    const checkDevMode = async () => {
+      const devMode = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.devMode);
+      setIsDevMode(devMode === "true");
+    };
+    checkDevMode();
+  }, []);
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -28,6 +39,11 @@ export default function LoginScreen() {
       return;
     }
     login({ email, password });
+  };
+
+  const fillAdminCredentials = () => {
+    setEmail(DEV_CREDENTIALS.adminEmail);
+    setPassword(DEV_CREDENTIALS.adminPassword);
   };
 
   return (
@@ -53,6 +69,19 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.form}>
+                {isDevMode && (
+                  <TouchableOpacity
+                    style={styles.devBadge}
+                    onPress={fillAdminCredentials}
+                    activeOpacity={0.7}
+                  >
+                    <Code size={16} color="#D4AF37" />
+                    <View style={styles.devBadgeContent}>
+                      <Text style={styles.devBadgeTitle}>Developer Mode</Text>
+                      <Text style={styles.devBadgeText}>Tap to fill admin credentials</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputIcon}>
                     <Mail color="#D4AF37" size={20} />
@@ -238,5 +267,28 @@ const styles = StyleSheet.create({
     color: "#D4AF37",
     fontSize: 16,
     fontWeight: "600" as const,
+  },
+  devBadge: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.3)",
+    borderRadius: 12,
+    padding: 12,
+  },
+  devBadgeContent: {
+    flex: 1,
+    gap: 2,
+  },
+  devBadgeTitle: {
+    fontSize: 14,
+    fontWeight: "600" as const,
+    color: "#D4AF37",
+  },
+  devBadgeText: {
+    fontSize: 12,
+    color: "#888888",
   },
 });

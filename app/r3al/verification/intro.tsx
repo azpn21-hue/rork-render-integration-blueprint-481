@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Shield, Camera, User, CheckCircle, Lock } from "lucide-react-native";
-import { useEffect, useRef } from "react";
+import { Shield, Camera, User, CheckCircle, Lock, LogIn } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import locales from "@/schemas/r3al/locale_tokens.json";
+import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
 
 export default function VerificationIntro() {
   const router = useRouter();
@@ -12,8 +14,15 @@ export default function VerificationIntro() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [isDevMode, setIsDevMode] = useState(false);
 
   useEffect(() => {
+    const checkDevMode = async () => {
+      const devMode = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.devMode);
+      setIsDevMode(devMode === "true");
+    };
+    checkDevMode();
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -120,16 +129,32 @@ export default function VerificationIntro() {
             </Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              console.log("[VerificationIntro] Begin verification → /r3al/verification");
-              router.push("/r3al/verification");
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.buttonText}>{t.begin_verification}</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                console.log("[VerificationIntro] Begin verification → /r3al/verification");
+                router.push("/r3al/verification");
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>{t.begin_verification}</Text>
+            </TouchableOpacity>
+
+            {isDevMode && (
+              <TouchableOpacity
+                style={styles.devButton}
+                onPress={() => {
+                  console.log("[VerificationIntro] Dev mode → /login");
+                  router.push("/login");
+                }}
+                activeOpacity={0.8}
+              >
+                <LogIn size={20} color={tokens.colors.text} strokeWidth={2} />
+                <Text style={styles.devButtonText}>Dev Login</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </Animated.View>
       </SafeAreaView>
     </LinearGradient>
@@ -253,5 +278,25 @@ const styles = StyleSheet.create({
     fontWeight: "700" as const,
     color: tokens.colors.secondary,
     letterSpacing: 0.5,
+  },
+  buttonContainer: {
+    gap: 12,
+  },
+  devButton: {
+    backgroundColor: "rgba(255,215,0,0.1)",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    flexDirection: "row" as const,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  devButtonText: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    color: tokens.colors.text,
   },
 });

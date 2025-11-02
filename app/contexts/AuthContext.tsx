@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
+import { AUTH_STORAGE_KEYS, DEV_CREDENTIALS } from "@/app/config/constants";
 import { trpc } from "@/lib/trpc";
 
 interface User {
@@ -82,15 +82,23 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       console.log("[Auth] Local login for:", credentials.email);
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const userId = `local_${Date.now()}`;
+      const isAdminLogin = credentials.email === DEV_CREDENTIALS.adminEmail && 
+                          credentials.password === DEV_CREDENTIALS.adminPassword;
+      
+      if (isAdminLogin) {
+        console.log("[Auth] Admin login detected");
+      }
+      
+      const userId = isAdminLogin ? "admin_dev" : `local_${Date.now()}`;
       const token = `token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       
       return {
         success: true,
         userId,
         email: credentials.email,
-        name: credentials.email.split("@")[0],
+        name: isAdminLogin ? "Admin Developer" : credentials.email.split("@")[0],
         token,
+        isAdmin: isAdminLogin,
       };
     },
     onSuccess: async (data) => {
@@ -105,11 +113,22 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
         await AsyncStorage.setItem(AUTH_STORAGE_KEYS.token, data.token);
         
+        if (data.isAdmin) {
+          await AsyncStorage.setItem(AUTH_STORAGE_KEYS.verificationSkipped, "true");
+          await AsyncStorage.setItem(AUTH_STORAGE_KEYS.ndaAccepted, "true");
+        }
+        
         setUser(userData);
         setToken(data.token);
         
         console.log("[Auth] Login successful:", userData?.email || userData.id);
-        router.replace("/nda");
+        
+        if (data.isAdmin) {
+          console.log("[Auth] Admin logged in, skipping verification → /r3al/home");
+          router.replace("/r3al/home");
+        } else {
+          router.replace("/nda");
+        }
       }
     },
     onError: (error) => {

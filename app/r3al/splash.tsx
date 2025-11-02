@@ -1,16 +1,20 @@
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated, TouchableOpacity, Alert } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import manifest from "@/schemas/r3al/manifest.json";
 import { useR3al } from "@/app/contexts/R3alContext";
+import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
 
 export default function R3alSplash() {
   const router = useRouter();
   const { hasConsented } = useR3al();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [tapCount, setTapCount] = useState(0);
+  const tapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     console.log("[Splash] Starting boot pulse (3000ms)");
@@ -61,27 +65,59 @@ export default function R3alSplash() {
     return () => {
       pulseAnimation.stop();
       clearTimeout(navigationTimer);
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
     };
   }, [pulseAnim, fadeAnim, router, hasConsented]);
+
+  const handleLogoTap = async () => {
+    const newCount = tapCount + 1;
+    setTapCount(newCount);
+
+    if (tapTimeoutRef.current) {
+      clearTimeout(tapTimeoutRef.current);
+    }
+
+    if (newCount >= 7) {
+      const currentDevMode = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.devMode);
+      const isEnabled = currentDevMode === "true";
+      
+      if (isEnabled) {
+        await AsyncStorage.removeItem(AUTH_STORAGE_KEYS.devMode);
+        Alert.alert("Developer Mode", "Developer mode disabled");
+      } else {
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.devMode, "true");
+        Alert.alert("Developer Mode", "Developer mode enabled! You can now login before verification.");
+      }
+      setTapCount(0);
+    } else {
+      tapTimeoutRef.current = setTimeout(() => {
+        setTapCount(0);
+      }, 2000);
+    }
+  };
 
   return (
     <LinearGradient
       colors={[tokens.colors.background, tokens.colors.secondary]}
       style={styles.container}
     >
-      <Animated.View
-        style={[
-          styles.logoContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: pulseAnim }],
-          },
-        ]}
-      >
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>R3AL</Text>
-        </View>
-      </Animated.View>
+      <TouchableOpacity onPress={handleLogoTap} activeOpacity={1}>
+        <Animated.View
+          style={[
+            styles.logoContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: pulseAnim }],
+            },
+          ]}
+        >
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>R3AL</Text>
+          </View>
+        </Animated.View>
+      </TouchableOpacity>
 
       <Animated.View style={[styles.mottoContainer, { opacity: fadeAnim }]}>
         <Text style={styles.motto}>Reveal • Relate • Respect</Text>
