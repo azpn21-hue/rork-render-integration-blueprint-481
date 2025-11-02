@@ -14,27 +14,33 @@ export default function ScoreResult() {
   const [animatedScore, setAnimatedScore] = useState(0 as number);
 
   useEffect(() => {
-    const score = calculateTruthScore();
-    
-    let currentScore = 0 as number;
-    const targetScore = score.score;
-    const duration = 2000 as number;
-    const steps = 50 as number;
-    const increment = targetScore / steps;
-    const stepDuration = duration / steps;
+    if (!truthScore) {
+      calculateTruthScore();
+    }
+  }, [truthScore, calculateTruthScore]);
 
-    const interval = setInterval(() => {
-      currentScore += increment;
-      if (currentScore >= targetScore) {
-        setAnimatedScore(targetScore);
-        clearInterval(interval);
-      } else {
-        setAnimatedScore(Math.round(currentScore));
-      }
-    }, stepDuration);
+  useEffect(() => {
+    if (truthScore) {
+      let currentScore = 0 as number;
+      const targetScore = truthScore.score;
+      const duration = 2000 as number;
+      const steps = 50 as number;
+      const increment = targetScore / steps;
+      const stepDuration = duration / steps;
 
-    return () => clearInterval(interval);
-  }, [calculateTruthScore]);
+      const interval = setInterval(() => {
+        currentScore += increment;
+        if (currentScore >= targetScore) {
+          setAnimatedScore(targetScore);
+          clearInterval(interval);
+        } else {
+          setAnimatedScore(Math.round(currentScore));
+        }
+      }, stepDuration);
+
+      return () => clearInterval(interval);
+    }
+  }, [truthScore]);
 
   if (!truthScore) {
     return null;

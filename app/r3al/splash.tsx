@@ -39,11 +39,7 @@ export default function R3alSplash() {
     pulseAnimation.start();
 
     const navigationTimer = setTimeout(() => {
-      if (!hasConsented) {
-        router.replace("/r3al/onboarding/consent");
-      } else {
-        router.replace("/r3al/onboarding/welcome");
-      }
+      router.replace("/r3al/onboarding/welcome");
     }, 3000);
 
     return () => {
