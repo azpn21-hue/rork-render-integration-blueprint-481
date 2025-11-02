@@ -99,8 +99,8 @@ export default function R3alHome() {
                 </Text>
               </View>
               <Text style={styles.warningText}>
-                {security.captureStrikes >= 3 
-                  ? `Your account has been restricted due to ${security.captureStrikes} screenshot violations. Restriction expires on ${new Date(security.restrictionUntil!).toLocaleString()}.`
+                {security.captureStrikes >= 3 && security.restrictionUntil
+                  ? `Your account has been restricted due to ${security.captureStrikes} screenshot violations. Restriction expires on ${new Date(security.restrictionUntil).toLocaleString()}.`
                   : `You have ${security.captureStrikes} of 3 screenshot strikes. Further violations will result in a 24-hour restriction.`
                 }
               </Text>

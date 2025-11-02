@@ -119,7 +119,16 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       if (stored) {
         const parsedState = JSON.parse(stored);
         console.log("[R3AL] State loaded:", parsedState);
-        setState({ ...parsedState, isLoading: false });
+        
+        // Ensure security object has proper structure
+        const securityState: SecurityState = {
+          captureStrikes: parsedState.security?.captureStrikes || 0,
+          restrictionUntil: parsedState.security?.restrictionUntil || null,
+          restrictedFeatures: parsedState.security?.restrictedFeatures || [],
+          lastCaptureTimestamp: parsedState.security?.lastCaptureTimestamp || null,
+        };
+        
+        setState({ ...parsedState, security: securityState, isLoading: false });
       } else {
         console.log("[R3AL] No stored state found, using initial state");
         setState((prev) => ({ ...prev, isLoading: false }));
@@ -328,9 +337,9 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   }, [saveState, state.security]);
 
   const isRestricted = useCallback(() => {
-    if (!state.security.restrictionUntil) return false;
+    if (!state.security?.restrictionUntil) return false;
     return new Date().toISOString() < state.security.restrictionUntil;
-  }, [state.security.restrictionUntil]);
+  }, [state.security]);
 
   const resetR3al = useCallback(async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
