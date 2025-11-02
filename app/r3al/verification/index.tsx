@@ -39,7 +39,12 @@ export default function IdentityVerification() {
     if (permission && !permission.granted && !permission.canAskAgain) {
       setError("Camera permission was denied. Please enable it in your device settings.");
     }
-  }, [r3alContext, userProfile, setVerified, earnTokens, permission]);
+    
+    if (!permission) {
+      console.log("[IdentityVerification] Requesting camera permission...");
+      requestPermission();
+    }
+  }, [r3alContext, userProfile, setVerified, earnTokens, permission, requestPermission]);
 
   useEffect(() => {
     const pulse = Animated.loop(
