@@ -21,6 +21,7 @@ export default function R3alLayout() {
       <Stack.Screen name="hive/nft-marketplace" />
       <Stack.Screen name="hive/token-wallet" />
       <Stack.Screen name="learn-more" />
+      <Stack.Screen name="qotd/index" />
     </Stack>
   );
 }
