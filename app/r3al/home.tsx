@@ -125,7 +125,7 @@ export default function R3alHome() {
               <View style={styles.scorePreview}>
                 <TouchableOpacity
                   style={styles.scoreCard}
-                  onPress={() => console.log("View detailed score")}
+                  onPress={() => router.push("/r3al/truth-score-detail")}
                   activeOpacity={0.8}
                 >
                   <View style={styles.scoreIcon}>
