@@ -27,7 +27,8 @@ export default function Questionnaire() {
       });
 
       if (isLastQuestion) {
-        router.push("/r3al/questionnaire/result");
+        console.log("[Questionnaire] Last question answered → /r3al/questionnaire/result");
+        router.replace("/r3al/questionnaire/result");
       } else {
         setCurrentIndex(currentIndex + 1);
         const nextQuestion = questions[currentIndex + 1];

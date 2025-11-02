@@ -50,7 +50,10 @@ export default function VerificationIntro() {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("/r3al/verification/index")}
+            onPress={() => {
+              console.log("[VerificationIntro] Begin verification → /r3al/verification/index");
+              router.replace("/r3al/verification/index");
+            }}
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>{t.begin_verification}</Text>

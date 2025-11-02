@@ -26,7 +26,10 @@ export default function Welcome() {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("/r3al/onboarding/consent")}
+            onPress={() => {
+              console.log("[Welcome] Start pressed → /r3al/onboarding/consent");
+              router.replace("/r3al/onboarding/consent");
+            }}
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>{t.start}</Text>

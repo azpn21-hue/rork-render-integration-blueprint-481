@@ -35,7 +35,10 @@ export default function IdentityVerification() {
         [
           {
             text: "Continue",
-            onPress: () => router.push("/r3al/questionnaire/index"),
+            onPress: () => {
+              console.log("[Verification] Success → /r3al/questionnaire/index");
+              router.replace("/r3al/questionnaire/index");
+            },
           },
         ]
       );

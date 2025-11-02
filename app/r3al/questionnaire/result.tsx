@@ -110,7 +110,10 @@ export default function ScoreResult() {
           <View style={styles.navigation}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push("/r3al/profile/setup")}
+              onPress={() => {
+                console.log("[Result] Finish pressed → /r3al/profile/setup");
+                router.replace("/r3al/profile/setup");
+              }}
               activeOpacity={0.8}
             >
               <Text style={styles.buttonText}>{t.finish}</Text>

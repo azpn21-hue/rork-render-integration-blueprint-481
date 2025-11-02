@@ -13,6 +13,9 @@ export default function R3alSplash() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    console.log("[Splash] Starting boot pulse (3000ms)");
+    console.log("[Splash] Current state:", { hasConsented });
+    
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 800,
@@ -43,9 +46,14 @@ export default function R3alSplash() {
       const betaEndsAt = manifest.beta_promo?.ends_at;
       const isBetaActive = manifest.beta_promo?.enabled && betaEndsAt && new Date() < new Date(betaEndsAt);
       
+      console.log("[Splash] Boot pulse complete, navigating next...");
+      console.log("[Splash] Beta active:", isBetaActive);
+      
       if (isBetaActive) {
+        console.log("[Splash] → /r3al/promo-beta");
         router.replace("/r3al/promo-beta");
       } else {
+        console.log("[Splash] → /r3al/onboarding/welcome");
         router.replace("/r3al/onboarding/welcome");
       }
     }, 3000);

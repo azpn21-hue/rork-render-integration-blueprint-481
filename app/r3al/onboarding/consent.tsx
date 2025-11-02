@@ -14,8 +14,10 @@ export default function Consent() {
 
   const handleContinue = () => {
     if (agreedToTerms) {
+      console.log("[Consent] Agreement accepted, marking consent...");
       giveConsent();
-      router.push("/r3al/verification/intro");
+      console.log("[Consent] → /r3al/verification/intro");
+      router.replace("/r3al/verification/intro");
     }
   };
 

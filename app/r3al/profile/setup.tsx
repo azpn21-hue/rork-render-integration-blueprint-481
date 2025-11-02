@@ -26,6 +26,7 @@ export default function ProfileSetup() {
       truthScore,
     });
 
+    console.log("[ProfileSetup] Complete → /r3al/home");
     router.replace("/r3al/home");
   };
 

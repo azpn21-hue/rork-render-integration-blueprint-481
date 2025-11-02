@@ -15,12 +15,14 @@ export default function PromoBeta() {
   const isBetaActive = betaEndsAt && new Date() < new Date(betaEndsAt);
 
   if (!isBetaActive && !manifest.beta_promo?.enabled) {
+    console.log("[PromoBeta] Beta expired, redirecting to welcome");
     router.replace("/r3al/onboarding/welcome");
     return null;
   }
 
   const handleContinue = () => {
-    router.push("/r3al/onboarding/welcome");
+    console.log("[PromoBeta] Continue pressed → /r3al/onboarding/welcome");
+    router.replace("/r3al/onboarding/welcome");
   };
 
   const handleLearnMore = () => {
