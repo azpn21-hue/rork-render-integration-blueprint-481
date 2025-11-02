@@ -15,6 +15,12 @@ export default function R3alLayout() {
       <Stack.Screen name="home" />
       <Stack.Screen name="security/capture-history" />
       <Stack.Screen name="security/appeal-form" />
+      <Stack.Screen name="hive/index" />
+      <Stack.Screen name="hive/nft-creator" />
+      <Stack.Screen name="hive/nft-gallery" />
+      <Stack.Screen name="hive/nft-marketplace" />
+      <Stack.Screen name="hive/token-wallet" />
+      <Stack.Screen name="learn-more" />
     </Stack>
   );
 }

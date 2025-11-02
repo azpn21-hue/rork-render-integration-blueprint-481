@@ -1,406 +1,290 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { 
-  ArrowLeft, Shield, Users,
-  Zap, TrendingUp, Camera, CheckCircle, AlertTriangle
+  ArrowLeft, 
+  Shield, 
+  Award, 
+  Users, 
+  Hexagon, 
+  Coins,
+  Image as ImageIcon,
+  TrendingUp,
+  Heart,
+  Lock
 } from "lucide-react-native";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
-import buildDrop from "@/schemas/r3al/build_drop_v1.json";
-import archFlow from "@/schemas/r3al/architecture_flow_v1.json";
-import React, { useState, useRef, useEffect } from "react";
 
 export default function LearnMore() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const [selectedTab, setSelectedTab] = useState<"flow" | "architecture" | "features" | "dataflow">("flow");
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [pulseAnim]);
-
-  const handleBack = () => {
-    console.log("[LearnMore] Back pressed");
-    router.back();
-  };
 
   return (
     <LinearGradient
-      colors={[tokens.colors.background, tokens.colors.secondary]}
+      colors={[tokens.colors.background, tokens.colors.surface]}
       style={styles.container}
     >
-      <ScrollView 
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 }
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
+      <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={handleBack}
-            activeOpacity={0.7}
-          >
-            <ArrowLeft color={tokens.colors.gold} size={24} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
           </TouchableOpacity>
-          
-          <Animated.View style={[styles.logoContainer, { transform: [{ scale: pulseAnim }] }]}>
-            <Text style={styles.logoText}>R3AL</Text>
-          </Animated.View>
-          
-          <View style={{ width: 40 }} />
+          <Text style={styles.headerTitle}>R3AL Architecture</Text>
+          <View style={styles.placeholder} />
         </View>
 
-        <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>How R3AL Works</Text>
-          <Text style={styles.subtitle}>
-            {buildDrop.marketing.coreMessage}
-          </Text>
-        </View>
-
-        <View style={styles.tabBar}>
-          <TabButton 
-            label="Flow" 
-            active={selectedTab === "flow"} 
-            onPress={() => setSelectedTab("flow")}
-          />
-          <TabButton 
-            label="System" 
-            active={selectedTab === "architecture"} 
-            onPress={() => setSelectedTab("architecture")}
-          />
-          <TabButton 
-            label="Data Flow" 
-            active={selectedTab === "dataflow"} 
-            onPress={() => setSelectedTab("dataflow")}
-          />
-          <TabButton 
-            label="Features" 
-            active={selectedTab === "features"} 
-            onPress={() => setSelectedTab("features")}
-          />
-        </View>
-
-        {selectedTab === "flow" && <FlowSection />}
-        {selectedTab === "architecture" && <ArchitectureSection />}
-        {selectedTab === "dataflow" && <DataFlowSection />}
-        {selectedTab === "features" && <FeaturesSection />}
-
-        <View style={styles.footerCTA}>
-          <Text style={styles.readyText}>Ready to join?</Text>
-          <TouchableOpacity 
-            style={styles.ctaButton}
-            onPress={handleBack}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.ctaButtonText}>Get Started</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </LinearGradient>
-  );
-}
-
-function TabButton({ 
-  label, 
-  active, 
-  onPress 
-}: { 
-  label: string; 
-  active: boolean; 
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity 
-      style={[styles.tabButton, active && styles.tabButtonActive]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={[styles.tabButtonText, active && styles.tabButtonTextActive]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-function FlowSection() {
-  const steps = [
-    {
-      icon: <Zap color={tokens.colors.gold} size={28} />,
-      title: "Welcome Pulse",
-      description: "Experience the R3AL heartbeat at 60 BPM—your introduction to authenticity.",
-      stage: "Entry"
-    },
-    {
-      icon: <Shield color={tokens.colors.gold} size={28} />,
-      title: "Security Setup",
-      description: "NDA consent, privacy agreement, and optional ID verification for trust.",
-      stage: "Security"
-    },
-    {
-      icon: <CheckCircle color={tokens.colors.gold} size={28} />,
-      title: "Trust Vault Questionnaire",
-      description: "Answer psych-eval grade questions to establish your baseline Integrity Index.",
-      stage: "Verification"
-    },
-    {
-      icon: <Camera color={tokens.colors.gold} size={28} />,
-      title: "Profile Creation",
-      description: "Upload authentic photos—no filters, no AI. Real you, verified.",
-      stage: "Profile"
-    },
-    {
-      icon: <Users color={tokens.colors.gold} size={28} />,
-      title: "Join the Hive",
-      description: "Enter Circles, connect with verified members, and build your reputation.",
-      stage: "Community"
-    },
-    {
-      icon: <TrendingUp color={tokens.colors.gold} size={28} />,
-      title: "Earn Trust Tokens",
-      description: "Engage authentically, earn tokens, and unlock premium features.",
-      stage: "Growth"
-    }
-  ];
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Your Journey</Text>
-      <Text style={styles.sectionDescription}>
-        From first login to verified member&mdash;here&apos;s how R3AL builds trust.
-      </Text>
-      
-      {steps.map((step, index) => (
-        <View key={index} style={styles.flowCard}>
-          <View style={styles.flowCardHeader}>
-            <View style={styles.flowIcon}>{step.icon}</View>
-            <View style={styles.flowStage}>
-              <Text style={styles.flowStageText}>{step.stage}</Text>
-            </View>
-          </View>
-          <Text style={styles.flowTitle}>{step.title}</Text>
-          <Text style={styles.flowDescription}>{step.description}</Text>
-          {index < steps.length - 1 && <View style={styles.flowConnector} />}
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function ArchitectureSection() {
-  const services = archFlow.nodes;
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>System Services</Text>
-      <Text style={styles.sectionDescription}>
-        R3AL is powered by 9 specialized microservices working together.
-      </Text>
-      
-      {services.map((service, index) => (
-        <View key={index} style={styles.serviceCard}>
-          <View style={styles.serviceHeader}>
-            <Text style={styles.serviceEmoji}>{service.label.split(" ")[0]}</Text>
-            <View style={styles.roleTag}>
-              <Text style={styles.roleTagText}>{service.role}</Text>
-            </View>
-          </View>
-          <Text style={styles.serviceTitle}>{service.label.split(" ").slice(1).join(" ")}</Text>
-          <Text style={styles.serviceDescription}>{service.description}</Text>
-        </View>
-      ))}
-
-      <View style={styles.techStack}>
-        <Text style={styles.techStackTitle}>Security & Compliance</Text>
-        <View style={styles.techBadges}>
-          <TechBadge label="HTTPS + JWT" />
-          <TechBadge label="AES-256 Encryption" />
-          <TechBadge label="Role-Based ACL" />
-          <TechBadge label="Rate Limiting" />
-          <TechBadge label="Audit Logging" />
-          <TechBadge label="GDPR Compliant" />
-        </View>
-      </View>
-
-      <View style={styles.runtimeNotes}>
-        <Text style={styles.runtimeTitle}>Runtime Architecture</Text>
-        {archFlow.runtime_notes.map((note, idx) => (
-          <View key={idx} style={styles.noteRow}>
-            <View style={styles.noteDot} />
-            <Text style={styles.noteText}>{note}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function DataFlowSection() {
-  const apiGroups = [
-    { name: "Users", endpoints: archFlow.api_endpoints.users },
-    { name: "Circles", endpoints: archFlow.api_endpoints.circles },
-    { name: "Feed", endpoints: archFlow.api_endpoints.feed },
-    { name: "Events", endpoints: archFlow.api_endpoints.events },
-    { name: "Tokens", endpoints: archFlow.api_endpoints.tokens },
-    { name: "Governance", endpoints: archFlow.api_endpoints.governance }
-  ];
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>API & Data Flow</Text>
-      <Text style={styles.sectionDescription}>
-        How data moves through the R3AL ecosystem&mdash;from user requests to backend services.
-      </Text>
-
-      <View style={styles.flowDiagram}>
-        <Text style={styles.flowDiagramTitle}>Data Journey</Text>
-        {archFlow.links.map((link, index) => (
-          <View key={index} style={styles.flowLink}>
-            <Text style={styles.flowFrom}>{link.from.replace("_", " ")}</Text>
-            <View style={styles.flowArrow}>
-              <View style={styles.arrowLine} />
-              <Text style={styles.arrowLabel}>{link.label}</Text>
-            </View>
-            <Text style={styles.flowTo}>{link.to.replace("_", " ")}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.apiSection}>
-        <Text style={styles.apiSectionTitle}>API Endpoints</Text>
-        {apiGroups.map((group, idx) => (
-          <View key={idx} style={styles.apiGroup}>
-            <Text style={styles.apiGroupName}>{group.name}</Text>
-            {group.endpoints.map((endpoint, endIdx) => (
-              <View key={endIdx} style={styles.endpointCard}>
-                <View style={styles.methodBadge}>
-                  <Text style={[styles.methodText, { color: getMethodColor(endpoint.method) }]}>
-                    {endpoint.method}
-                  </Text>
-                </View>
-                <View style={styles.endpointInfo}>
-                  <Text style={styles.endpointPath}>{endpoint.path}</Text>
-                  <Text style={styles.endpointDesc}>{endpoint.description}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.metricsBox}>
-        <Text style={styles.metricsTitle}>Derived Metrics</Text>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Circle Health:</Text>
-          <Text style={styles.metricFormula}>{archFlow.derived_metrics.circleHealth}</Text>
-        </View>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Hive Integrity:</Text>
-          <Text style={styles.metricFormula}>{archFlow.derived_metrics.hiveIntegrity}</Text>
-        </View>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>User Influence:</Text>
-          <Text style={styles.metricFormula}>{archFlow.derived_metrics.userInfluence}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function getMethodColor(method: string): string {
-  switch(method) {
-    case "GET": return "#5cb85c";
-    case "POST": return "#d4af37";
-    case "PUT": return "#f0ad4e";
-    case "DELETE": return "#d9534f";
-    default: return "#ffffff";
-  }
-}
-
-function FeaturesSection() {
-  const tiers = buildDrop.promoPolicy.pricingTiers;
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Features & Tiers</Text>
-      <Text style={styles.sectionDescription}>
-        Choose the level that fits your needs. All tiers include core security.
-      </Text>
-      
-      {tiers.map((tier, index) => (
-        <View key={index} style={styles.tierCard}>
-          <View style={styles.tierHeader}>
-            <Text style={styles.tierName}>{tier.name}</Text>
-            <Text style={styles.tierPrice}>
-              {typeof tier.price === "number" ? `$${tier.price}/mo` : tier.price}
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.heroSection}>
+            <Text style={styles.heroTitle}>Complete Ecosystem Flow</Text>
+            <Text style={styles.heroSubtitle}>
+              A privacy-first platform where authenticity, community, and value creation intersect
             </Text>
           </View>
-          <View style={styles.tierFeatures}>
-            {tier.features.map((feature, idx) => (
-              <View key={idx} style={styles.featureRow}>
-                <CheckCircle color={tokens.colors.gold} size={16} />
-                <Text style={styles.featureText}>{feature}</Text>
+
+          <View style={styles.flowSection}>
+            <Text style={styles.flowTitle}>🚀 User Journey</Text>
+            
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>1</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Shield size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>Verification & Onboarding</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Multi-factor authentication{"\n"}
+                    • Identity verification (2FA + optional biometrics){"\n"}
+                    • Privacy agreement & NDA consent{"\n"}
+                    • Guest mode available during beta
+                  </Text>
+                </View>
               </View>
-            ))}
+            </View>
+
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>2</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Award size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>Truth Score Questionnaire</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Psychologically-validated questions{"\n"}
+                    • Measures honesty, integrity, transparency{"\n"}
+                    • Generates personalized Truth Score{"\n"}
+                    • Score affects token earning rate{"\n"}
+                    • Real-time progress tracking
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>3</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Lock size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>Privacy Protection System</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Screenshot & screen recording detection{"\n"}
+                    • Three-strike policy with 24hr restrictions{"\n"}
+                    • Content capture history tracking{"\n"}
+                    • Appeal process for false positives{"\n"}
+                    • Automatic escalation to supervisors
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>4</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Coins size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>Trust-Token Economy</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Earn tokens through verification & integrity{"\n"}
+                    • Initial bonus: 100 tokens{"\n"}
+                    • Token rewards scale with Truth Score{"\n"}
+                    • Spend tokens on NFT creation & features{"\n"}
+                    • Trade tokens in the marketplace{"\n"}
+                    • Activates at 100K users
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>5</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Hexagon size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>NFT Hive Marketplace</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Create NFTs using Trust-Tokens (min 10 tokens){"\n"}
+                    • Upload custom artwork with descriptions{"\n"}
+                    • List NFTs for sale at custom prices{"\n"}
+                    • Gift NFTs to other users{"\n"}
+                    • Full transaction history{"\n"}
+                    • Provenance tracking & authenticity
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.flowCard}>
+              <View style={styles.flowStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>6</Text>
+                </View>
+                <View style={styles.stepContent}>
+                  <View style={styles.stepHeader}>
+                    <Users size={20} color={tokens.colors.gold} strokeWidth={2} />
+                    <Text style={styles.stepTitle}>Hive Circles & Community</Text>
+                  </View>
+                  <Text style={styles.stepDescription}>
+                    • Join Circles based on tier level{"\n"}
+                    • Free: 1 Circle | Plus: 3 | Pro: 5 | Elite: Unlimited{"\n"}
+                    • Circle integrity scores affect visibility{"\n"}
+                    • Host events (Pro & Elite tiers){"\n"}
+                    • Mentorship programs with token rewards{"\n"}
+                    • Governance voting for Council members
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
-      ))}
 
-      <View style={styles.tokenInfo}>
-        <Text style={styles.tokenTitle}>Trust Tokens</Text>
-        <Text style={styles.tokenDescription}>
-          Earn tokens by maintaining high integrity, participating in the Hive, and helping others.
-          Tokens unlock features, events, and marketplace access.
-        </Text>
-        <View style={styles.tokenRewards}>
-          <RewardBadge label="Verify Profile" amount={10} />
-          <RewardBadge label="High Integrity" amount={25} />
-          <RewardBadge label="Commendation" amount={15} />
-          <RewardBadge label="Quarter Clean" amount={30} />
-        </View>
-        <View style={styles.tokenNote}>
-          <AlertTriangle color={tokens.colors.goldLight} size={16} />
-          <Text style={styles.tokenNoteText}>
-            Token system activates at 100,000 users
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-}
+          <View style={styles.tierSection}>
+            <Text style={styles.sectionTitle}>💎 Subscription Tiers</Text>
+            
+            <View style={styles.tierCard}>
+              <Text style={styles.tierName}>Free</Text>
+              <Text style={styles.tierPrice}>$0/month</Text>
+              <Text style={styles.tierFeatures}>
+                • 1 Circle join{"\n"}
+                • Basic questionnaire{"\n"}
+                • 3 photo slots{"\n"}
+                • Standard token earning rate
+              </Text>
+            </View>
 
-function TechBadge({ label }: { label: string }) {
-  return (
-    <View style={styles.techBadge}>
-      <Text style={styles.techBadgeText}>{label}</Text>
-    </View>
-  );
-}
+            <View style={[styles.tierCard, styles.tierCardFeatured]}>
+              <Text style={styles.tierName}>Plus</Text>
+              <Text style={styles.tierPrice}>$9.99/month</Text>
+              <Text style={styles.tierFeatures}>
+                • 3 Circles{"\n"}
+                • Ad-free experience{"\n"}
+                • Vault editing{"\n"}
+                • 4 photo scans/month{"\n"}
+                • 1.25x token earning multiplier
+              </Text>
+            </View>
 
-function RewardBadge({ label, amount }: { label: string; amount: number }) {
-  return (
-    <View style={styles.rewardBadge}>
-      <Text style={styles.rewardLabel}>{label}</Text>
-      <Text style={styles.rewardAmount}>+{amount}</Text>
-    </View>
+            <View style={styles.tierCard}>
+              <Text style={styles.tierName}>Pro</Text>
+              <Text style={styles.tierPrice}>$19.99/month</Text>
+              <Text style={styles.tierFeatures}>
+                • 5 Circles{"\n"}
+                • Advanced analytics{"\n"}
+                • Integrity insights dashboard{"\n"}
+                • Unlimited photo scans{"\n"}
+                • Event hosting capability{"\n"}
+                • 1.5x token earning multiplier
+              </Text>
+            </View>
+
+            <View style={[styles.tierCard, styles.tierCardElite]}>
+              <Text style={styles.tierName}>Elite</Text>
+              <Text style={styles.tierPrice}>Invite Only</Text>
+              <Text style={styles.tierFeatures}>
+                • Unlimited Circles{"\n"}
+                • Host premium events{"\n"}
+                • Marketplace priority{"\n"}
+                • Council voting rights{"\n"}
+                • Exclusive features{"\n"}
+                • 2x token earning multiplier
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.techSection}>
+            <Text style={styles.sectionTitle}>⚙️ Technical Architecture</Text>
+            
+            <View style={styles.techCard}>
+              <TrendingUp size={24} color={tokens.colors.gold} strokeWidth={2} />
+              <View style={styles.techContent}>
+                <Text style={styles.techTitle}>Data Flow</Text>
+                <Text style={styles.techText}>
+                  Client App → Auth Service → Hive API Gateway → Microservices (Integrity Engine, Token Engine, Media Service) → Database Cluster → Analytics Engine → Admin Dashboard
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.techCard}>
+              <Shield size={24} color={tokens.colors.gold} strokeWidth={2} />
+              <View style={styles.techContent}>
+                <Text style={styles.techTitle}>Security Layers</Text>
+                <Text style={styles.techText}>
+                  • JWT/OAuth authentication{"\n"}
+                  • Role-based access control{"\n"}
+                  • SHA-256 user ID hashing{"\n"}
+                  • AES-256 vault encryption{"\n"}
+                  • Rate limiting (100 req/min){"\n"}
+                  • Audit logs for all actions
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.techCard}>
+              <Heart size={24} color={tokens.colors.gold} strokeWidth={2} />
+              <View style={styles.techContent}>
+                <Text style={styles.techTitle}>Core Values</Text>
+                <Text style={styles.techText}>
+                  • Privacy by design{"\n"}
+                  • User data ownership{"\n"}
+                  • Transparent algorithms{"\n"}
+                  • Community governance{"\n"}
+                  • Ethical AI integration{"\n"}
+                  • 1974 Privacy Act compliant
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.ctaSection}>
+            <Text style={styles.ctaTitle}>Ready to Join the R3AL Hive?</Text>
+            <Text style={styles.ctaSubtitle}>
+              Be part of a community where authenticity meets innovation
+            </Text>
+            <TouchableOpacity
+              style={styles.ctaButton}
+              onPress={() => router.replace("/r3al/onboarding/welcome")}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.ctaButtonText}>Get Started</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -408,556 +292,202 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
+  safeArea: {
+    flex: 1,
   },
   header: {
     flexDirection: "row" as const,
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 32,
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.gold + "30",
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: tokens.colors.gold,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: tokens.colors.goldLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  logoText: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.secondary,
-    letterSpacing: 1,
-  },
-  titleSection: {
-    marginBottom: 32,
-  },
-  mainTitle: {
-    fontSize: 36,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 12,
-    lineHeight: 42,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: tokens.colors.gold,
-    fontWeight: "500" as const,
-    lineHeight: 26,
-  },
-  tabBar: {
-    flexDirection: "row" as const,
-    gap: 8,
-    marginBottom: 32,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 12,
     padding: 4,
   },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  placeholder: {
+    width: 32,
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  heroSection: {
     alignItems: "center",
+    marginBottom: 32,
+    gap: 12,
   },
-  tabButtonActive: {
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+    textAlign: "center",
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: tokens.colors.text,
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  flowSection: {
+    marginBottom: 32,
+  },
+  flowTitle: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+    marginBottom: 16,
+  },
+  flowCard: {
+    backgroundColor: tokens.colors.surface,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
+    padding: 20,
+    marginBottom: 16,
+  },
+  flowStep: {
+    flexDirection: "row" as const,
+    gap: 16,
+  },
+  stepNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: tokens.colors.gold,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  tabButtonText: {
+  stepNumberText: {
+    fontSize: 16,
+    fontWeight: "bold" as const,
+    color: tokens.colors.background,
+  },
+  stepContent: {
+    flex: 1,
+    gap: 12,
+  },
+  stepHeader: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 8,
+  },
+  stepTitle: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  stepDescription: {
     fontSize: 14,
-    fontWeight: "600" as const,
-    color: tokens.colors.textSecondary,
+    color: tokens.colors.text,
+    lineHeight: 22,
   },
-  tabButtonTextActive: {
-    color: tokens.colors.secondary,
-  },
-  section: {
-    marginBottom: 40,
+  tierSection: {
+    marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 8,
-  },
-  sectionDescription: {
-    fontSize: 15,
-    color: tokens.colors.textSecondary,
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  flowCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-    position: "relative" as const,
-  },
-  flowCardHeader: {
-    flexDirection: "row" as const,
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  flowIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  flowStage: {
-    backgroundColor: tokens.colors.gold,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  flowStageText: {
-    fontSize: 11,
-    fontWeight: "bold" as const,
-    color: tokens.colors.secondary,
-    letterSpacing: 0.5,
-  },
-  flowTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 8,
-  },
-  flowDescription: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
-    lineHeight: 20,
-  },
-  flowConnector: {
-    position: "absolute" as const,
-    bottom: -16,
-    left: 44,
-    width: 2,
-    height: 16,
-    backgroundColor: "rgba(212, 175, 55, 0.3)",
-  },
-  archCard: {
-    flexDirection: "row" as const,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-    gap: 16,
-  },
-  archIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  archContent: {
-    flex: 1,
-  },
-  archTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 6,
-  },
-  archDescription: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  metaBadge: {
-    backgroundColor: "rgba(212, 175, 55, 0.15)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    alignSelf: "flex-start" as const,
-    marginTop: 4,
-  },
-  metaBadgeText: {
-    fontSize: 11,
     color: tokens.colors.gold,
-    fontWeight: "600" as const,
-  },
-  techStack: {
-    backgroundColor: "rgba(212, 175, 55, 0.05)",
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-  },
-  techStackTitle: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 12,
-  },
-  techBadges: {
-    flexDirection: "row" as const,
-    flexWrap: "wrap" as const,
-    gap: 8,
-  },
-  techBadge: {
-    backgroundColor: tokens.colors.gold,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  techBadgeText: {
-    fontSize: 12,
-    fontWeight: "600" as const,
-    color: tokens.colors.secondary,
+    marginBottom: 16,
   },
   tierCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
+    backgroundColor: tokens.colors.surface,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
     padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
+    marginBottom: 12,
   },
-  tierHeader: {
-    flexDirection: "row" as const,
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(212, 175, 55, 0.2)",
+  tierCardFeatured: {
+    borderColor: tokens.colors.gold,
+    borderWidth: 3,
+  },
+  tierCardElite: {
+    backgroundColor: tokens.colors.gold + "10",
+    borderColor: tokens.colors.gold,
   },
   tierName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold" as const,
-    color: tokens.colors.text,
+    color: tokens.colors.gold,
+    marginBottom: 4,
   },
   tierPrice: {
-    fontSize: 20,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
+    fontSize: 16,
+    color: tokens.colors.text,
+    marginBottom: 12,
   },
   tierFeatures: {
-    gap: 12,
-  },
-  featureRow: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    gap: 10,
-  },
-  featureText: {
     fontSize: 14,
-    color: tokens.colors.textSecondary,
-    flex: 1,
-  },
-  tokenInfo: {
-    backgroundColor: "rgba(212, 175, 55, 0.05)",
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-  },
-  tokenTitle: {
-    fontSize: 20,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-    marginBottom: 8,
-  },
-  tokenDescription: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  tokenRewards: {
-    flexDirection: "row" as const,
-    flexWrap: "wrap" as const,
-    gap: 8,
-    marginBottom: 16,
-  },
-  rewardBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.3)",
-  },
-  rewardLabel: {
-    fontSize: 11,
-    color: tokens.colors.textSecondary,
-    marginBottom: 2,
-  },
-  rewardAmount: {
-    fontSize: 14,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-  },
-  tokenNote: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
-    padding: 12,
-    borderRadius: 8,
-  },
-  tokenNoteText: {
-    fontSize: 12,
-    color: tokens.colors.goldLight,
-    flex: 1,
-  },
-  footerCTA: {
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  readyText: {
-    fontSize: 18,
-    fontWeight: "600" as const,
     color: tokens.colors.text,
-    marginBottom: 16,
+    lineHeight: 22,
+  },
+  techSection: {
+    marginBottom: 32,
+  },
+  techCard: {
+    flexDirection: "row" as const,
+    backgroundColor: tokens.colors.surface,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 1,
+    borderColor: tokens.colors.gold + "20",
+    padding: 20,
+    marginBottom: 12,
+    gap: 16,
+  },
+  techContent: {
+    flex: 1,
+    gap: 8,
+  },
+  techTitle: {
+    fontSize: 16,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  techText: {
+    fontSize: 14,
+    color: tokens.colors.text,
+    lineHeight: 22,
+  },
+  ctaSection: {
+    alignItems: "center",
+    backgroundColor: tokens.colors.surface,
+    padding: 32,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    gap: 16,
+  },
+  ctaTitle: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+    textAlign: "center",
+  },
+  ctaSubtitle: {
+    fontSize: 16,
+    color: tokens.colors.text,
+    textAlign: "center",
+    lineHeight: 24,
   },
   ctaButton: {
     backgroundColor: tokens.colors.gold,
+    paddingHorizontal: 32,
     paddingVertical: 16,
-    paddingHorizontal: 48,
-    borderRadius: 12,
-    shadowColor: tokens.colors.gold,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    borderRadius: tokens.dimensions.borderRadius,
+    marginTop: 8,
   },
   ctaButtonText: {
-    color: tokens.colors.secondary,
     fontSize: 18,
     fontWeight: "bold" as const,
-    letterSpacing: 0.5,
-  },
-  serviceCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-  },
-  serviceHeader: {
-    flexDirection: "row" as const,
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  serviceEmoji: {
-    fontSize: 28,
-  },
-  roleTag: {
-    backgroundColor: "rgba(212, 175, 55, 0.15)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  roleTagText: {
-    fontSize: 10,
-    fontWeight: "600" as const,
-    color: tokens.colors.gold,
-    textTransform: "uppercase" as const,
-    letterSpacing: 0.5,
-  },
-  serviceTitle: {
-    fontSize: 17,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 6,
-  },
-  serviceDescription: {
-    fontSize: 13,
-    color: tokens.colors.textSecondary,
-    lineHeight: 19,
-  },
-  runtimeNotes: {
-    backgroundColor: "rgba(212, 175, 55, 0.05)",
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-  },
-  runtimeTitle: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 12,
-  },
-  noteRow: {
-    flexDirection: "row" as const,
-    marginBottom: 10,
-    alignItems: "flex-start",
-  },
-  noteDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: tokens.colors.gold,
-    marginTop: 6,
-    marginRight: 10,
-  },
-  noteText: {
-    flex: 1,
-    fontSize: 13,
-    color: tokens.colors.textSecondary,
-    lineHeight: 19,
-  },
-  flowDiagram: {
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.15)",
-  },
-  flowDiagramTitle: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-    marginBottom: 16,
-  },
-  flowLink: {
-    marginBottom: 12,
-  },
-  flowFrom: {
-    fontSize: 13,
-    fontWeight: "600" as const,
-    color: tokens.colors.text,
-    textTransform: "capitalize" as const,
-    marginBottom: 4,
-  },
-  flowArrow: {
-    marginLeft: 12,
-    marginBottom: 4,
-  },
-  arrowLine: {
-    width: 2,
-    height: 12,
-    backgroundColor: "rgba(212, 175, 55, 0.4)",
-    marginBottom: 2,
-  },
-  arrowLabel: {
-    fontSize: 11,
-    color: tokens.colors.textSecondary,
-    fontStyle: "italic" as const,
-    marginBottom: 4,
-  },
-  flowTo: {
-    fontSize: 13,
-    fontWeight: "600" as const,
-    color: tokens.colors.gold,
-    textTransform: "capitalize" as const,
-    marginLeft: 12,
-  },
-  apiSection: {
-    marginTop: 16,
-  },
-  apiSectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 16,
-  },
-  apiGroup: {
-    marginBottom: 24,
-  },
-  apiGroupName: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-    marginBottom: 12,
-  },
-  endpointCard: {
-    flexDirection: "row" as const,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-    gap: 12,
-  },
-  methodBadge: {
-    justifyContent: "center",
-    alignItems: "center",
-    minWidth: 50,
-  },
-  methodText: {
-    fontSize: 12,
-    fontWeight: "bold" as const,
-    letterSpacing: 0.5,
-  },
-  endpointInfo: {
-    flex: 1,
-  },
-  endpointPath: {
-    fontSize: 12,
-    fontFamily: "monospace" as const,
-    color: tokens.colors.text,
-    marginBottom: 4,
-  },
-  endpointDesc: {
-    fontSize: 11,
-    color: tokens.colors.textSecondary,
-    lineHeight: 16,
-  },
-  metricsBox: {
-    backgroundColor: "rgba(212, 175, 55, 0.05)",
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
-  },
-  metricsTitle: {
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
-    marginBottom: 12,
-  },
-  metricRow: {
-    marginBottom: 10,
-  },
-  metricLabel: {
-    fontSize: 13,
-    fontWeight: "600" as const,
-    color: tokens.colors.gold,
-    marginBottom: 4,
-  },
-  metricFormula: {
-    fontSize: 12,
-    fontFamily: "monospace" as const,
-    color: tokens.colors.textSecondary,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    padding: 8,
-    borderRadius: 6,
+    color: tokens.colors.background,
   },
 });

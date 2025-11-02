@@ -73,6 +73,44 @@ export interface SecurityState {
   lastCaptureTimestamp: string | null;
 }
 
+export interface NFTMetadata {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  creatorId: string;
+  creatorName: string;
+  createdAt: string;
+  mintedAt: string;
+  tokenCost: number;
+  attributes?: Record<string, any>;
+}
+
+export interface NFT {
+  id: string;
+  metadata: NFTMetadata;
+  ownerId: string;
+  ownerName: string;
+  forSale: boolean;
+  salePrice?: number;
+  transferHistory: NFTTransfer[];
+}
+
+export interface NFTTransfer {
+  from: string;
+  to: string;
+  timestamp: string;
+  type: 'mint' | 'gift' | 'purchase' | 'sale';
+  price?: number;
+}
+
+export interface TokenBalance {
+  available: number;
+  earned: number;
+  spent: number;
+  lastUpdated: string;
+}
+
 export interface R3alState {
   currentScreen: string;
   onboardingPhase: number;
@@ -83,6 +121,8 @@ export interface R3alState {
   userProfile: UserProfile | null;
   captureHistory: CaptureEvent[];
   security: SecurityState;
+  nfts: NFT[];
+  tokenBalance: TokenBalance;
   isLoading: boolean;
 }
 
@@ -103,6 +143,13 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       restrictionUntil: null,
       restrictedFeatures: [],
       lastCaptureTimestamp: null,
+    },
+    nfts: [],
+    tokenBalance: {
+      available: 100,
+      earned: 100,
+      spent: 0,
+      lastUpdated: new Date().toISOString(),
     },
     isLoading: true,
   });
@@ -341,6 +388,139 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     return new Date().toISOString() < state.security.restrictionUntil;
   }, [state.security]);
 
+  const createNFT = useCallback((metadata: Omit<NFTMetadata, 'id' | 'creatorId' | 'creatorName' | 'createdAt' | 'mintedAt'>) => {
+    if (state.tokenBalance.available < metadata.tokenCost) {
+      throw new Error('Insufficient tokens');
+    }
+
+    const nft: NFT = {
+      id: `nft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      metadata: {
+        ...metadata,
+        id: `nft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        creatorId: state.userProfile?.name || 'user',
+        creatorName: state.userProfile?.name || 'User',
+        createdAt: new Date().toISOString(),
+        mintedAt: new Date().toISOString(),
+      },
+      ownerId: state.userProfile?.name || 'user',
+      ownerName: state.userProfile?.name || 'User',
+      forSale: false,
+      transferHistory: [{
+        from: 'system',
+        to: state.userProfile?.name || 'user',
+        timestamp: new Date().toISOString(),
+        type: 'mint',
+      }],
+    };
+
+    const updatedBalance: TokenBalance = {
+      ...state.tokenBalance,
+      available: state.tokenBalance.available - metadata.tokenCost,
+      spent: state.tokenBalance.spent + metadata.tokenCost,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    console.log(`🎨 [NFT] Created: ${nft.metadata.title} for ${metadata.tokenCost} tokens`);
+    saveState({ nfts: [...state.nfts, nft], tokenBalance: updatedBalance });
+    return nft;
+  }, [saveState, state.nfts, state.tokenBalance, state.userProfile]);
+
+  const listNFTForSale = useCallback((nftId: string, price: number) => {
+    const updatedNFTs = state.nfts.map(nft =>
+      nft.id === nftId ? { ...nft, forSale: true, salePrice: price } : nft
+    );
+    console.log(`💰 [NFT] Listed for sale: ${nftId} at ${price} tokens`);
+    saveState({ nfts: updatedNFTs });
+  }, [saveState, state.nfts]);
+
+  const cancelNFTListing = useCallback((nftId: string) => {
+    const updatedNFTs = state.nfts.map(nft =>
+      nft.id === nftId ? { ...nft, forSale: false, salePrice: undefined } : nft
+    );
+    console.log(`❌ [NFT] Listing cancelled: ${nftId}`);
+    saveState({ nfts: updatedNFTs });
+  }, [saveState, state.nfts]);
+
+  const purchaseNFT = useCallback((nftId: string) => {
+    const nft = state.nfts.find(n => n.id === nftId);
+    if (!nft || !nft.forSale || !nft.salePrice) {
+      throw new Error('NFT not for sale');
+    }
+    if (state.tokenBalance.available < nft.salePrice) {
+      throw new Error('Insufficient tokens');
+    }
+
+    const transfer: NFTTransfer = {
+      from: nft.ownerId,
+      to: state.userProfile?.name || 'user',
+      timestamp: new Date().toISOString(),
+      type: 'purchase',
+      price: nft.salePrice,
+    };
+
+    const updatedNFTs = state.nfts.map(n =>
+      n.id === nftId
+        ? {
+            ...n,
+            ownerId: state.userProfile?.name || 'user',
+            ownerName: state.userProfile?.name || 'User',
+            forSale: false,
+            salePrice: undefined,
+            transferHistory: [...n.transferHistory, transfer],
+          }
+        : n
+    );
+
+    const updatedBalance: TokenBalance = {
+      ...state.tokenBalance,
+      available: state.tokenBalance.available - nft.salePrice,
+      spent: state.tokenBalance.spent + nft.salePrice,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    console.log(`🛒 [NFT] Purchased: ${nft.metadata.title} for ${nft.salePrice} tokens`);
+    saveState({ nfts: updatedNFTs, tokenBalance: updatedBalance });
+  }, [saveState, state.nfts, state.tokenBalance, state.userProfile]);
+
+  const giftNFT = useCallback((nftId: string, recipientName: string) => {
+    const nft = state.nfts.find(n => n.id === nftId);
+    if (!nft) throw new Error('NFT not found');
+    if (nft.forSale) throw new Error('Cannot gift an NFT listed for sale');
+
+    const transfer: NFTTransfer = {
+      from: nft.ownerId,
+      to: recipientName,
+      timestamp: new Date().toISOString(),
+      type: 'gift',
+    };
+
+    const updatedNFTs = state.nfts.map(n =>
+      n.id === nftId
+        ? {
+            ...n,
+            ownerId: recipientName,
+            ownerName: recipientName,
+            transferHistory: [...n.transferHistory, transfer],
+          }
+        : n
+    );
+
+    console.log(`🎁 [NFT] Gifted: ${nft.metadata.title} to ${recipientName}`);
+    saveState({ nfts: updatedNFTs });
+  }, [saveState, state.nfts]);
+
+  const earnTokens = useCallback((amount: number, reason: string) => {
+    const updatedBalance: TokenBalance = {
+      available: state.tokenBalance.available + amount,
+      earned: state.tokenBalance.earned + amount,
+      spent: state.tokenBalance.spent,
+      lastUpdated: new Date().toISOString(),
+    };
+    console.log(`🪙 [Tokens] Earned ${amount} tokens: ${reason}`);
+    saveState({ tokenBalance: updatedBalance });
+  }, [saveState, state.tokenBalance]);
+
   const resetR3al = useCallback(async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setState({
@@ -357,6 +537,13 @@ export const [R3alContext, useR3al] = createContextHook(() => {
         restrictionUntil: null,
         restrictedFeatures: [],
         lastCaptureTimestamp: null,
+      },
+      nfts: [],
+      tokenBalance: {
+        available: 100,
+        earned: 100,
+        spent: 0,
+        lastUpdated: new Date().toISOString(),
       },
       isLoading: false,
     });
@@ -378,6 +565,12 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     updateCaptureEventStatus,
     clearStrikes,
     isRestricted,
+    createNFT,
+    listNFTForSale,
+    cancelNFTListing,
+    purchaseNFT,
+    giftNFT,
+    earnTokens,
     resetR3al,
-  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, clearStrikes, isRestricted, resetR3al]);
+  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, clearStrikes, isRestricted, createNFT, listNFTForSale, cancelNFTListing, purchaseNFT, giftNFT, earnTokens, resetR3al]);
 });
