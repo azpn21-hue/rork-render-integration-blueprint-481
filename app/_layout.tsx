@@ -8,6 +8,7 @@ import { Text, View, StyleSheet, ActivityIndicator, Platform } from "react-nativ
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
+import { R3alContext } from "@/app/contexts/R3alContext";
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -74,13 +75,15 @@ export default function RootLayout() {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
-          <ThemeProvider>
-            <AuthProvider>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <RootLayoutNav />
-              </GestureHandlerRootView>
-            </AuthProvider>
-          </ThemeProvider>
+          <R3alContext>
+            <ThemeProvider>
+              <AuthProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <RootLayoutNav />
+                </GestureHandlerRootView>
+              </AuthProvider>
+            </ThemeProvider>
+          </R3alContext>
         </trpc.Provider>
       </QueryClientProvider>
     </ErrorBoundary>
