@@ -20,9 +20,7 @@ export default function IdentityVerification() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
   const [documentImage, setDocumentImage] = useState<string | null>(null);
-  const [biometricImage, setBiometricImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
   const cameraRef = useRef<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
@@ -36,18 +34,9 @@ export default function IdentityVerification() {
       hasEarnTokens: !!earnTokens,
     });
     console.log("[IdentityVerification] Permission:", permission);
-    
-    const timer = setTimeout(() => {
-      setIsInitialized(true);
-      console.log("[IdentityVerification] Initialization complete");
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, [r3alContext, userProfile, setVerified, earnTokens, permission]);
 
   useEffect(() => {
-    if (!isInitialized) return;
-    
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -64,7 +53,7 @@ export default function IdentityVerification() {
     );
     pulse.start();
     return () => pulse.stop();
-  }, [pulseAnim, isInitialized]);
+  }, [pulseAnim]);
 
   const handleDocumentCapture = async () => {
     try {
@@ -105,10 +94,10 @@ export default function IdentityVerification() {
       });
       
       if (photo?.base64) {
-        setBiometricImage(`data:image/jpeg;base64,${photo.base64}`);
+        const bioImage = `data:image/jpeg;base64,${photo.base64}`;
         setStep("processing");
         console.log("[Verification] Biometric captured, processing...");
-        await processVerification(`data:image/jpeg;base64,${photo.base64}`);
+        await processVerification(bioImage);
       }
     } catch (err) {
       console.error("[Verification] Biometric capture error:", err);
@@ -155,7 +144,6 @@ export default function IdentityVerification() {
     setStep("document");
     setFacing("back");
     setDocumentImage(null);
-    setBiometricImage(null);
     setError(null);
   };
 
@@ -163,7 +151,7 @@ export default function IdentityVerification() {
     setFacing(current => (current === "back" ? "front" : "back"));
   };
 
-  if (!isInitialized || !permission) {
+  if (!permission) {
     return (
       <LinearGradient
         colors={[tokens.colors.background, tokens.colors.surface]}
@@ -172,7 +160,7 @@ export default function IdentityVerification() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.content}>
             <ActivityIndicator size="large" color={tokens.colors.gold} />
-            <Text style={styles.processingText}>Loading verification...</Text>
+            <Text style={styles.processingText}>Loading camera...</Text>
           </View>
         </SafeAreaView>
       </LinearGradient>
