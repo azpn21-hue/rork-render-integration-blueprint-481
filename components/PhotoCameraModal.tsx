@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Alert, Platform, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Alert, Platform, ActivityIndicator, Image } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
@@ -151,14 +151,10 @@ export default function PhotoCameraModal({
             </View>
             
             <View style={styles.preview}>
-              <img 
-                src={capturedPhoto} 
-                alt="Preview"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: photoType === "cover" ? "cover" : "contain",
-                }}
+              <Image 
+                source={{ uri: capturedPhoto }} 
+                style={styles.previewImage}
+                resizeMode={photoType === "cover" ? "cover" : "contain"}
               />
             </View>
 
@@ -409,5 +405,9 @@ const styles = StyleSheet.create({
     textAlign: "center" as const,
     lineHeight: 24,
     marginBottom: 20,
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
   },
 });

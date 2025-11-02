@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Animated, TextInput } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Animated, TextInput, Image } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -158,16 +158,9 @@ export default function ProfileView() {
           <Animated.View style={[styles.profileCard, { opacity: fadeAnim }]}>
             <View style={styles.coverContainer}>
               {userProfile?.cover ? (
-                <img 
-                  src={userProfile.cover} 
-                  alt="Cover"
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    objectFit: 'cover',
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                  }}
+                <Image 
+                  source={{ uri: userProfile.cover }} 
+                  style={styles.coverImage}
                 />
               ) : (
                 <LinearGradient
@@ -190,15 +183,9 @@ export default function ProfileView() {
                 <Animated.View style={[styles.avatarContainer, { transform: [{ scale: pulseAnim }] }]}>
                   <View style={[styles.avatarBorder, { borderColor: tokens.colors.gold }]}>
                     {userProfile?.avatar ? (
-                      <img 
-                        src={userProfile.avatar} 
-                        alt="Avatar"
-                        style={{
-                          width: 110,
-                          height: 110,
-                          borderRadius: 55,
-                          objectFit: 'cover',
-                        }}
+                      <Image 
+                        source={{ uri: userProfile.avatar }} 
+                        style={styles.avatarImage}
                       />
                     ) : (
                       <View style={[styles.avatarPlaceholder, { backgroundColor: tokens.colors.backgroundSecondary }]}>
@@ -355,15 +342,9 @@ export default function ProfileView() {
                   style={styles.photoItem}
                   onLongPress={() => handleDeletePhoto(photo.id)}
                 >
-                  <img 
-                    src={photo.url} 
-                    alt="Gallery"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: 16,
-                    }}
+                  <Image 
+                    source={{ uri: photo.url }} 
+                    style={styles.galleryImage}
                   />
                   {photo.safe && (
                     <View style={[styles.safetyBadge, { backgroundColor: "rgba(0,255,102,0.9)" }]}>
@@ -672,5 +653,21 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     lineHeight: 20,
+  },
+  coverImage: {
+    width: "100%",
+    height: 200,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  avatarImage: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+  },
+  galleryImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
   },
 });

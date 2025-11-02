@@ -194,7 +194,6 @@ export const [R3alContext, useR3al] = createContextHook(() => {
         const parsedState = JSON.parse(stored);
         console.log("[R3AL] State loaded:", parsedState);
         
-        // Ensure security object has proper structure
         const securityState: SecurityState = {
           captureStrikes: parsedState.security?.captureStrikes || 0,
           restrictionUntil: parsedState.security?.restrictionUntil || null,
