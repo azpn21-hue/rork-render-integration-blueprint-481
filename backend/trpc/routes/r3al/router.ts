@@ -14,6 +14,13 @@ import { uploadPhotoProcedure } from "./profile/upload-photo";
 import { deletePhotoProcedure } from "./profile/delete-photo";
 import { getProfileProcedure } from "./profile/get-profile";
 import { endorseProcedure } from "./profile/endorse";
+import { startSessionProcedure } from "./pulse-chat/start-session";
+import { sendMessageProcedure } from "./pulse-chat/send-message";
+import { startVideoProcedure } from "./pulse-chat/start-video";
+import { startRealificationProcedure } from "./pulse-chat/start-realification";
+import { finishRealificationProcedure } from "./pulse-chat/finish-realification";
+import { startHonestyCheckProcedure } from "./pulse-chat/start-honesty-check";
+import { finishHonestyCheckProcedure } from "./pulse-chat/finish-honesty-check";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -34,5 +41,14 @@ export const r3alRouter = createTRPCRouter({
     uploadPhoto: uploadPhotoProcedure,
     deletePhoto: deletePhotoProcedure,
     endorse: endorseProcedure,
+  }),
+  pulseChat: createTRPCRouter({
+    startSession: startSessionProcedure,
+    sendMessage: sendMessageProcedure,
+    startVideo: startVideoProcedure,
+    startRealification: startRealificationProcedure,
+    finishRealification: finishRealificationProcedure,
+    startHonestyCheck: startHonestyCheckProcedure,
+    finishHonestyCheck: finishHonestyCheckProcedure,
   }),
 });

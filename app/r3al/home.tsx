@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Ale
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import { User, Award, Settings, LogOut, ShieldAlert, Camera, AlertTriangle, Hexagon, MessageCircle } from "lucide-react-native";
+import { User, Award, Settings, LogOut, ShieldAlert, Camera, AlertTriangle, Hexagon, MessageCircle, Heart } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import { useTutorial } from "@/app/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/TutorialOverlay";
@@ -138,6 +138,16 @@ export default function R3alHome() {
           )}
 
           <View style={styles.actions} testID="home-content">
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/r3al/pulse-chat/index")}
+              activeOpacity={0.7}
+              testID="pulse-chat-btn"
+            >
+              <Heart size={24} color={tokens.colors.accent} strokeWidth={1.5} />
+              <Text style={styles.actionText}>🫀 Pulse Chat - Secure Messaging</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => router.push("/r3al/qotd/index")}
