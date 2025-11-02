@@ -182,34 +182,54 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   });
 
   useEffect(() => {
-    loadState();
+    const initState = async () => {
+      console.log("[R3AL] Init effect triggered");
+      
+      const timeoutId = setTimeout(() => {
+        console.warn("[R3AL] LoadState timeout, forcing isLoading=false");
+        setState((prev) => ({ ...prev, isLoading: false }));
+      }, 3000);
+      
+      await loadState();
+      clearTimeout(timeoutId);
+    };
+    initState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadState = useCallback(async () => {
+    console.log("[R3AL] Starting to load state...");
     try {
-      console.log("[R3AL] Loading state from AsyncStorage...");
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      console.log("[R3AL] AsyncStorage read complete, stored:", stored ? "yes" : "no");
+      
       if (stored) {
-        const parsedState = JSON.parse(stored);
-        console.log("[R3AL] State loaded:", parsedState);
-        
-        const securityState: SecurityState = {
-          captureStrikes: parsedState.security?.captureStrikes || 0,
-          restrictionUntil: parsedState.security?.restrictionUntil || null,
-          restrictedFeatures: parsedState.security?.restrictedFeatures || [],
-          lastCaptureTimestamp: parsedState.security?.lastCaptureTimestamp || null,
-        };
-        
-        setState({ ...parsedState, security: securityState, isLoading: false });
+        try {
+          const parsedState = JSON.parse(stored);
+          console.log("[R3AL] State parsed successfully");
+          
+          const securityState: SecurityState = {
+            captureStrikes: parsedState.security?.captureStrikes || 0,
+            restrictionUntil: parsedState.security?.restrictionUntil || null,
+            restrictedFeatures: parsedState.security?.restrictedFeatures || [],
+            lastCaptureTimestamp: parsedState.security?.lastCaptureTimestamp || null,
+          };
+          
+          setState({ ...parsedState, security: securityState, isLoading: false });
+          console.log("[R3AL] State loaded and set");
+        } catch (parseError) {
+          console.error("[R3AL] JSON parse error:", parseError);
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
       } else {
-        console.log("[R3AL] No stored state found, using initial state");
+        console.log("[R3AL] No stored state, using defaults");
         setState((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
-      console.error("[R3AL] Failed to load state:", error);
+      console.error("[R3AL] AsyncStorage error:", error);
       setState((prev) => ({ ...prev, isLoading: false }));
     }
+    console.log("[R3AL] Load state complete");
   }, []);
 
   const saveState = useCallback(async (newState: Partial<R3alState>) => {
