@@ -23,6 +23,7 @@ export default function IdentityVerification() {
   const [error, setError] = useState<string | null>(null);
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [cameraInitialized, setCameraInitialized] = useState<boolean>(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState<boolean>(false);
   const cameraRef = useRef<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
@@ -38,37 +39,48 @@ export default function IdentityVerification() {
     console.log("[IdentityVerification] Permission:", permission);
     
     const initCamera = async () => {
+      if (isRequestingPermission) {
+        console.log("[IdentityVerification] Already requesting permission, skipping");
+        return;
+      }
+
       try {
         if (!permission) {
+          console.log("[IdentityVerification] No permission object yet, waiting...");
+          return;
+        }
+
+        if (permission.granted) {
+          console.log("[IdentityVerification] Permission already granted");
+          setCameraInitialized(true);
+          return;
+        }
+
+        if (!permission.granted && permission.canAskAgain) {
           console.log("[IdentityVerification] Requesting camera permission...");
+          setIsRequestingPermission(true);
           const result = await requestPermission();
           console.log("[IdentityVerification] Permission result:", result);
+          setIsRequestingPermission(false);
+          
           if (result?.granted) {
             console.log("[IdentityVerification] Camera permission granted");
             setCameraInitialized(true);
-          } else if (result?.canAskAgain === false) {
-            setError("Camera permission was denied. Please enable it in your device settings.");
+          } else {
+            setError("Camera access is required for identity verification.");
           }
-        } else if (permission.granted) {
-          console.log("[IdentityVerification] Permission already granted");
-          setCameraInitialized(true);
-        } else if (permission.canAskAgain) {
-          console.log("[IdentityVerification] Permission denied, can ask again");
-          const result = await requestPermission();
-          if (result?.granted) {
-            setCameraInitialized(true);
-          }
-        } else {
+        } else if (!permission.canAskAgain) {
           setError("Camera permission was denied. Please enable it in your device settings.");
         }
       } catch (err) {
         console.error("[IdentityVerification] Permission error:", err);
         setError("Failed to initialize camera. Please try again.");
+        setIsRequestingPermission(false);
       }
     };
     
     initCamera();
-  }, [permission]);
+  }, [permission, isRequestingPermission]);
 
   useEffect(() => {
     const pulse = Animated.loop(
@@ -253,7 +265,7 @@ export default function IdentityVerification() {
               </View>
 
               <View style={styles.cameraContainer}>
-                {cameraInitialized && permission?.granted ? (
+                {permission?.granted && cameraInitialized ? (
                   <CameraView
                     ref={cameraRef}
                     style={styles.camera}
@@ -266,7 +278,6 @@ export default function IdentityVerification() {
                     onMountError={(error) => {
                       console.error("[Verification] Camera mount error:", error);
                       setError(`Camera error: ${error.message || "Unknown error"}`);
-                      setCameraInitialized(false);
                     }}
                   >
                     {step === "document" ? (
@@ -284,14 +295,19 @@ export default function IdentityVerification() {
                     <ActivityIndicator size="large" color={tokens.colors.gold} />
                     <Text style={styles.processingHint}>Initializing camera...</Text>
                     {!permission?.granted && (
-                      <Text style={styles.processingHint}>Requesting permissions...</Text>
+                      <Text style={styles.processingHint}>Requesting camera access...</Text>
                     )}
                   </View>
                 )}
                 {error && (
                   <View style={styles.errorBanner}>
                     <Text style={styles.errorText}>{error}</Text>
-                    <TouchableOpacity onPress={() => setError(null)}>
+                    <TouchableOpacity onPress={() => {
+                      setError(null);
+                      if (!permission?.granted) {
+                        requestPermission();
+                      }
+                    }}>
                       <X size={20} color={tokens.colors.text} />
                     </TouchableOpacity>
                   </View>

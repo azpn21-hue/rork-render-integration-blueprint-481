@@ -1,27 +1,38 @@
-import { Link, Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AlertCircle } from "lucide-react-native";
+import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 export default function NotFoundScreen() {
+  const router = useRouter();
+
   return (
     <>
       <Stack.Screen options={{ title: "Not Found", headerShown: false }} />
-      <LinearGradient colors={["#0F172A", "#1E293B"]} style={styles.gradient}>
+      <LinearGradient colors={[tokens.colors.background, tokens.colors.surface]} style={styles.gradient}>
         <View style={styles.container}>
           <View style={styles.iconContainer}>
-            <AlertCircle color="#F59E0B" size={64} />
+            <AlertCircle color={tokens.colors.gold} size={64} />
           </View>
           <Text style={styles.title}>Page Not Found</Text>
           <Text style={styles.description}>
             The page you&apos;re looking for doesn&apos;t exist or has been moved.
           </Text>
 
-          <Link href="/login" asChild>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Go to Login</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              console.log("[NotFound] Navigating back or to home...");
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/r3al/splash");
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>Go Back</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </>
@@ -42,7 +53,9 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 64,
-    backgroundColor: "rgba(245, 158, 11, 0.1)",
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
@@ -50,24 +63,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700" as const,
-    color: "#F1F5F9",
+    color: tokens.colors.gold,
     marginBottom: 12,
   },
   description: {
     fontSize: 16,
-    color: "#94A3B8",
+    color: tokens.colors.textSecondary,
     textAlign: "center",
     lineHeight: 24,
     marginBottom: 32,
   },
   button: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: tokens.colors.gold,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: tokens.colors.secondary,
     fontSize: 16,
     fontWeight: "600" as const,
   },
