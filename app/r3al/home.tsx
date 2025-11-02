@@ -1,236 +1,221 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert, Vibration, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import { User, Award, Settings, LogOut, ShieldAlert, Camera, AlertTriangle, Hexagon, MessageCircle, Heart } from "lucide-react-native";
+import { 
+  Award, 
+  Hexagon, 
+  MessageCircle, 
+  Heart,
+  Compass,
+  Settings,
+  LogOut,
+  Coins,
+  Users,
+  TrendingUp,
+  Zap
+} from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
-import { useTutorial } from "@/app/contexts/TutorialContext";
-import { TutorialOverlay } from "@/components/TutorialOverlay";
-import { OptimaAssistant } from "@/components/OptimaAssistant";
-import { useScreenshotDetection } from "@/hooks/useScreenshotDetection";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
-import { useEffect } from "react";
 
 export default function R3alHome() {
   const router = useRouter();
-  const { userProfile, truthScore, resetR3al, addCaptureEvent, security, isRestricted, clearStrikes } = useR3al();
-  const { shouldAutoStart, startTutorial } = useTutorial();
-
-  // Enable screenshot detection for this screen
-  useScreenshotDetection({
-    screenName: 'home',
-    enabled: true,
-    showAlert: true,
-    preventCapture: false,
-  });
-
-  useEffect(() => {
-    if (shouldAutoStart("home_tour")) {
-      setTimeout(() => {
-        startTutorial("home_tour");
-      }, 500);
-    }
-  }, [shouldAutoStart, startTutorial]);
-
+  const { userProfile, truthScore, resetR3al, tokenBalance } = useR3al();
 
   const handleReset = () => {
     resetR3al();
     router.replace("/r3al/splash");
   };
 
-  const handleTestScreenshot = () => {
-    console.log('🎬 [Home] Simulating screenshot detection...');
-
-    // Haptic feedback - strong warning pattern
-    if (Platform.OS === 'ios') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    } else if (Platform.OS === 'android') {
-      Vibration.vibrate([0, 200, 100, 200]);
-    }
-
-    // Add capture event to history
-    addCaptureEvent({
-      screen: 'home',
-      timestamp: new Date().toISOString(),
-      status: 'recorded',
-    });
-
-    // Show enhanced alert
-    Alert.alert(
-      '🛡️ Privacy Shield Triggered (Test)',
-      `Screenshot detected on home\n\nThis content is protected. The capture has been logged and the content owner has been notified.\n\nRepeated violations may result in account restrictions.\n\nCheck "Content Capture History" to see the logged event.`,
-      [
-        { 
-          text: 'I Understand',
-          style: 'cancel'
-        },
-        {
-          text: 'View History',
-          onPress: () => router.push('/r3al/security/capture-history')
-        }
-      ],
-      { cancelable: false }
-    );
-  };
-
   return (
-    <>
-      <LinearGradient
-        colors={[tokens.colors.background, tokens.colors.surface]}
-        style={styles.container}
-      >
-        <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.header} testID="home-header">
+    <LinearGradient
+      colors={[tokens.colors.background, tokens.colors.surface]}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
             <Text style={styles.greeting}>Welcome Back</Text>
             <Text style={styles.title}>{userProfile?.name || "User"}</Text>
           </View>
+          <TouchableOpacity 
+            style={styles.settingsBtn} 
+            onPress={() => console.log("Settings")}
+            activeOpacity={0.7}
+          >
+            <Settings size={24} color={tokens.colors.gold} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
 
-          {security && security.captureStrikes > 0 && (
-            <View style={[styles.warningCard, security.captureStrikes >= 3 && styles.warningCardDanger]} testID="security-warning">
-              <View style={styles.warningHeader}>
-                <AlertTriangle 
-                  size={28} 
-                  color={security.captureStrikes >= 3 ? tokens.colors.error : tokens.colors.warning} 
-                  strokeWidth={2} 
-                />
-                <Text style={[styles.warningTitle, security.captureStrikes >= 3 && styles.warningTitleDanger]}>
-                  {security.captureStrikes >= 3 ? 'Account Restricted' : 'Privacy Warning'}
-                </Text>
-              </View>
-              <Text style={styles.warningText}>
-                {security?.captureStrikes >= 3 && security?.restrictionUntil
-                  ? `Your account has been restricted due to ${security.captureStrikes} screenshot violations. Restriction expires on ${new Date(security.restrictionUntil).toLocaleString()}.`
-                  : `You have ${security?.captureStrikes || 0} of 3 screenshot strikes. Further violations will result in a 24-hour restriction.`
-                }
-              </Text>
-              <View style={styles.strikeIndicator}>
-                {[1, 2, 3].map((i) => (
-                  <View 
-                    key={i} 
-                    style={[
-                      styles.strikeDot,
-                      i <= security.captureStrikes && styles.strikeDotActive,
-                      i <= security.captureStrikes && security.captureStrikes >= 3 && styles.strikeDotDanger
-                    ]} 
-                  />
-                ))}
-              </View>
-            </View>
-          )}
-
-          {truthScore && (
-            <View style={styles.scoreCard} testID="truth-score-card">
-              <View style={styles.scoreHeader}>
-                <Award size={32} color={tokens.colors.gold} strokeWidth={1.5} />
-                <Text style={styles.scoreLabel}>Your Truth Score</Text>
-              </View>
-              <Text style={styles.scoreValue}>{truthScore.score}</Text>
-              <Text style={styles.scoreLevel}>{truthScore.summary}</Text>
-            </View>
-          )}
-
-          {userProfile?.bio && (
-            <View style={styles.bioCard}>
-              <Text style={styles.bioLabel}>About</Text>
-              <Text style={styles.bioText}>{userProfile.bio}</Text>
-            </View>
-          )}
-
-          <View style={styles.actions} testID="home-content">
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.quickActions}>
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.quickAction, styles.quickActionPrimary]}
+              onPress={() => router.push("/r3al/explore")}
+              activeOpacity={0.8}
+            >
+              <Compass size={28} color={tokens.colors.background} strokeWidth={2} />
+              <Text style={styles.quickActionText}>Explore</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickAction}
+              onPress={() => router.push("/r3al/circles")}
+              activeOpacity={0.8}
+            >
+              <Hexagon size={28} color="#00FF66" strokeWidth={2} />
+              <Text style={styles.quickActionText}>Circles</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickAction}
               onPress={() => router.push("/r3al/pulse-chat/index")}
-              activeOpacity={0.7}
-              testID="pulse-chat-btn"
+              activeOpacity={0.8}
             >
-              <Heart size={24} color={tokens.colors.accent} strokeWidth={1.5} />
-              <Text style={styles.actionText}>🫀 Pulse Chat - Secure Messaging</Text>
+              <Heart size={28} color="#EF4444" strokeWidth={2} />
+              <Text style={styles.quickActionText}>Pulse</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/r3al/qotd/index")}
-              activeOpacity={0.7}
-              testID="qotd-btn"
+              style={styles.quickAction}
+              onPress={() => router.push("/r3al/hive/token-wallet")}
+              activeOpacity={0.8}
             >
-              <MessageCircle size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>Question of the Day</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/r3al/hive/index")}
-              activeOpacity={0.7}
-              testID="nft-hive-btn"
-            >
-              <Hexagon size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>NFT Hive - Create, Trade & Gift</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/r3al/profile/view")}
-              activeOpacity={0.7}
-              testID="edit-profile-btn"
-            >
-              <User size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>View Profile</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/r3al/security/capture-history")}
-              activeOpacity={0.7}
-              testID="capture-history-btn"
-            >
-              <ShieldAlert size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>Content Capture History</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonTest]}
-              onPress={handleTestScreenshot}
-              activeOpacity={0.7}
-              testID="test-screenshot-btn"
-            >
-              <Camera size={24} color={tokens.colors.warning} strokeWidth={1.5} />
-              <Text style={[styles.actionText, styles.actionTextTest]}>Test Screenshot Alarm</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => {}}
-              activeOpacity={0.7}
-              testID="settings-btn"
-            >
-              <Settings size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>Settings</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonDanger]}
-              onPress={handleReset}
-              activeOpacity={0.7}
-            >
-              <LogOut size={24} color={tokens.colors.error} strokeWidth={1.5} />
-              <Text style={[styles.actionText, styles.actionTextDanger]}>
-                Start Over
-              </Text>
+              <Coins size={28} color={tokens.colors.gold} strokeWidth={2} />
+              <Text style={styles.quickActionText}>Tokens</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.footer} testID="home-footer">
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Coins size={24} color={tokens.colors.gold} strokeWidth={2} />
+              <Text style={styles.sectionTitle}>Trust-Token Wallet</Text>
+              <TouchableOpacity 
+                onPress={() => router.push("/r3al/hive/token-wallet")}
+                style={styles.viewAllBtn}
+              >
+                <Text style={styles.viewAllText}>View All</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.tokenPreview}>
+              <View style={styles.tokenBalance}>
+                <Text style={styles.tokenLabel}>Available Balance</Text>
+                <Text style={styles.tokenValue}>{tokenBalance.available.toLocaleString()}</Text>
+              </View>
+              <View style={styles.tokenStats}>
+                <View style={styles.tokenStat}>
+                  <TrendingUp size={16} color="#10B981" strokeWidth={2} />
+                  <Text style={styles.tokenStatText}>+{tokenBalance.earned}</Text>
+                </View>
+                <View style={styles.tokenStat}>
+                  <Zap size={16} color="#EF4444" strokeWidth={2} />
+                  <Text style={styles.tokenStatText}>-{tokenBalance.spent}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {truthScore && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Award size={24} color={tokens.colors.gold} strokeWidth={2} />
+                <Text style={styles.sectionTitle}>Your Truth Score</Text>
+              </View>
+              
+              <View style={styles.scorePreview}>
+                <TouchableOpacity
+                  style={styles.scoreCard}
+                  onPress={() => console.log("View detailed score")}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.scoreIcon}>
+                    <Award size={32} color={tokens.colors.gold} strokeWidth={2} />
+                  </View>
+                  <View style={styles.scoreInfo}>
+                    <Text style={styles.scoreValue}>{truthScore.score}</Text>
+                    <Text style={styles.scoreLevel}>{truthScore.summary}</Text>
+                  </View>
+                  <Text style={styles.viewDetails}>View Details →</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Hexagon size={24} color="#00FF66" strokeWidth={2} />
+              <Text style={styles.sectionTitle}>Featured</Text>
+            </View>
+
+            <View style={styles.featuredGrid}>
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/qotd/index")}
+                activeOpacity={0.8}
+              >
+                <MessageCircle size={32} color="#8B5CF6" strokeWidth={2} />
+                <Text style={styles.featureTitle}>Question of the Day</Text>
+                <Text style={styles.featureDescription}>
+                  Share your perspective and earn tokens
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/hive/index")}
+                activeOpacity={0.8}
+              >
+                <Hexagon size={32} color={tokens.colors.gold} strokeWidth={2} />
+                <Text style={styles.featureTitle}>NFT Hive</Text>
+                <Text style={styles.featureDescription}>
+                  Create, trade, and gift unique assets
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/circles")}
+                activeOpacity={0.8}
+              >
+                <Users size={32} color="#10B981" strokeWidth={2} />
+                <Text style={styles.featureTitle}>Join Circles</Text>
+                <Text style={styles.featureDescription}>
+                  Connect with verified communities
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/profile/view")}
+                activeOpacity={0.8}
+              >
+                <Award size={32} color="#F59E0B" strokeWidth={2} />
+                <Text style={styles.featureTitle}>Your Profile</Text>
+                <Text style={styles.featureDescription}>
+                  Manage photos and endorsements
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={handleReset}
+              activeOpacity={0.7}
+            >
+              <LogOut size={20} color={tokens.colors.error} strokeWidth={2} />
+              <Text style={styles.resetButtonText}>Reset & Start Over</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
             <Text style={styles.motto}>Reveal • Relate • Respect</Text>
             <Text style={styles.compliance}>Privacy Act of 1974 Compliant</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
-      </LinearGradient>
-      
-      <TutorialOverlay />
-      <OptimaAssistant />
-    </>
+    </LinearGradient>
   );
 }
 
@@ -241,103 +226,205 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
   header: {
+    flexDirection: "row" as const,
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 32,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.gold + "30",
+  },
+  headerLeft: {
+    gap: 4,
   },
   greeting: {
-    fontSize: 16,
+    fontSize: 14,
     color: tokens.colors.textSecondary,
-    marginBottom: 8,
   },
   title: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  settingsBtn: {
+    padding: 8,
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  quickActions: {
+    flexDirection: "row" as const,
+    gap: 12,
+    marginBottom: 24,
+  },
+  quickAction: {
+    flex: 1,
+    backgroundColor: tokens.colors.surface,
+    padding: 16,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
+    alignItems: "center",
+    gap: 8,
+  },
+  quickActionPrimary: {
+    backgroundColor: tokens.colors.gold,
+    borderColor: tokens.colors.gold,
+  },
+  quickActionText: {
+    fontSize: 12,
+    fontWeight: "700" as const,
+    color: tokens.colors.text,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  viewAllBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "600" as const,
+    color: tokens.colors.gold,
+  },
+  tokenPreview: {
+    backgroundColor: tokens.colors.surface,
+    padding: 20,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    gap: 12,
+  },
+  tokenBalance: {
+    alignItems: "center",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.gold + "30",
+  },
+  tokenLabel: {
+    fontSize: 12,
+    fontWeight: "600" as const,
+    color: tokens.colors.textSecondary,
+    marginBottom: 6,
+  },
+  tokenValue: {
+    fontSize: 36,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  tokenStats: {
+    flexDirection: "row" as const,
+    justifyContent: "space-around",
+  },
+  tokenStat: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 6,
+  },
+  tokenStatText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: tokens.colors.text,
+  },
+  scorePreview: {
+    marginBottom: 0,
+  },
+  scoreCard: {
+    backgroundColor: tokens.colors.surface,
+    padding: 20,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 16,
+  },
+  scoreIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: tokens.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+  },
+  scoreInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  scoreValue: {
     fontSize: 32,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
   },
-  scoreCard: {
-    backgroundColor: tokens.colors.surface,
-    padding: 24,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 2,
-    borderColor: tokens.colors.gold,
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  scoreHeader: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 16,
-  },
-  scoreLabel: {
-    fontSize: 18,
-    color: tokens.colors.text,
-  },
-  scoreValue: {
-    fontSize: 64,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-    marginBottom: 8,
-  },
   scoreLevel: {
-    fontSize: 20,
-    color: tokens.colors.goldLight,
+    fontSize: 14,
+    color: tokens.colors.textSecondary,
   },
-  bioCard: {
-    backgroundColor: tokens.colors.surface,
-    padding: 20,
-    borderRadius: tokens.dimensions.borderRadius,
-    marginBottom: 24,
-  },
-  bioLabel: {
+  viewDetails: {
     fontSize: 14,
     fontWeight: "600" as const,
     color: tokens.colors.gold,
-    marginBottom: 8,
   },
-  bioText: {
-    fontSize: 16,
-    color: tokens.colors.text,
-    lineHeight: 24,
-  },
-  actions: {
+  featuredGrid: {
+    flexDirection: "row" as const,
+    flexWrap: "wrap" as const,
     gap: 12,
-    marginBottom: 32,
   },
-  actionButton: {
+  featureCard: {
+    flex: 1,
+    minWidth: "45%",
+    backgroundColor: tokens.colors.surface,
+    padding: 16,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
+    gap: 8,
+  },
+  featureTitle: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: tokens.colors.text,
+  },
+  featureDescription: {
+    fontSize: 12,
+    color: tokens.colors.textSecondary,
+    lineHeight: 16,
+  },
+  resetButton: {
     flexDirection: "row" as const,
     alignItems: "center",
-    gap: 12,
+    justifyContent: "center",
+    gap: 10,
     padding: 16,
     backgroundColor: tokens.colors.surface,
     borderRadius: tokens.dimensions.borderRadius,
     borderWidth: 2,
-    borderColor: tokens.colors.gold,
-  },
-  actionButtonDanger: {
     borderColor: tokens.colors.error,
   },
-  actionButtonTest: {
-    borderColor: tokens.colors.warning,
-  },
-  actionText: {
+  resetButtonText: {
     fontSize: 16,
-    color: tokens.colors.text,
-  },
-  actionTextDanger: {
+    fontWeight: "700" as const,
     color: tokens.colors.error,
   },
-  actionTextTest: {
-    color: tokens.colors.warning,
-  },
   footer: {
-    marginTop: "auto" as const,
+    marginTop: 20,
     alignItems: "center",
     gap: 8,
   },
@@ -349,58 +436,5 @@ const styles = StyleSheet.create({
   compliance: {
     fontSize: 12,
     color: tokens.colors.textSecondary,
-  },
-  warningCard: {
-    backgroundColor: tokens.colors.warning + '15',
-    padding: 20,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 2,
-    borderColor: tokens.colors.warning,
-    marginBottom: 24,
-  },
-  warningCardDanger: {
-    backgroundColor: tokens.colors.error + '15',
-    borderColor: tokens.colors.error,
-  },
-  warningHeader: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 12,
-  },
-  warningTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: tokens.colors.warning,
-  },
-  warningTitleDanger: {
-    color: tokens.colors.error,
-  },
-  warningText: {
-    fontSize: 14,
-    color: tokens.colors.text,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  strikeIndicator: {
-    flexDirection: "row" as const,
-    justifyContent: "center",
-    gap: 12,
-  },
-  strikeDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: tokens.colors.surface,
-    borderWidth: 2,
-    borderColor: tokens.colors.textSecondary,
-  },
-  strikeDotActive: {
-    backgroundColor: tokens.colors.warning,
-    borderColor: tokens.colors.warning,
-  },
-  strikeDotDanger: {
-    backgroundColor: tokens.colors.error,
-    borderColor: tokens.colors.error,
   },
 });

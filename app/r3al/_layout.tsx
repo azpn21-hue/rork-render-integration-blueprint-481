@@ -27,6 +27,8 @@ export default function R3alLayout() {
       <Stack.Screen name="pulse-chat/video" />
       <Stack.Screen name="pulse-chat/realification" />
       <Stack.Screen name="pulse-chat/honesty-check" />
+      <Stack.Screen name="explore" />
+      <Stack.Screen name="circles" />
     </Stack>
   );
 }
