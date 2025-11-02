@@ -33,7 +33,7 @@ export default function LoginScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <LinearGradient colors={["#0F172A", "#1E293B", "#334155"]} style={styles.gradient}>
+      <LinearGradient colors={["#000000", "#1a1a1a", "#0a0a0a"]} style={styles.gradient}>
         <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -46,7 +46,7 @@ export default function LoginScreen() {
             >
               <View style={styles.header}>
                 <View style={styles.iconContainer}>
-                  <LogIn color="#60A5FA" size={48} />
+                  <LogIn color="#D4AF37" size={48} />
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Sign in to R3AL Connection</Text>
@@ -55,12 +55,12 @@ export default function LoginScreen() {
               <View style={styles.form}>
                 <View style={styles.inputGroup}>
                   <View style={styles.inputIcon}>
-                    <Mail color="#94A3B8" size={20} />
+                    <Mail color="#D4AF37" size={20} />
                   </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Email"
-                    placeholderTextColor="#64748B"
+                    placeholderTextColor="#666666"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -72,12 +72,12 @@ export default function LoginScreen() {
 
                 <View style={styles.inputGroup}>
                   <View style={styles.inputIcon}>
-                    <Lock color="#94A3B8" size={20} />
+                    <Lock color="#D4AF37" size={20} />
                   </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Password"
-                    placeholderTextColor="#64748B"
+                    placeholderTextColor="#666666"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
@@ -101,7 +101,7 @@ export default function LoginScreen() {
                   testID="login-submit-button"
                 >
                   {isLoggingIn ? (
-                    <ActivityIndicator color="#FFFFFF" />
+                    <ActivityIndicator color="#000000" />
                   ) : (
                     <Text style={styles.buttonText}>Sign In</Text>
                   )}
@@ -119,14 +119,6 @@ export default function LoginScreen() {
                   testID="login-register-button"
                 >
                   <Text style={styles.secondaryButtonText}>Create Account</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.guestButton}
-                  onPress={() => router.push("/guest")}
-                  testID="login-guest-button"
-                >
-                  <Text style={styles.guestButtonText}>Continue as Guest</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -160,7 +152,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "rgba(96, 165, 250, 0.1)",
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
@@ -168,12 +160,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700" as const,
-    color: "#F1F5F9",
+    color: "#D4AF37",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#94A3B8",
+    color: "#888888",
   },
   form: {
     gap: 16,
@@ -181,10 +173,10 @@ const styles = StyleSheet.create({
   inputGroup: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: "rgba(26, 26, 26, 0.8)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.2)",
+    borderColor: "rgba(212, 175, 55, 0.2)",
     paddingHorizontal: 16,
     height: 56,
   },
@@ -193,7 +185,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: "#F1F5F9",
+    color: "#FFFFFF",
     fontSize: 16,
   },
   errorContainer: {
@@ -215,10 +207,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryButton: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: "#D4AF37",
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: "#000000",
     fontSize: 16,
     fontWeight: "600" as const,
   },
@@ -230,30 +222,21 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(148, 163, 184, 0.2)",
+    backgroundColor: "rgba(212, 175, 55, 0.2)",
   },
   dividerText: {
-    color: "#64748B",
+    color: "#666666",
     fontSize: 14,
     marginHorizontal: 16,
   },
   secondaryButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#3B82F6",
+    borderColor: "#D4AF37",
   },
   secondaryButtonText: {
-    color: "#60A5FA",
+    color: "#D4AF37",
     fontSize: 16,
     fontWeight: "600" as const,
-  },
-  guestButton: {
-    marginTop: 8,
-    alignItems: "center",
-  },
-  guestButtonText: {
-    color: "#94A3B8",
-    fontSize: 14,
-    textDecorationLine: "underline",
   },
 });
