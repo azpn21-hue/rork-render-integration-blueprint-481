@@ -22,6 +22,7 @@ export default function IdentityVerification() {
   const [documentImage, setDocumentImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cameraReady, setCameraReady] = useState<boolean>(false);
+  const [cameraInitialized, setCameraInitialized] = useState<boolean>(false);
   const cameraRef = useRef<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
@@ -36,15 +37,28 @@ export default function IdentityVerification() {
     });
     console.log("[IdentityVerification] Permission:", permission);
     
-    if (permission && !permission.granted && !permission.canAskAgain) {
-      setError("Camera permission was denied. Please enable it in your device settings.");
-    }
+    const initCamera = async () => {
+      try {
+        if (!permission) {
+          console.log("[IdentityVerification] Requesting camera permission...");
+          const result = await requestPermission();
+          console.log("[IdentityVerification] Permission result:", result);
+          if (result.granted) {
+            setCameraInitialized(true);
+          }
+        } else if (permission.granted) {
+          setCameraInitialized(true);
+        } else if (!permission.canAskAgain) {
+          setError("Camera permission was denied. Please enable it in your device settings.");
+        }
+      } catch (err) {
+        console.error("[IdentityVerification] Permission error:", err);
+        setError("Failed to initialize camera. Please try again.");
+      }
+    };
     
-    if (!permission) {
-      console.log("[IdentityVerification] Requesting camera permission...");
-      requestPermission();
-    }
-  }, [r3alContext, userProfile, setVerified, earnTokens, permission, requestPermission]);
+    initCamera();
+  }, []);
 
   useEffect(() => {
     const pulse = Animated.loop(
@@ -229,29 +243,37 @@ export default function IdentityVerification() {
               </View>
 
               <View style={styles.cameraContainer}>
-                <CameraView
-                  ref={cameraRef}
-                  style={styles.camera}
-                  facing={facing}
-                  onCameraReady={() => {
-                    console.log("[Verification] Camera ready!");
-                    setCameraReady(true);
-                  }}
-                  onMountError={(error) => {
-                    console.error("[Verification] Camera mount error:", error);
-                    setError(`Camera error: ${error.message}`);
-                  }}
-                >
-                  {step === "document" ? (
-                    <View style={styles.documentOverlay}>
-                      <View style={styles.frame} />
-                    </View>
-                  ) : (
-                    <View style={styles.biometricOverlay}>
-                      <View style={styles.selfieFrame} />
-                    </View>
-                  )}
-                </CameraView>
+                {cameraInitialized ? (
+                  <CameraView
+                    ref={cameraRef}
+                    style={styles.camera}
+                    facing={facing}
+                    onCameraReady={() => {
+                      console.log("[Verification] Camera ready!");
+                      setCameraReady(true);
+                      setError(null);
+                    }}
+                    onMountError={(error) => {
+                      console.error("[Verification] Camera mount error:", error);
+                      setError(`Camera error: ${error.message}`);
+                    }}
+                  >
+                    {step === "document" ? (
+                      <View style={styles.documentOverlay}>
+                        <View style={styles.frame} />
+                      </View>
+                    ) : (
+                      <View style={styles.biometricOverlay}>
+                        <View style={styles.selfieFrame} />
+                      </View>
+                    )}
+                  </CameraView>
+                ) : (
+                  <View style={styles.cameraPlaceholder}>
+                    <ActivityIndicator size="large" color={tokens.colors.gold} />
+                    <Text style={styles.processingHint}>Initializing camera...</Text>
+                  </View>
+                )}
                 {error && (
                   <View style={styles.errorBanner}>
                     <Text style={styles.errorText}>{error}</Text>
@@ -517,5 +539,12 @@ const styles = StyleSheet.create({
     color: tokens.colors.textSecondary,
     textAlign: "center",
     paddingHorizontal: 32,
+  },
+  cameraPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.9)",
+    gap: 16,
   },
 });
