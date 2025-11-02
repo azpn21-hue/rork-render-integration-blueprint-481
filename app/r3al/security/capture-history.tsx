@@ -14,7 +14,7 @@ interface CaptureEvent {
 
 export default function CaptureHistory() {
   const router = useRouter();
-  const { captureHistory } = useR3al();
+  const { captureHistory, security } = useR3al();
 
 
   const handleAppeal = (item: CaptureEvent) => {
@@ -100,6 +100,25 @@ export default function CaptureHistory() {
         </View>
 
         <ScrollView style={styles.content}>
+          {security.captureStrikes > 0 && (
+            <View style={styles.strikeCard}>
+              <View style={styles.strikeHeader}>
+                <Text style={styles.strikeTitle}>Security Status</Text>
+                <Text style={[
+                  styles.strikeCount,
+                  security.captureStrikes >= 3 && styles.strikeCountDanger
+                ]}>
+                  {security.captureStrikes} / 3 Strikes
+                </Text>
+              </View>
+              {security.captureStrikes >= 3 && security.restrictionUntil && (
+                <Text style={styles.restrictionText}>
+                  ⛔ Account restricted until {new Date(security.restrictionUntil).toLocaleString()}
+                </Text>
+              )}
+            </View>
+          )}
+
           <View style={styles.infoCard}>
             <AlertCircle size={20} color={tokens.colors.gold} strokeWidth={1.5} />
             <Text style={styles.infoText}>
@@ -246,5 +265,38 @@ const styles = StyleSheet.create({
     color: tokens.colors.textSecondary,
     textAlign: "center" as const,
     lineHeight: 24,
+  },
+  strikeCard: {
+    backgroundColor: tokens.colors.surface,
+    padding: 16,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.warning,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  strikeHeader: {
+    flexDirection: "row" as const,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  strikeTitle: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    color: tokens.colors.gold,
+  },
+  strikeCount: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    color: tokens.colors.warning,
+  },
+  strikeCountDanger: {
+    color: tokens.colors.error,
+  },
+  restrictionText: {
+    fontSize: 14,
+    color: tokens.colors.error,
+    marginTop: 12,
+    fontWeight: "600" as const,
   },
 });

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import { Platform, Alert, Vibration } from 'react-native';
 import * as ScreenCapture from 'expo-screen-capture';
+import * as Haptics from 'expo-haptics';
 import { useR3al } from '@/app/contexts/R3alContext';
 
 interface UseScreenshotDetectionOptions {
@@ -40,8 +41,16 @@ export function useScreenshotDetection({
       if (Platform.OS !== 'web') {
         try {
           subscription = ScreenCapture.addScreenshotListener(() => {
-            console.log('[ScreenshotDetection] Screenshot detected!');
+            console.log('🚨 [ScreenshotDetection] Screenshot detected!');
             
+            // Haptic feedback - strong warning pattern
+            if (Platform.OS === 'ios') {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            } else {
+              // Android vibration pattern: [wait, vibrate, wait, vibrate]
+              Vibration.vibrate([0, 200, 100, 200]);
+            }
+
             // Log the capture event
             addCaptureEvent({
               screen: screenName,
@@ -49,12 +58,24 @@ export function useScreenshotDetection({
               status: 'recorded',
             });
 
-            // Show alert to user
+            // Show alert to user with enhanced messaging
             if (showAlert) {
               Alert.alert(
-                'Screenshot Detected',
-                'This content is protected. The screenshot has been logged.',
-                [{ text: 'OK' }]
+                '🛡️ Privacy Shield Triggered',
+                `Screenshot detected on ${screenName.replace(/_/g, ' ')}\n\nThis content is protected. The capture has been logged and the content owner has been notified.\n\nRepeated violations may result in account restrictions.`,
+                [
+                  { 
+                    text: 'I Understand',
+                    style: 'cancel'
+                  },
+                  {
+                    text: 'View History',
+                    onPress: () => {
+                      console.log('[ScreenshotDetection] User wants to view history');
+                    }
+                  }
+                ],
+                { cancelable: false }
               );
             }
           });
@@ -74,7 +95,7 @@ export function useScreenshotDetection({
             event.metaKey;
 
           if (isPrintScreen || isWindowsSnip || isMacScreenshot) {
-            console.log('[ScreenshotDetection] Screenshot shortcut detected on web');
+            console.log('🚨 [ScreenshotDetection] Screenshot shortcut detected on web');
             
             addCaptureEvent({
               screen: screenName,
@@ -83,7 +104,12 @@ export function useScreenshotDetection({
             });
 
             if (showAlert) {
-              alert('Screenshot attempt detected. This content is protected and has been logged.');
+              alert(
+                '🛡️ Privacy Shield Triggered\n\n' +
+                `Screenshot attempt detected on ${screenName.replace(/_/g, ' ')}\n\n` +
+                'This content is protected. The capture has been logged and the content owner has been notified.\n\n' +
+                'Repeated violations may result in account restrictions.'
+              );
             }
           }
         };

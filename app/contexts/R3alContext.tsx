@@ -66,6 +66,13 @@ export interface AppealSubmission {
   submittedAt: string;
 }
 
+export interface SecurityState {
+  captureStrikes: number;
+  restrictionUntil: string | null;
+  restrictedFeatures: string[];
+  lastCaptureTimestamp: string | null;
+}
+
 export interface R3alState {
   currentScreen: string;
   onboardingPhase: number;
@@ -75,6 +82,7 @@ export interface R3alState {
   truthScore: TruthScore | null;
   userProfile: UserProfile | null;
   captureHistory: CaptureEvent[];
+  security: SecurityState;
   isLoading: boolean;
 }
 
@@ -90,6 +98,12 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     truthScore: null,
     userProfile: null,
     captureHistory: [],
+    security: {
+      captureStrikes: 0,
+      restrictionUntil: null,
+      restrictedFeatures: [],
+      lastCaptureTimestamp: null,
+    },
     isLoading: true,
   });
 
@@ -264,8 +278,26 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       id: `capture_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     };
     const updatedHistory = [newEvent, ...state.captureHistory].slice(0, 50);
-    saveState({ captureHistory: updatedHistory });
-  }, [saveState, state.captureHistory]);
+    
+    // Update strike counter
+    const newStrikes = state.security.captureStrikes + 1;
+    const updatedSecurity: SecurityState = {
+      ...state.security,
+      captureStrikes: newStrikes,
+      lastCaptureTimestamp: event.timestamp,
+    };
+
+    // Apply restrictions if strikes >= 3
+    if (newStrikes >= 3) {
+      const restrictionUntil = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      updatedSecurity.restrictionUntil = restrictionUntil;
+      updatedSecurity.restrictedFeatures = ['messages', 'vault_edit', 'hive_post'];
+      console.log(`⛔ [Security] User restricted until ${restrictionUntil} due to ${newStrikes} strikes`);
+    }
+
+    console.log(`⚠️ [Security] Capture event logged. Strikes: ${newStrikes}/3`);
+    saveState({ captureHistory: updatedHistory, security: updatedSecurity });
+  }, [saveState, state.captureHistory, state.security]);
 
   const submitAppeal = useCallback(async (appeal: AppealSubmission) => {
     const updatedHistory = state.captureHistory.map((event) =>
@@ -284,6 +316,22 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     saveState({ captureHistory: updatedHistory });
   }, [saveState, state.captureHistory]);
 
+  const clearStrikes = useCallback(() => {
+    const updatedSecurity: SecurityState = {
+      captureStrikes: 0,
+      restrictionUntil: null,
+      restrictedFeatures: [],
+      lastCaptureTimestamp: state.security.lastCaptureTimestamp,
+    };
+    console.log('✅ [Security] Strikes cleared');
+    saveState({ security: updatedSecurity });
+  }, [saveState, state.security]);
+
+  const isRestricted = useCallback(() => {
+    if (!state.security.restrictionUntil) return false;
+    return new Date().toISOString() < state.security.restrictionUntil;
+  }, [state.security.restrictionUntil]);
+
   const resetR3al = useCallback(async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setState({
@@ -295,6 +343,12 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       truthScore: null,
       userProfile: null,
       captureHistory: [],
+      security: {
+        captureStrikes: 0,
+        restrictionUntil: null,
+        restrictedFeatures: [],
+        lastCaptureTimestamp: null,
+      },
       isLoading: false,
     });
   }, []);
@@ -313,6 +367,8 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     addCaptureEvent,
     submitAppeal,
     updateCaptureEventStatus,
+    clearStrikes,
+    isRestricted,
     resetR3al,
-  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, resetR3al]);
+  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, clearStrikes, isRestricted, resetR3al]);
 });
