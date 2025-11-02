@@ -1,13 +1,50 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Shield } from "lucide-react-native";
+import { Shield, Camera, User, CheckCircle, Lock } from "lucide-react-native";
+import { useEffect, useRef } from "react";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import locales from "@/schemas/r3al/locale_tokens.json";
 
 export default function VerificationIntro() {
   const router = useRouter();
   const t = locales.en;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+
+    return () => pulse.stop();
+  }, [fadeAnim, scaleAnim, pulseAnim]);
 
   return (
     <LinearGradient
@@ -15,10 +52,25 @@ export default function VerificationIntro() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.content}>
-          <View style={styles.iconContainer}>
-            <Shield size={80} color={tokens.colors.gold} strokeWidth={1.5} />
-          </View>
+        <Animated.View 
+          style={[
+            styles.content,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <Animated.View 
+            style={[
+              styles.iconContainer,
+              { transform: [{ scale: pulseAnim }] },
+            ]}
+          >
+            <View style={styles.shieldBg}>
+              <Shield size={80} color={tokens.colors.gold} strokeWidth={1.5} />
+            </View>
+          </Animated.View>
 
           <View style={styles.textContainer}>
             <Text style={styles.title}>{t.verify_id_title}</Text>
@@ -27,25 +79,45 @@ export default function VerificationIntro() {
 
           <View style={styles.steps}>
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>1</Text>
+              <View style={styles.stepIconContainer}>
+                <Camera size={24} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.stepText}>{t.document_capture_title}</Text>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>{t.document_capture_title}</Text>
+                <Text style={styles.stepDescription}>Capture your government-issued ID</Text>
+              </View>
             </View>
 
-            <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>2</Text>
-              </View>
-              <Text style={styles.stepText}>{t.biometric_capture_title}</Text>
-            </View>
+            <View style={styles.stepDivider} />
 
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>3</Text>
+              <View style={styles.stepIconContainer}>
+                <User size={24} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.stepText}>Verify & Secure</Text>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>{t.biometric_capture_title}</Text>
+                <Text style={styles.stepDescription}>Take a selfie for biometric match</Text>
+              </View>
             </View>
+
+            <View style={styles.stepDivider} />
+
+            <View style={styles.step}>
+              <View style={styles.stepIconContainer}>
+                <CheckCircle size={24} color={tokens.colors.gold} strokeWidth={2} />
+              </View>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>Verify & Secure</Text>
+                <Text style={styles.stepDescription}>AI-powered identity verification</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.securityNote}>
+            <Lock size={16} color={tokens.colors.textSecondary} strokeWidth={2} />
+            <Text style={styles.securityText}>
+              Your data is encrypted and never shared without consent
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -58,7 +130,7 @@ export default function VerificationIntro() {
           >
             <Text style={styles.buttonText}>{t.begin_verification}</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -74,12 +146,22 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 32,
     justifyContent: "space-between",
   },
   iconContainer: {
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 24,
+  },
+  shieldBg: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255,215,0,0.1)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    justifyContent: "center",
+    alignItems: "center",
   },
   textContainer: {
     alignItems: "center",
@@ -88,40 +170,71 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
-    marginBottom: 16,
+    marginBottom: 12,
     textAlign: "center",
   },
   instructions: {
-    fontSize: 16,
+    fontSize: 15,
     color: tokens.colors.textSecondary,
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: 22,
+    paddingHorizontal: 16,
   },
   steps: {
-    gap: 24,
+    gap: 8,
+    paddingHorizontal: 8,
   },
   step: {
     flexDirection: "row" as const,
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 16,
+    paddingVertical: 8,
   },
-  stepNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: tokens.colors.gold,
+  stepIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,215,0,0.1)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
     justifyContent: "center",
     alignItems: "center",
   },
-  stepNumberText: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: tokens.colors.secondary,
-  },
-  stepText: {
+  stepContent: {
     flex: 1,
+    gap: 4,
+  },
+  stepTitle: {
     fontSize: 16,
+    fontWeight: "600" as const,
     color: tokens.colors.text,
+  },
+  stepDescription: {
+    fontSize: 13,
+    color: tokens.colors.textSecondary,
+    lineHeight: 18,
+  },
+  stepDivider: {
+    height: 20,
+    width: 2,
+    backgroundColor: "rgba(255,215,0,0.3)",
+    marginLeft: 23,
+  },
+  securityNote: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(255,215,0,0.05)",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,215,0,0.2)",
+  },
+  securityText: {
+    flex: 1,
+    fontSize: 12,
+    color: tokens.colors.textSecondary,
+    lineHeight: 16,
   },
   button: {
     backgroundColor: tokens.colors.gold,
@@ -129,10 +242,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: tokens.dimensions.borderRadius,
     alignItems: "center",
+    shadowColor: tokens.colors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: "600" as const,
+    fontWeight: "700" as const,
     color: tokens.colors.secondary,
+    letterSpacing: 0.5,
   },
 });

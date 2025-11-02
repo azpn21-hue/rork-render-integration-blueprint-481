@@ -1,49 +1,175 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from "react-native";
-import { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, ActivityIndicator } from "react-native";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Camera, User } from "lucide-react-native";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { Camera, User, CheckCircle, X, RotateCcw, FlipHorizontal } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
+import { trpc } from "@/lib/trpc";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import locales from "@/schemas/r3al/locale_tokens.json";
 
+type VerificationStep = "document" | "biometric" | "processing" | "success" | "error";
+
 export default function IdentityVerification() {
   const router = useRouter();
-  const { setVerified } = useR3al();
+  const { setVerified, earnTokens, userProfile } = useR3al();
   const t = locales.en;
-  const [step, setStep] = useState<"document" | "biometric" | "processing">("document");
+  const [step, setStep] = useState<VerificationStep>("document");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState<CameraType>("back");
+  const [documentImage, setDocumentImage] = useState<string | null>(null);
+  const [biometricImage, setBiometricImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const cameraRef = useRef<any>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
 
-  const handleDocumentCapture = () => {
-    if (Platform.OS === "web") {
-      Alert.alert("Demo Mode", "Document capture simulated for web");
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
+
+  const handleDocumentCapture = async () => {
+    try {
+      if (!cameraRef.current) {
+        setError("Camera not ready");
+        return;
+      }
+
+      console.log("[Verification] Capturing document photo...");
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        base64: true,
+      });
+      
+      if (photo?.base64) {
+        setDocumentImage(`data:image/jpeg;base64,${photo.base64}`);
+        setStep("biometric");
+        setFacing("front");
+        console.log("[Verification] Document captured successfully");
+      }
+    } catch (err) {
+      console.error("[Verification] Document capture error:", err);
+      setError("Failed to capture document. Please try again.");
     }
-    setStep("biometric");
   };
 
   const handleBiometricCapture = async () => {
-    if (Platform.OS === "web") {
-      Alert.alert("Demo Mode", "Biometric capture simulated for web");
+    try {
+      if (!cameraRef.current) {
+        setError("Camera not ready");
+        return;
+      }
+
+      console.log("[Verification] Capturing biometric photo...");
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        base64: true,
+      });
+      
+      if (photo?.base64) {
+        setBiometricImage(`data:image/jpeg;base64,${photo.base64}`);
+        setStep("processing");
+        console.log("[Verification] Biometric captured, processing...");
+        await processVerification(`data:image/jpeg;base64,${photo.base64}`);
+      }
+    } catch (err) {
+      console.error("[Verification] Biometric capture error:", err);
+      setError("Failed to capture selfie. Please try again.");
+      setStep("biometric");
     }
-    setStep("processing");
-    
-    setTimeout(() => {
-      const mockToken = `verify_${Date.now()}`;
-      setVerified(mockToken);
-      Alert.alert(
-        t.verification_success,
-        "Identity verified successfully!",
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              console.log("[Verification] Success → /r3al/questionnaire/index");
-              router.replace("/r3al/questionnaire/index");
-            },
-          },
-        ]
-      );
-    }, 2000);
   };
+
+  const processVerification = async (bioImage: string) => {
+    try {
+      const result = await verifyMutation.mutateAsync({
+        documentImage: documentImage || "",
+        biometricImage: bioImage,
+        userId: userProfile?.name || "user",
+      });
+
+      console.log("[Verification] Backend response:", result);
+
+      if (result.success) {
+        setVerified(result.verificationToken);
+        earnTokens(50, "Identity Verification Completed");
+        setStep("success");
+        
+        setTimeout(() => {
+          console.log("[Verification] Success → /r3al/questionnaire/index");
+          router.replace("/r3al/questionnaire/index");
+        }, 2500);
+      } else {
+        setStep("error");
+        setError("Verification failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("[Verification] Processing error:", err);
+      setStep("error");
+      setError("Verification failed. Please try again.");
+    }
+  };
+
+  const resetVerification = () => {
+    setStep("document");
+    setFacing("back");
+    setDocumentImage(null);
+    setBiometricImage(null);
+    setError(null);
+  };
+
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === "back" ? "front" : "back"));
+  };
+
+  if (!permission) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={tokens.colors.gold} />
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.content}>
+            <Camera size={80} color={tokens.colors.gold} strokeWidth={1.5} />
+            <Text style={styles.title}>Camera Permission Required</Text>
+            <Text style={styles.permissionText}>
+              R3AL needs access to your camera to verify your identity securely.
+            </Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={requestPermission}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>Grant Permission</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -52,56 +178,109 @@ export default function IdentityVerification() {
     >
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
-          {step === "document" && (
+          {(step === "document" || step === "biometric") && (
             <>
               <View style={styles.header}>
-                <Camera size={60} color={tokens.colors.gold} strokeWidth={1.5} />
-                <Text style={styles.title}>{t.document_capture_title}</Text>
-                <Text style={styles.instructions}>{t.document_capture_instructions}</Text>
+                {step === "document" ? (
+                  <Camera size={40} color={tokens.colors.gold} strokeWidth={1.5} />
+                ) : (
+                  <User size={40} color={tokens.colors.gold} strokeWidth={1.5} />
+                )}
+                <Text style={styles.title}>
+                  {step === "document" ? t.document_capture_title : t.biometric_capture_title}
+                </Text>
+                <Text style={styles.instructions}>
+                  {step === "document" ? t.document_capture_instructions : t.biometric_capture_instructions}
+                </Text>
               </View>
 
-              <View style={styles.captureArea}>
-                <View style={styles.frame} />
-                <Text style={styles.hint}>Position ID within frame</Text>
+              <View style={styles.cameraContainer}>
+                <CameraView
+                  ref={cameraRef}
+                  style={styles.camera}
+                  facing={facing}
+                >
+                  {step === "document" ? (
+                    <View style={styles.documentOverlay}>
+                      <View style={styles.frame} />
+                    </View>
+                  ) : (
+                    <View style={styles.biometricOverlay}>
+                      <View style={styles.selfieFrame} />
+                    </View>
+                  )}
+                </CameraView>
+                {error && (
+                  <View style={styles.errorBanner}>
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity onPress={() => setError(null)}>
+                      <X size={20} color={tokens.colors.text} />
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleDocumentCapture}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.buttonText}>Capture Document</Text>
-              </TouchableOpacity>
-            </>
-          )}
-
-          {step === "biometric" && (
-            <>
-              <View style={styles.header}>
-                <User size={60} color={tokens.colors.gold} strokeWidth={1.5} />
-                <Text style={styles.title}>{t.biometric_capture_title}</Text>
-                <Text style={styles.instructions}>{t.biometric_capture_instructions}</Text>
+              <View style={styles.controls}>
+                {step === "biometric" && (
+                  <TouchableOpacity
+                    style={styles.controlButton}
+                    onPress={toggleCameraFacing}
+                    activeOpacity={0.8}
+                  >
+                    <FlipHorizontal size={24} color={tokens.colors.gold} />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={step === "document" ? handleDocumentCapture : handleBiometricCapture}
+                  activeOpacity={0.8}
+                >
+                  <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                    <View style={styles.captureButtonInner} />
+                  </Animated.View>
+                </TouchableOpacity>
+                {step === "biometric" && (
+                  <TouchableOpacity
+                    style={styles.controlButton}
+                    onPress={resetVerification}
+                    activeOpacity={0.8}
+                  >
+                    <RotateCcw size={24} color={tokens.colors.gold} />
+                  </TouchableOpacity>
+                )}
               </View>
-
-              <View style={styles.captureArea}>
-                <View style={styles.selfieFrame} />
-                <Text style={styles.hint}>Position face in center</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleBiometricCapture}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.buttonText}>Capture Selfie</Text>
-              </TouchableOpacity>
             </>
           )}
 
           {step === "processing" && (
             <View style={styles.processingContainer}>
+              <ActivityIndicator size="large" color={tokens.colors.gold} />
               <Text style={styles.processingText}>{t.verification_processing}</Text>
-              <View style={styles.loader} />
+              <Text style={styles.processingHint}>Analyzing biometric data...</Text>
+            </View>
+          )}
+
+          {step === "success" && (
+            <View style={styles.processingContainer}>
+              <CheckCircle size={80} color={tokens.colors.gold} strokeWidth={1.5} />
+              <Text style={styles.successTitle}>{t.verification_success}</Text>
+              <Text style={styles.successText}>+50 Trust Tokens earned!</Text>
+              <Text style={styles.processingHint}>Redirecting to questionnaire...</Text>
+            </View>
+          )}
+
+          {step === "error" && (
+            <View style={styles.processingContainer}>
+              <X size={80} color="#FF4444" strokeWidth={1.5} />
+              <Text style={styles.errorTitle}>Verification Failed</Text>
+              <Text style={styles.errorDescription}>{error || t.verification_failure}</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={resetVerification}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>Try Again</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -120,29 +299,57 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 20,
     justifyContent: "space-between",
+    alignItems: "center",
   },
   header: {
     alignItems: "center",
-    gap: 16,
+    gap: 12,
+    paddingVertical: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
     textAlign: "center",
   },
   instructions: {
-    fontSize: 16,
+    fontSize: 14,
     color: tokens.colors.textSecondary,
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: 20,
+    maxWidth: 300,
   },
-  captureArea: {
+  permissionText: {
+    fontSize: 16,
+    color: tokens.colors.text,
+    textAlign: "center",
+    lineHeight: 24,
+    paddingHorizontal: 32,
+    marginVertical: 24,
+  },
+  cameraContainer: {
+    flex: 1,
+    width: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginVertical: 16,
+  },
+  camera: {
+    flex: 1,
+  },
+  documentOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  biometricOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   frame: {
     width: 300,
@@ -150,20 +357,65 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: tokens.colors.gold,
     borderRadius: 12,
-    borderStyle: "dashed" as const,
+    backgroundColor: "rgba(255,215,0,0.1)",
   },
   selfieFrame: {
-    width: 200,
-    height: 260,
+    width: 220,
+    height: 280,
     borderWidth: 3,
     borderColor: tokens.colors.gold,
-    borderRadius: 100,
-    borderStyle: "dashed" as const,
+    borderRadius: 140,
+    backgroundColor: "rgba(255,215,0,0.1)",
   },
-  hint: {
-    marginTop: 16,
+  controls: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 32,
+    paddingVertical: 24,
+  },
+  controlButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255,215,0,0.1)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  captureButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "transparent",
+    borderWidth: 4,
+    borderColor: tokens.colors.gold,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  captureButtonInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: tokens.colors.gold,
+  },
+  errorBanner: {
+    position: "absolute" as const,
+    top: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: "rgba(255,68,68,0.95)",
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: "row" as const,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  errorText: {
+    color: tokens.colors.text,
     fontSize: 14,
-    color: tokens.colors.textSecondary,
+    flex: 1,
   },
   button: {
     backgroundColor: tokens.colors.gold,
@@ -171,6 +423,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: tokens.dimensions.borderRadius,
     alignItems: "center",
+    minWidth: 200,
   },
   buttonText: {
     fontSize: 18,
@@ -181,18 +434,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 24,
+    gap: 20,
   },
   processingText: {
-    fontSize: 20,
+    fontSize: 24,
+    fontWeight: "bold" as const,
     color: tokens.colors.gold,
+    textAlign: "center",
   },
-  loader: {
-    width: 50,
-    height: 50,
-    borderWidth: 4,
-    borderColor: tokens.colors.gold,
-    borderTopColor: "transparent" as const,
-    borderRadius: 25,
+  processingHint: {
+    fontSize: 14,
+    color: tokens.colors.textSecondary,
+    textAlign: "center",
+  },
+  successTitle: {
+    fontSize: 28,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+    textAlign: "center",
+  },
+  successText: {
+    fontSize: 18,
+    color: tokens.colors.text,
+    textAlign: "center",
+  },
+  errorTitle: {
+    fontSize: 28,
+    fontWeight: "bold" as const,
+    color: "#FF4444",
+    textAlign: "center",
+  },
+  errorDescription: {
+    fontSize: 16,
+    color: tokens.colors.textSecondary,
+    textAlign: "center",
+    paddingHorizontal: 32,
   },
 });
