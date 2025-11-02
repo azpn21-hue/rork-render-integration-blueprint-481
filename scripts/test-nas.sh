@@ -1,6 +1,8 @@
 #!/bin/bash
 # Buffalo NAS Connection Test Script
 # Tests connectivity, mount status, and write permissions
+# Credentials: admin / JCWmini1987##!!
+# IP: 192.168.1.119
 
 echo "=========================================="
 echo "Buffalo NAS Connection Test"

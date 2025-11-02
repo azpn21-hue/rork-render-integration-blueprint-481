@@ -15,6 +15,7 @@ ping 192.168.1.119
 
 # Scan for shares
 smbclient -L //192.168.1.119 -U admin
+# Password: JCWmini1987##!!
 ```
 
 ### 2. Create Mount Point
@@ -26,7 +27,7 @@ sudo mkdir -p /opt/r3al-hive
 ### 3. Manual Mount (Testing)
 ```bash
 sudo mount -t cifs //192.168.1.119/share /mnt/nas \
-  -o username=admin,password=YOUR_PASSWORD,vers=3.0,iocharset=utf8
+  -o username=admin,password='JCWmini1987##!!',vers=3.0,iocharset=utf8
 ```
 
 **Note**: If `vers=3.0` fails, try `vers=2.0` or `vers=1.0` depending on your Buffalo firmware.
@@ -46,7 +47,7 @@ sudo nano /etc/fstab
 
 Add this line:
 ```
-//192.168.1.119/share /mnt/nas cifs username=admin,password=YOUR_PASSWORD,vers=3.0,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
+//192.168.1.119/share /mnt/nas cifs username=admin,password=JCWmini1987##!!,vers=3.0,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
 ```
 
 Save and test:
@@ -68,7 +69,7 @@ Create or update `.env` file:
 NAS_IP=192.168.1.119
 NAS_SHARE=share
 NAS_USERNAME=admin
-NAS_PASSWORD=YOUR_PASSWORD
+NAS_PASSWORD=JCWmini1987##!!
 NAS_MOUNT_PATH=/mnt/nas
 
 # R3AL Hive Paths (on NAS)
@@ -277,7 +278,8 @@ sudo mount -a
 
 ---
 
-**Last Updated**: {{ current_date }}  
-**Configuration Status**: Ready for testing  
+**Last Updated**: 2025-11-02  
+**Configuration Status**: ✅ CONFIGURED & TESTED
+**Credentials**: admin / JCWmini1987##!!  
 **NAS Model**: Buffalo LinkStation  
 **IP**: 192.168.1.119
