@@ -1,0 +1,167 @@
+{
+  "diagram": "R3AL_HIVE_SYSTEM",
+  "type": "data_flow",
+  "theme": "black_gold",
+  "orientation": "horizontal",
+  "nodes": [
+    {
+      "id": "mobile_app",
+      "label": "📱 R3AL Mobile / Web App",
+      "role": "client",
+      "description": "Handles UI, authentication, questionnaire, Vault, Hive feed and Circles."
+    },
+    {
+      "id": "auth_service",
+      "label": "🔒 Auth Service",
+      "role": "service",
+      "description": "JWT / OAuth issuance, ID verification, 2FA, guest toggle (beta only)."
+    },
+    {
+      "id": "hive_api",
+      "label": "🕸️ Hive API Gateway",
+      "role": "backend",
+      "description": "Main orchestration layer: Circles, Posts, Events, Mentorship, Governance."
+    },
+    {
+      "id": "integrity_service",
+      "label": "💠 Integrity Index Engine",
+      "role": "microservice",
+      "description": "Calculates user and Circle integrity based on questionnaire, behavior, and community feedback."
+    },
+    {
+      "id": "token_service",
+      "label": "🪙 Trust-Token Engine",
+      "role": "microservice",
+      "description": "Credits or debits tokens; maintains user ledgers; interfaces with billing gateway."
+    },
+    {
+      "id": "media_service",
+      "label": "🖼️ Media & Photo Verification",
+      "role": "microservice",
+      "description": "Stores and scans profile photos, videos, and event media for authenticity."
+    },
+    {
+      "id": "database_cluster",
+      "label": "🧱 Data Layer (PostgreSQL + Mongo + Redis)",
+      "role": "storage",
+      "description": "Relational data for users/circles; document storage for token ledger; cache for feed weighting."
+    },
+    {
+      "id": "analytics_engine",
+      "label": "📊 Analytics & Insights",
+      "role": "service",
+      "description": "Aggregates BigQuery / Elasticsearch data for dashboards, trend reporting, and moderation."
+    },
+    {
+      "id": "admin_dashboard",
+      "label": "🖥️ Moderator / Council Console",
+      "role": "frontend",
+      "description": "Admin tools for event logs, token oversight, integrity trends, and governance voting."
+    }
+  ],
+  "links": [
+    { "from": "mobile_app", "to": "auth_service", "label": "Login / JWT / 2FA" },
+    { "from": "mobile_app", "to": "hive_api", "label": "REST / WebSocket requests" },
+    { "from": "mobile_app", "to": "media_service", "label": "Photo / Video uploads" },
+    { "from": "hive_api", "to": "database_cluster", "label": "CRUD operations" },
+    { "from": "hive_api", "to": "integrity_service", "label": "Integrity updates" },
+    { "from": "integrity_service", "to": "token_service", "label": "Reward or penalty calls" },
+    { "from": "token_service", "to": "database_cluster", "label": "Ledger writes" },
+    { "from": "token_service", "to": "analytics_engine", "label": "Reward metrics" },
+    { "from": "hive_api", "to": "analytics_engine", "label": "Feed metrics / user activity" },
+    { "from": "analytics_engine", "to": "admin_dashboard", "label": "Data visualization" },
+    { "from": "auth_service", "to": "database_cluster", "label": "User credentials / roles" },
+    { "from": "media_service", "to": "integrity_service", "label": "Verification results" },
+    { "from": "admin_dashboard", "to": "hive_api", "label": "Moderation commands / council votes" }
+  ],
+  "runtime_notes": [
+    "Use HTTPS + JWT across all connections.",
+    "Hive API communicates via internal gRPC with microservices for low latency.",
+    "Redis pub/sub layer handles Circle chat and Hive feed real-time updates.",
+    "Analytics engine consumes anonymized event stream for trend analysis.",
+    "Token engine throttles writes via queue to avoid ledger contention."
+  ],
+  "api_endpoints": {
+    "users": [
+      { "method": "GET", "path": "/api/v1/hive/users/:id", "description": "Retrieve user profile & integrity index" },
+      { "method": "PUT", "path": "/api/v1/hive/users/:id", "description": "Update user profile" }
+    ],
+    "circles": [
+      { "method": "POST", "path": "/api/v1/hive/circles", "description": "Create new Circle" },
+      { "method": "GET", "path": "/api/v1/hive/circles/:id", "description": "Get Circle info & member list" },
+      { "method": "PUT", "path": "/api/v1/hive/circles/:id", "description": "Update Circle description/rules" },
+      { "method": "POST", "path": "/api/v1/hive/circles/:id/join", "description": "Join or request invite" }
+    ],
+    "feed": [
+      { "method": "POST", "path": "/api/v1/hive/pulse", "description": "Publish new PulsePost" },
+      { "method": "GET", "path": "/api/v1/hive/feed", "description": "Aggregated Hive feed (weighted by trust)" }
+    ],
+    "events": [
+      { "method": "POST", "path": "/api/v1/hive/events", "description": "Create Hive event" },
+      { "method": "GET", "path": "/api/v1/hive/events", "description": "List upcoming events" }
+    ],
+    "tokens": [
+      { "method": "POST", "path": "/api/v1/hive/tokens/earn", "description": "Credit user tokens" },
+      { "method": "POST", "path": "/api/v1/hive/tokens/spend", "description": "Deduct tokens" },
+      { "method": "GET", "path": "/api/v1/hive/tokens/ledger/:userId", "description": "Retrieve user ledger" }
+    ],
+    "governance": [
+      { "method": "POST", "path": "/api/v1/hive/mentorship", "description": "Register mentorship pair" },
+      { "method": "POST", "path": "/api/v1/hive/governance/proposal", "description": "Submit new governance proposal" },
+      { "method": "POST", "path": "/api/v1/hive/governance/vote", "description": "Cast vote" },
+      { "method": "GET", "path": "/api/v1/hive/governance/proposals", "description": "List active proposals" }
+    ]
+  },
+  "security_layers": {
+    "authentication": "JWT or OAuth tokens required for all endpoints",
+    "authorization": "Role-based ACL (user, moderator, council)",
+    "rate_limiting": "100 req/min per user; 10/sec per IP",
+    "encryption": "SHA-256 user IDs; AES-256 for private Vault data",
+    "audit": "All POST/PUT/DELETE requests logged"
+  },
+  "database_schema": {
+    "User": {
+      "userId": "uuid",
+      "displayName": "string",
+      "email": "string",
+      "integrityIndex": "number",
+      "circleIds": "array",
+      "trustTokenBalance": "number",
+      "rank": "verified|vanguard|guardian|luminary",
+      "tier": "free|plus|pro|elite"
+    },
+    "Circle": {
+      "circleId": "uuid",
+      "ownerId": "uuid",
+      "name": "string",
+      "description": "string",
+      "privacy": "open|invite|sealed",
+      "members": "array",
+      "integrityAverage": "number",
+      "reputationScore": "number",
+      "rank": "bronze|silver|gold|platinum"
+    },
+    "PulsePost": {
+      "postId": "uuid",
+      "circleId": "uuid",
+      "authorId": "uuid",
+      "content": "string",
+      "mediaUrl": "string|null",
+      "trustWeight": "number",
+      "tokenReward": "number"
+    },
+    "TrustTokenLedger": {
+      "ledgerId": "uuid",
+      "userId": "uuid",
+      "action": "string",
+      "amount": "number",
+      "balanceAfter": "number",
+      "timestamp": "timestamp"
+    }
+  },
+  "derived_metrics": {
+    "circleHealth": "integrityAverage × (activeMembers / totalMembers)",
+    "hiveIntegrity": "mean(circleHealth for all circles)",
+    "userInfluence": "integrityIndex × (circleReputationScore / 100)"
+  }
+}
