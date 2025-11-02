@@ -24,7 +24,8 @@
       },
       "package": "app.rork.render_integration_blueprint",
       "permissions": [
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "READ_MEDIA_IMAGES"
       ]
     },
     "web": {

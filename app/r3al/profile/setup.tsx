@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { User } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
+import { useScreenshotDetection } from "@/hooks/useScreenshotDetection";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import locales from "@/schemas/r3al/locale_tokens.json";
 
@@ -13,6 +14,14 @@ export default function ProfileSetup() {
   const t = locales.en;
   const [name, setName] = useState("" as string);
   const [bio, setBio] = useState("" as string);
+
+  // Enable screenshot detection for this screen
+  useScreenshotDetection({
+    screenName: 'profile_setup',
+    enabled: true,
+    showAlert: true,
+    preventCapture: false,
+  });
 
   const handleComplete = () => {
     if (!name.trim()) {

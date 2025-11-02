@@ -1,18 +1,27 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { User, Award, Settings, LogOut, ShieldAlert } from "lucide-react-native";
+import { User, Award, Settings, LogOut, ShieldAlert, Camera } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import { useTutorial } from "@/app/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/TutorialOverlay";
 import { OptimaAssistant } from "@/components/OptimaAssistant";
+import { useScreenshotDetection } from "@/hooks/useScreenshotDetection";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import { useEffect } from "react";
 
 export default function R3alHome() {
   const router = useRouter();
-  const { userProfile, truthScore, resetR3al } = useR3al();
+  const { userProfile, truthScore, resetR3al, addCaptureEvent } = useR3al();
   const { shouldAutoStart, startTutorial } = useTutorial();
+
+  // Enable screenshot detection for this screen
+  useScreenshotDetection({
+    screenName: 'home',
+    enabled: true,
+    showAlert: true,
+    preventCapture: false,
+  });
 
   useEffect(() => {
     if (shouldAutoStart("home_tour")) {
@@ -26,6 +35,21 @@ export default function R3alHome() {
   const handleReset = () => {
     resetR3al();
     router.replace("/r3al/splash");
+  };
+
+  const handleTestScreenshot = () => {
+    // Simulate a screenshot detection for testing
+    console.log('[Home] Simulating screenshot detection...');
+    addCaptureEvent({
+      screen: 'home',
+      timestamp: new Date().toISOString(),
+      status: 'recorded',
+    });
+    Alert.alert(
+      'Screenshot Detected (Test)',
+      'A capture event has been added to your history.',
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -78,6 +102,16 @@ export default function R3alHome() {
             >
               <ShieldAlert size={24} color={tokens.colors.gold} strokeWidth={1.5} />
               <Text style={styles.actionText}>Content Capture History</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.actionButtonTest]}
+              onPress={handleTestScreenshot}
+              activeOpacity={0.7}
+              testID="test-screenshot-btn"
+            >
+              <Camera size={24} color={tokens.colors.warning} strokeWidth={1.5} />
+              <Text style={[styles.actionText, styles.actionTextTest]}>Test Screenshot Alarm</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -205,12 +239,18 @@ const styles = StyleSheet.create({
   actionButtonDanger: {
     borderColor: tokens.colors.error,
   },
+  actionButtonTest: {
+    borderColor: tokens.colors.warning,
+  },
   actionText: {
     fontSize: 16,
     color: tokens.colors.text,
   },
   actionTextDanger: {
     color: tokens.colors.error,
+  },
+  actionTextTest: {
+    color: tokens.colors.warning,
   },
   footer: {
     marginTop: "auto" as const,

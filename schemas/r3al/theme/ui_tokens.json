@@ -7,6 +7,7 @@
     "accent": "#FFC857",
     "error": "#D32F2F",
     "success": "#388E3C",
+    "warning": "#FFC107",
     "text": "#FFFFFF",
     "textSecondary": "#AAAAAA",
     "gold": "#D4AF37",
