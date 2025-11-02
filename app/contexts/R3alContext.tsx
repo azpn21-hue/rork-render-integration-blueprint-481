@@ -42,12 +42,39 @@ export interface TruthScore {
   };
 }
 
+export interface Photo {
+  id: string;
+  url: string;
+  type: "avatar" | "cover" | "gallery";
+  caption?: string;
+  safe: boolean;
+  trustScore: number;
+  uploadedAt: string;
+}
+
 export interface UserProfile {
   name: string;
   avatar?: string;
+  cover?: string;
   bio?: string;
+  pronouns?: string;
+  location?: string;
   verificationToken?: string;
   truthScore?: TruthScore;
+  photos: Photo[];
+  badges: string[];
+  verificationLevel: number;
+  endorsements: { count: number; by: string[] };
+  privacy: {
+    profile: "public" | "circle" | "private";
+    photos: "public" | "circle" | "private";
+    watchlist: "public" | "circle" | "private";
+  };
+  settings: {
+    dm: "all" | "circle_only" | "none";
+    mentions: boolean;
+    alerts: { screenshots: boolean; new_endorsement: boolean };
+  };
 }
 
 export interface CaptureEvent {
@@ -322,10 +349,75 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     return truthScore;
   }, [saveState, state.answers]);
 
-  const saveProfile = useCallback((profile: UserProfile) => {
-    saveState({ 
-      userProfile: { ...state.userProfile, ...profile } as UserProfile
-    });
+  const saveProfile = useCallback((profile: Partial<UserProfile>) => {
+    const updatedProfile: UserProfile = { 
+      ...state.userProfile,
+      ...profile,
+      photos: profile.photos || state.userProfile?.photos || [],
+      badges: profile.badges || state.userProfile?.badges || ["verified_id"],
+      verificationLevel: profile.verificationLevel || state.userProfile?.verificationLevel || 1,
+      endorsements: profile.endorsements || state.userProfile?.endorsements || { count: 0, by: [] },
+      privacy: profile.privacy || state.userProfile?.privacy || {
+        profile: "circle",
+        photos: "circle",
+        watchlist: "public",
+      },
+      settings: profile.settings || state.userProfile?.settings || {
+        dm: "circle_only",
+        mentions: true,
+        alerts: { screenshots: true, new_endorsement: true },
+      },
+    } as UserProfile;
+    saveState({ userProfile: updatedProfile });
+  }, [saveState, state.userProfile]);
+
+  const uploadPhoto = useCallback((photo: Omit<Photo, "id" | "uploadedAt">) => {
+    const newPhoto: Photo = {
+      ...photo,
+      id: `photo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      uploadedAt: new Date().toISOString(),
+    };
+
+    const updatedPhotos = [...(state.userProfile?.photos || []), newPhoto].slice(-50);
+    
+    const updatedProfile: UserProfile = {
+      ...state.userProfile,
+      photos: updatedPhotos,
+      avatar: photo.type === "avatar" ? photo.url : state.userProfile?.avatar,
+      cover: photo.type === "cover" ? photo.url : state.userProfile?.cover,
+    } as UserProfile;
+
+    console.log(`📸 [Profile] Uploaded ${photo.type} photo: ${newPhoto.id}`);
+    saveState({ userProfile: updatedProfile });
+    return newPhoto;
+  }, [saveState, state.userProfile]);
+
+  const deletePhoto = useCallback((photoId: string) => {
+    const updatedPhotos = (state.userProfile?.photos || []).filter(p => p.id !== photoId);
+    const updatedProfile: UserProfile = {
+      ...state.userProfile,
+      photos: updatedPhotos,
+    } as UserProfile;
+    console.log(`🗑️ [Profile] Deleted photo: ${photoId}`);
+    saveState({ userProfile: updatedProfile });
+  }, [saveState, state.userProfile]);
+
+  const updatePrivacy = useCallback((privacy: Partial<UserProfile["privacy"]>) => {
+    const updatedProfile: UserProfile = {
+      ...state.userProfile,
+      privacy: { ...state.userProfile?.privacy, ...privacy } as UserProfile["privacy"],
+    } as UserProfile;
+    console.log(`🔒 [Profile] Privacy updated:`, privacy);
+    saveState({ userProfile: updatedProfile });
+  }, [saveState, state.userProfile]);
+
+  const updateSettings = useCallback((settings: Partial<UserProfile["settings"]>) => {
+    const updatedProfile: UserProfile = {
+      ...state.userProfile,
+      settings: { ...state.userProfile?.settings, ...settings } as UserProfile["settings"],
+    } as UserProfile;
+    console.log(`⚙️ [Profile] Settings updated:`, settings);
+    saveState({ userProfile: updatedProfile });
   }, [saveState, state.userProfile]);
 
   const addCaptureEvent = useCallback((event: Omit<CaptureEvent, "id">) => {
@@ -574,6 +666,10 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     saveAnswer,
     calculateTruthScore,
     saveProfile,
+    uploadPhoto,
+    deletePhoto,
+    updatePrivacy,
+    updateSettings,
     addCaptureEvent,
     submitAppeal,
     updateCaptureEventStatus,
@@ -586,5 +682,5 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     giftNFT,
     earnTokens,
     resetR3al,
-  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, clearStrikes, isRestricted, createNFT, listNFTForSale, cancelNFTListing, purchaseNFT, giftNFT, earnTokens, resetR3al]);
+  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, uploadPhoto, deletePhoto, updatePrivacy, updateSettings, addCaptureEvent, submitAppeal, updateCaptureEventStatus, clearStrikes, isRestricted, createNFT, listNFTForSale, cancelNFTListing, purchaseNFT, giftNFT, earnTokens, resetR3al]);
 });

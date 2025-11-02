@@ -9,6 +9,11 @@ import { giftNFTProcedure } from "./nft/gift";
 import { getDailyQuestionProcedure } from "./qotd/get-daily";
 import { submitAnswerProcedure } from "./qotd/submit-answer";
 import { getStatsProcedure } from "./qotd/get-stats";
+import { updateProfileProcedure } from "./profile/update-profile";
+import { uploadPhotoProcedure } from "./profile/upload-photo";
+import { deletePhotoProcedure } from "./profile/delete-photo";
+import { getProfileProcedure } from "./profile/get-profile";
+import { endorseProcedure } from "./profile/endorse";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -22,5 +27,12 @@ export const r3alRouter = createTRPCRouter({
     getDaily: getDailyQuestionProcedure,
     submitAnswer: submitAnswerProcedure,
     getStats: getStatsProcedure,
+  }),
+  profile: createTRPCRouter({
+    getProfile: getProfileProcedure,
+    updateProfile: updateProfileProcedure,
+    uploadPhoto: uploadPhotoProcedure,
+    deletePhoto: deletePhotoProcedure,
+    endorse: endorseProcedure,
   }),
 });
