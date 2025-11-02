@@ -21,6 +21,7 @@ export default function IdentityVerification() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [documentImage, setDocumentImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cameraReady, setCameraReady] = useState<boolean>(false);
   const cameraRef = useRef<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
@@ -34,6 +35,10 @@ export default function IdentityVerification() {
       hasEarnTokens: !!earnTokens,
     });
     console.log("[IdentityVerification] Permission:", permission);
+    
+    if (permission && !permission.granted && !permission.canAskAgain) {
+      setError("Camera permission was denied. Please enable it in your device settings.");
+    }
   }, [r3alContext, userProfile, setVerified, earnTokens, permission]);
 
   useEffect(() => {
@@ -57,8 +62,9 @@ export default function IdentityVerification() {
 
   const handleDocumentCapture = async () => {
     try {
-      if (!cameraRef.current) {
-        setError("Camera not ready");
+      if (!cameraRef.current || !cameraReady) {
+        setError("Camera not ready. Please wait a moment.");
+        console.log("[Verification] Camera not ready:", { hasCameraRef: !!cameraRef.current, cameraReady });
         return;
       }
 
@@ -82,8 +88,9 @@ export default function IdentityVerification() {
 
   const handleBiometricCapture = async () => {
     try {
-      if (!cameraRef.current) {
-        setError("Camera not ready");
+      if (!cameraRef.current || !cameraReady) {
+        setError("Camera not ready. Please wait a moment.");
+        console.log("[Verification] Camera not ready:", { hasCameraRef: !!cameraRef.current, cameraReady });
         return;
       }
 
@@ -158,9 +165,9 @@ export default function IdentityVerification() {
         style={styles.container}
       >
         <SafeAreaView style={styles.safeArea}>
-          <View style={styles.content}>
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={tokens.colors.gold} />
-            <Text style={styles.processingText}>Loading camera...</Text>
+            <Text style={styles.processingText}>Initializing camera...</Text>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -221,6 +228,14 @@ export default function IdentityVerification() {
                   ref={cameraRef}
                   style={styles.camera}
                   facing={facing}
+                  onCameraReady={() => {
+                    console.log("[Verification] Camera ready!");
+                    setCameraReady(true);
+                  }}
+                  onMountError={(error) => {
+                    console.error("[Verification] Camera mount error:", error);
+                    setError(`Camera error: ${error.message}`);
+                  }}
                 >
                   {step === "document" ? (
                     <View style={styles.documentOverlay}>
@@ -451,6 +466,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600" as const,
     color: tokens.colors.secondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
   },
   processingContainer: {
     flex: 1,
