@@ -335,10 +335,18 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     };
     const updatedHistory = [newEvent, ...state.captureHistory].slice(0, 50);
     
+    // Ensure security object exists
+    const currentSecurity = state.security || {
+      captureStrikes: 0,
+      restrictionUntil: null,
+      restrictedFeatures: [],
+      lastCaptureTimestamp: null,
+    };
+    
     // Update strike counter
-    const newStrikes = state.security.captureStrikes + 1;
+    const newStrikes = currentSecurity.captureStrikes + 1;
     const updatedSecurity: SecurityState = {
-      ...state.security,
+      ...currentSecurity,
       captureStrikes: newStrikes,
       lastCaptureTimestamp: event.timestamp,
     };
@@ -373,20 +381,26 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   }, [saveState, state.captureHistory]);
 
   const clearStrikes = useCallback(() => {
+    const currentSecurity = state.security || {
+      captureStrikes: 0,
+      restrictionUntil: null,
+      restrictedFeatures: [],
+      lastCaptureTimestamp: null,
+    };
     const updatedSecurity: SecurityState = {
       captureStrikes: 0,
       restrictionUntil: null,
       restrictedFeatures: [],
-      lastCaptureTimestamp: state.security.lastCaptureTimestamp,
+      lastCaptureTimestamp: currentSecurity.lastCaptureTimestamp,
     };
     console.log('✅ [Security] Strikes cleared');
     saveState({ security: updatedSecurity });
   }, [saveState, state.security]);
 
   const isRestricted = useCallback(() => {
-    if (!state.security?.restrictionUntil) return false;
+    if (!state?.security || !state.security?.restrictionUntil) return false;
     return new Date().toISOString() < state.security.restrictionUntil;
-  }, [state.security]);
+  }, [state?.security]);
 
   const createNFT = useCallback((metadata: Omit<NFTMetadata, 'id' | 'creatorId' | 'creatorName' | 'createdAt' | 'mintedAt'>) => {
     if (state.tokenBalance.available < metadata.tokenCost) {
