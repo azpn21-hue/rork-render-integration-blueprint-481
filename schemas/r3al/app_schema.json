@@ -122,10 +122,88 @@
       "id": "user_profile",
       "type": "UserProfileScreen",
       "properties": {}
+    },
+    {
+      "id": "capture_history",
+      "type": "HistoryScreen",
+      "lockOrderIndex": 999,
+      "properties": {
+        "title": "Content Capture History",
+        "description": "You'll see alerts here if someone attempted to screenshot or record your protected content. No personal data is ever stored or shared.",
+        "icon": "shield-alert"
+      },
+      "components": [
+        {
+          "type": "List",
+          "binding": "@state.captureHistory",
+          "emptyState": {
+            "icon": "shield-check",
+            "text": "No capture alerts yet. Your content is fully protected."
+          },
+          "itemTemplate": {
+            "title": "{{event_screen}}",
+            "subtitle": "Attempt detected at {{timestamp_local}}",
+            "meta": "Status: {{status}}"
+          }
+        },
+        {
+          "type": "ButtonRow",
+          "buttons": [
+            {
+              "text": "Appeal Alert",
+              "style": "secondary",
+              "action": "openAppealForm(selectedItem)"
+            },
+            {
+              "text": "Back",
+              "style": "primary",
+              "action": "go(settings_home)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "appeal_form",
+      "type": "FormScreen",
+      "properties": {
+        "title": "Appeal Capture Alert",
+        "description": "Explain why you believe this capture alert was triggered in error. Our moderation team reviews every request."
+      },
+      "components": [
+        {
+          "type": "TextField",
+          "id": "subject",
+          "label": "Subject",
+          "required": true
+        },
+        {
+          "type": "TextArea",
+          "id": "details",
+          "label": "Explanation",
+          "required": true,
+          "maxLength": 1000
+        },
+        {
+          "type": "ButtonRow",
+          "buttons": [
+            {
+              "text": "Cancel",
+              "style": "secondary",
+              "action": "go(capture_history)"
+            },
+            {
+              "text": "Submit",
+              "style": "primary",
+              "action": "submitAppeal()"
+            }
+          ]
+        }
+      ]
     }
   ],
   "navigation": {
-    "stack": ["home", "messages", "user_profile"],
+    "stack": ["home", "messages", "user_profile", "capture_history", "appeal_form"],
     "modal": ["truth_expansion"]
   }
 }

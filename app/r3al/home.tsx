@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { User, Award, Settings, LogOut } from "lucide-react-native";
+import { User, Award, Settings, LogOut, ShieldAlert } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import { useTutorial } from "@/app/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/TutorialOverlay";
@@ -68,6 +68,16 @@ export default function R3alHome() {
             >
               <User size={24} color={tokens.colors.gold} strokeWidth={1.5} />
               <Text style={styles.actionText}>Edit Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/r3al/security/capture-history")}
+              activeOpacity={0.7}
+              testID="capture-history-btn"
+            >
+              <ShieldAlert size={24} color={tokens.colors.gold} strokeWidth={1.5} />
+              <Text style={styles.actionText}>Content Capture History</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

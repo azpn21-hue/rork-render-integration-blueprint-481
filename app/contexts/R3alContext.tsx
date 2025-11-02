@@ -50,6 +50,22 @@ export interface UserProfile {
   truthScore?: TruthScore;
 }
 
+export interface CaptureEvent {
+  id: string;
+  screen: string;
+  timestamp: string;
+  status: "recorded" | "appeal_pending" | "resolved" | "dismissed";
+}
+
+export interface AppealSubmission {
+  eventId: string;
+  screen: string;
+  timestamp: string;
+  subject: string;
+  details: string;
+  submittedAt: string;
+}
+
 export interface R3alState {
   currentScreen: string;
   onboardingPhase: number;
@@ -58,6 +74,7 @@ export interface R3alState {
   answers: Answer[];
   truthScore: TruthScore | null;
   userProfile: UserProfile | null;
+  captureHistory: CaptureEvent[];
   isLoading: boolean;
 }
 
@@ -72,6 +89,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     answers: [],
     truthScore: null,
     userProfile: null,
+    captureHistory: [],
     isLoading: true,
   });
 
@@ -240,6 +258,32 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     });
   }, [saveState, state.userProfile]);
 
+  const addCaptureEvent = useCallback((event: Omit<CaptureEvent, "id">) => {
+    const newEvent: CaptureEvent = {
+      ...event,
+      id: `capture_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    };
+    const updatedHistory = [newEvent, ...state.captureHistory].slice(0, 50);
+    saveState({ captureHistory: updatedHistory });
+  }, [saveState, state.captureHistory]);
+
+  const submitAppeal = useCallback(async (appeal: AppealSubmission) => {
+    const updatedHistory = state.captureHistory.map((event) =>
+      event.id === appeal.eventId
+        ? { ...event, status: "appeal_pending" as const }
+        : event
+    );
+    await saveState({ captureHistory: updatedHistory });
+    console.log("[R3AL] Appeal submitted:", appeal);
+  }, [saveState, state.captureHistory]);
+
+  const updateCaptureEventStatus = useCallback((eventId: string, status: CaptureEvent["status"]) => {
+    const updatedHistory = state.captureHistory.map((event) =>
+      event.id === eventId ? { ...event, status } : event
+    );
+    saveState({ captureHistory: updatedHistory });
+  }, [saveState, state.captureHistory]);
+
   const resetR3al = useCallback(async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setState({
@@ -250,6 +294,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       answers: [],
       truthScore: null,
       userProfile: null,
+      captureHistory: [],
       isLoading: false,
     });
   }, []);
@@ -265,6 +310,9 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     saveAnswer,
     calculateTruthScore,
     saveProfile,
+    addCaptureEvent,
+    submitAppeal,
+    updateCaptureEventStatus,
     resetR3al,
-  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, resetR3al]);
+  }), [state, setCurrentScreen, nextOnboardingPhase, giveConsent, setVerified, saveAnswer, calculateTruthScore, saveProfile, addCaptureEvent, submitAppeal, updateCaptureEventStatus, resetR3al]);
 });

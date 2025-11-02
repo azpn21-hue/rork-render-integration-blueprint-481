@@ -13,6 +13,8 @@ export default function R3alLayout() {
       <Stack.Screen name="questionnaire/result" />
       <Stack.Screen name="profile/setup" />
       <Stack.Screen name="home" />
+      <Stack.Screen name="security/capture-history" />
+      <Stack.Screen name="security/appeal-form" />
     </Stack>
   );
 }
