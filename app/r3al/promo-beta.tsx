@@ -26,7 +26,8 @@ export default function PromoBeta() {
   };
 
   const handleLearnMore = () => {
-    console.log("[PromoBeta] Learn more pressed");
+    console.log("[PromoBeta] Learn more pressed → /r3al/learn-more");
+    router.push("/r3al/learn-more");
   };
 
   return (
