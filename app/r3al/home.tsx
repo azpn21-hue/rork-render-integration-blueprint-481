@@ -86,7 +86,7 @@ export default function R3alHome() {
             <Text style={styles.title}>{userProfile?.name || "User"}</Text>
           </View>
 
-          {security.captureStrikes > 0 && (
+          {security && security.captureStrikes > 0 && (
             <View style={[styles.warningCard, security.captureStrikes >= 3 && styles.warningCardDanger]} testID="security-warning">
               <View style={styles.warningHeader}>
                 <AlertTriangle 
@@ -99,9 +99,9 @@ export default function R3alHome() {
                 </Text>
               </View>
               <Text style={styles.warningText}>
-                {security.captureStrikes >= 3 && security.restrictionUntil
+                {security?.captureStrikes >= 3 && security?.restrictionUntil
                   ? `Your account has been restricted due to ${security.captureStrikes} screenshot violations. Restriction expires on ${new Date(security.restrictionUntil).toLocaleString()}.`
-                  : `You have ${security.captureStrikes} of 3 screenshot strikes. Further violations will result in a 24-hour restriction.`
+                  : `You have ${security?.captureStrikes || 0} of 3 screenshot strikes. Further violations will result in a 24-hour restriction.`
                 }
               </Text>
               <View style={styles.strikeIndicator}>
