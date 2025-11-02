@@ -1,6 +1,16 @@
 import { publicProcedure } from "@/backend/trpc/create-context";
 import { z } from "zod";
-import questionDb from "@/schemas/r3al/qotd_questions.json";
+
+const questionDb = {
+  meta: {
+    token_rewards: {
+      daily_answer: 5,
+      streak_7_days: 10,
+      streak_30_days: 25,
+      streak_90_days: 50
+    }
+  }
+};
 
 interface UserQotdState {
   lastAnswered: string;
