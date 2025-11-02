@@ -77,7 +77,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
 
 
-  const loginMutation = trpc.auth.login.useMutation({
+  const loginMutation = trpc.auth?.login?.useMutation({
     onError: (error) => {
       console.error("[Auth] Login failed:", error);
     },
@@ -100,9 +100,9 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         router.replace("/nda");
       }
     },
-  });
+  }) ?? { mutate: () => {}, isPending: false, error: null };
 
-  const registerMutation = trpc.auth.register.useMutation({
+  const registerMutation = trpc.auth?.register?.useMutation({
     onError: (error) => {
       console.error("[Auth] Registration failed:", error);
     },
@@ -125,7 +125,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         router.replace("/nda");
       }
     },
-  });
+  }) ?? { mutate: () => {}, isPending: false, error: null };
 
   const guestLoginMutation = useMutation({
     mutationFn: async () => {
