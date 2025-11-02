@@ -13,7 +13,8 @@ type VerificationStep = "document" | "biometric" | "processing" | "success" | "e
 
 export default function IdentityVerification() {
   const router = useRouter();
-  const { setVerified, earnTokens, userProfile } = useR3al();
+  const r3alContext = useR3al();
+  const { setVerified, earnTokens, userProfile } = r3alContext || {};
   const t = locales.en;
   const [step, setStep] = useState<VerificationStep>("document");
   const [permission, requestPermission] = useCameraPermissions();
@@ -21,11 +22,32 @@ export default function IdentityVerification() {
   const [documentImage, setDocumentImage] = useState<string | null>(null);
   const [biometricImage, setBiometricImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const cameraRef = useRef<any>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const verifyMutation = trpc.r3al.verifyIdentity.useMutation();
 
   useEffect(() => {
+    console.log("[IdentityVerification] Component mounted");
+    console.log("[IdentityVerification] R3AL Context:", {
+      hasContext: !!r3alContext,
+      userProfile: userProfile?.name,
+      hasSetVerified: !!setVerified,
+      hasEarnTokens: !!earnTokens,
+    });
+    console.log("[IdentityVerification] Permission:", permission);
+    
+    const timer = setTimeout(() => {
+      setIsInitialized(true);
+      console.log("[IdentityVerification] Initialization complete");
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [r3alContext, userProfile, setVerified, earnTokens, permission]);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -42,7 +64,7 @@ export default function IdentityVerification() {
     );
     pulse.start();
     return () => pulse.stop();
-  }, [pulseAnim]);
+  }, [pulseAnim, isInitialized]);
 
   const handleDocumentCapture = async () => {
     try {
@@ -106,8 +128,12 @@ export default function IdentityVerification() {
       console.log("[Verification] Backend response:", result);
 
       if (result.success) {
-        setVerified(result.verificationToken);
-        earnTokens(50, "Identity Verification Completed");
+        if (setVerified) {
+          setVerified(result.verificationToken);
+        }
+        if (earnTokens) {
+          earnTokens(50, "Identity Verification Completed");
+        }
         setStep("success");
         
         setTimeout(() => {
@@ -137,11 +163,19 @@ export default function IdentityVerification() {
     setFacing(current => (current === "back" ? "front" : "back"));
   };
 
-  if (!permission) {
+  if (!isInitialized || !permission) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={tokens.colors.gold} />
-      </View>
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.content}>
+            <ActivityIndicator size="large" color={tokens.colors.gold} />
+            <Text style={styles.processingText}>Loading verification...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
     );
   }
 
