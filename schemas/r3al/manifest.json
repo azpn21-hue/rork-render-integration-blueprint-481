@@ -26,5 +26,18 @@
     "analytics_opt_in": false
   },
   "consent_required": true,
-  "last_legal_update": "2025-10-01"
+  "last_legal_update": "2025-10-01",
+  "branding": {
+    "logo": "./assets/r3al_mask_beta.png",
+    "palette": {
+      "primary": "#D4AF37",
+      "background": "#0A0A0A",
+      "surface": "#111111"
+    },
+    "version": "R3AL-FracturedMask-Beta"
+  },
+  "beta_promo": {
+    "enabled": true,
+    "ends_at": "2025-03-15T00:00:00.000Z"
+  }
 }

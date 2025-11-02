@@ -9,6 +9,8 @@ export default function Index() {
   const { isLoading, hasConsented, isVerified, answers, truthScore, userProfile } = useR3al();
 
   useEffect(() => {
+    console.log("[Index] State:", { isLoading, hasConsented, isVerified, answersCount: answers.length, truthScore: !!truthScore, userProfile: !!userProfile });
+    
     if (!isLoading) {
       if (userProfile?.name && truthScore) {
         router.replace("/r3al/home");

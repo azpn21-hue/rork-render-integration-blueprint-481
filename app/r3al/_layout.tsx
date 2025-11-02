@@ -4,6 +4,7 @@ export default function R3alLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="splash" />
+      <Stack.Screen name="promo-beta" />
       <Stack.Screen name="onboarding/welcome" />
       <Stack.Screen name="onboarding/consent" />
       <Stack.Screen name="verification/intro" />

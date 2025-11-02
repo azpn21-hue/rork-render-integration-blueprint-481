@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import manifest from "@/schemas/r3al/manifest.json";
 import { useR3al } from "@/app/contexts/R3alContext";
 
 export default function R3alSplash() {
@@ -39,7 +40,14 @@ export default function R3alSplash() {
     pulseAnimation.start();
 
     const navigationTimer = setTimeout(() => {
-      router.replace("/r3al/onboarding/welcome");
+      const betaEndsAt = manifest.beta_promo?.ends_at;
+      const isBetaActive = manifest.beta_promo?.enabled && betaEndsAt && new Date() < new Date(betaEndsAt);
+      
+      if (isBetaActive) {
+        router.replace("/r3al/promo-beta");
+      } else {
+        router.replace("/r3al/onboarding/welcome");
+      }
     }, 3000);
 
     return () => {
