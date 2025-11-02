@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, View, StyleSheet, ActivityIndicator, Platform } from "react-native";
+import { Text, View, StyleSheet, Platform } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -42,27 +42,6 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 function RootLayoutNav() {
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsHydrated(true);
-      if (Platform.OS !== 'web') {
-        SplashScreen.hideAsync().catch(() => {});
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!isHydrated) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#D4AF37" />
-      </View>
-    );
-  }
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
