@@ -108,7 +108,7 @@ export default function PromoBeta() {
             onPress={handleLearnMore}
             activeOpacity={0.7}
           >
-            <Text style={styles.secondaryButtonText}>Learn More About R3AL Architecture & NFT Hive</Text>
+            <Text style={styles.secondaryButtonText}>Learn More</Text>
           </TouchableOpacity>
         </View>
 

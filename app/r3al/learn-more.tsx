@@ -8,7 +8,7 @@ import {
   Users, 
   Hexagon, 
   Coins,
-  Image as ImageIcon,
+
   TrendingUp,
   Heart,
   Lock,
@@ -62,7 +62,7 @@ export default function LearnMore() {
                     • Multi-factor authentication{"\n"}
                     • Identity verification (2FA + optional biometrics){"\n"}
                     • Privacy agreement & NDA consent{"\n"}
-                    • Guest mode available during beta
+                    • Advanced security protocols
                   </Text>
                 </View>
               </View>
@@ -238,7 +238,7 @@ export default function LearnMore() {
               <View style={styles.iqContent}>
                 <Text style={styles.iqTitle}>Adaptive AI Analysis</Text>
                 <Text style={styles.iqText}>
-                  IQ-240 is the core intelligence system that powers R3AL's integrity calculations and community insights.
+                  IQ-240 is the core intelligence system that powers R3AL&apos;s integrity calculations and community insights.
                 </Text>
               </View>
             </View>
