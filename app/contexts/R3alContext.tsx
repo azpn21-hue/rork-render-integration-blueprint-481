@@ -182,18 +182,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   });
 
   useEffect(() => {
-    const initState = async () => {
-      console.log("[R3AL] Init effect triggered");
-      
-      const timeoutId = setTimeout(() => {
-        console.warn("[R3AL] LoadState timeout, forcing isLoading=false");
-        setState((prev) => ({ ...prev, isLoading: false }));
-      }, 3000);
-      
-      await loadState();
-      clearTimeout(timeoutId);
-    };
-    initState();
+    loadState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -219,6 +208,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
           console.log("[R3AL] State loaded and set");
         } catch (parseError) {
           console.error("[R3AL] JSON parse error:", parseError);
+          console.error("[R3AL] Problematic data:", stored?.substring(0, 200));
           setState((prev) => ({ ...prev, isLoading: false }));
         }
       } else {

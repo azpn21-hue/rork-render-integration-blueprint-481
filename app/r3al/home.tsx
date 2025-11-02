@@ -160,12 +160,12 @@ export default function R3alHome() {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => {}}
+              onPress={() => router.push("/r3al/profile/view")}
               activeOpacity={0.7}
               testID="edit-profile-btn"
             >
               <User size={24} color={tokens.colors.gold} strokeWidth={1.5} />
-              <Text style={styles.actionText}>Edit Profile</Text>
+              <Text style={styles.actionText}>View Profile</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
