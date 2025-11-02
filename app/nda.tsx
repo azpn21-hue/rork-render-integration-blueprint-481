@@ -12,6 +12,7 @@ import { Stack } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { FileText, CheckSquare, Square } from "lucide-react-native";
 import { useAuth } from "@/app/contexts/AuthContext";
+import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 export default function NdaScreen() {
   const { acceptNda, isAcceptingNda } = useAuth();
@@ -26,7 +27,7 @@ export default function NdaScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <LinearGradient colors={["#0F172A", "#1E293B", "#334155"]} style={styles.gradient}>
+      <LinearGradient colors={[tokens.colors.background, tokens.colors.surface]} style={styles.gradient}>
         <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -34,7 +35,7 @@ export default function NdaScreen() {
           >
             <View style={styles.header}>
               <View style={styles.iconContainer}>
-                <FileText color="#60A5FA" size={48} />
+                <FileText color={tokens.colors.gold} size={48} />
               </View>
               <Text style={styles.title}>Terms & Agreement</Text>
               <Text style={styles.subtitle}>Please review and accept to continue</Text>
@@ -87,9 +88,9 @@ export default function NdaScreen() {
               testID="nda-checkbox"
             >
               {agreed ? (
-                <CheckSquare color="#3B82F6" size={24} />
+                <CheckSquare color={tokens.colors.gold} size={24} />
               ) : (
-                <Square color="#64748B" size={24} />
+                <Square color={tokens.colors.textSecondary} size={24} />
               )}
               <Text style={styles.checkboxText}>
                 I have read and agree to the terms and conditions
@@ -141,47 +142,49 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "rgba(96, 165, 250, 0.1)",
+    backgroundColor: tokens.colors.surface,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
   },
   title: {
     fontSize: 32,
     fontWeight: "700" as const,
-    color: "#F1F5F9",
+    color: tokens.colors.gold,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#94A3B8",
+    color: tokens.colors.textSecondary,
   },
   documentContainer: {
     marginBottom: 24,
   },
   document: {
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: tokens.colors.surface,
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.2)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
     gap: 16,
   },
   documentTitle: {
     fontSize: 20,
     fontWeight: "700" as const,
-    color: "#F1F5F9",
+    color: tokens.colors.gold,
     marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600" as const,
-    color: "#E2E8F0",
+    color: tokens.colors.gold,
     marginTop: 8,
   },
   paragraph: {
     fontSize: 14,
-    color: "#CBD5E1",
+    color: tokens.colors.textSecondary,
     lineHeight: 20,
   },
   checkboxContainer: {
@@ -194,7 +197,7 @@ const styles = StyleSheet.create({
   checkboxText: {
     flex: 1,
     fontSize: 15,
-    color: "#E2E8F0",
+    color: tokens.colors.text,
   },
   button: {
     height: 56,
@@ -203,18 +206,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryButton: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: tokens.colors.gold,
   },
   buttonDisabled: {
-    backgroundColor: "#1E293B",
+    backgroundColor: tokens.colors.surface,
     opacity: 0.5,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: tokens.colors.secondary,
     fontSize: 16,
     fontWeight: "600" as const,
   },
   buttonTextDisabled: {
-    color: "#64748B",
+    color: tokens.colors.textSecondary,
   },
 });

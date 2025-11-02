@@ -157,26 +157,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     },
   });
 
-  const guestLoginMutation = useMutation({
-    mutationFn: async () => {
-      console.log("[Auth] Logging in as guest");
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const guestId = `guest_${Date.now()}`;
-      return {
-        id: guestId,
-        email: `${guestId}@guest.r3al.app`,
-        name: "Guest User",
-        isGuest: true,
-      };
-    },
-    onSuccess: async (userData) => {
-      await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(userData));
-      setUser(userData);
-      console.log("[Auth] Guest login successful:", userData?.id);
-      router.replace("/nda");
-    },
-  });
+
 
   const acceptNdaMutation = useMutation({
     mutationFn: async () => {
@@ -185,8 +166,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     },
     onSuccess: () => {
       setNdaAccepted(true);
-      console.log("[Auth] NDA accepted");
-      router.replace("/home");
+      console.log("[Auth] NDA accepted → /r3al/onboarding/welcome");
+      router.replace("/r3al/onboarding/welcome");
     },
   });
 
@@ -219,12 +200,10 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     ...authState,
     login: loginMutation.mutate,
     register: registerMutation.mutate,
-    guestLogin: guestLoginMutation.mutate,
     acceptNda: acceptNdaMutation.mutate,
     logout: logoutMutation.mutate,
     isLoggingIn: loginMutation.isPending,
     isRegistering: registerMutation.isPending,
-    isGuestLoggingIn: guestLoginMutation.isPending,
     isAcceptingNda: acceptNdaMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
