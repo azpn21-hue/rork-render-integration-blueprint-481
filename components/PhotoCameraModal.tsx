@@ -42,14 +42,15 @@ export default function PhotoCameraModal({
       console.log("[Camera] Taking photo...");
       
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        base64: true,
+        quality: 0.6,
+        base64: false,
+        exif: false,
       });
       
-      if (photo?.base64) {
-        const photoData = `data:image/jpeg;base64,${photo.base64}`;
-        setCapturedPhoto(photoData);
-        console.log("[Camera] Photo captured successfully");
+      if (photo?.uri) {
+        console.log("[Camera] Photo captured, processing...");
+        setCapturedPhoto(photo.uri);
+        console.log("[Camera] Photo ready:", photo.uri.substring(0, 50));
       }
     } catch (error) {
       console.error("[Camera] Error taking photo:", error);
@@ -61,18 +62,19 @@ export default function PhotoCameraModal({
 
   const handlePickFromGallery = async () => {
     try {
+      console.log("[Camera] Opening gallery...");
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
         aspect: photoType === "avatar" ? [1, 1] : photoType === "cover" ? [16, 9] : undefined,
-        quality: 0.8,
-        base64: true,
+        quality: 0.6,
+        base64: false,
+        exif: false,
       });
 
-      if (!result.canceled && result.assets[0].base64) {
-        const photoData = `data:image/jpeg;base64,${result.assets[0].base64}`;
-        setCapturedPhoto(photoData);
-        console.log("[Camera] Photo selected from gallery");
+      if (!result.canceled && result.assets[0].uri) {
+        console.log("[Camera] Photo selected from gallery:", result.assets[0].uri.substring(0, 50));
+        setCapturedPhoto(result.assets[0].uri);
       }
     } catch (error) {
       console.error("[Camera] Error picking photo:", error);
@@ -82,6 +84,7 @@ export default function PhotoCameraModal({
 
   const handleConfirmPhoto = () => {
     if (capturedPhoto) {
+      console.log("[Camera] Confirming photo:", capturedPhoto.substring(0, 50));
       onCapture(capturedPhoto);
       setCapturedPhoto(null);
       onClose();
