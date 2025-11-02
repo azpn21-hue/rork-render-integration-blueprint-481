@@ -9,6 +9,7 @@ import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { R3alContext } from "@/app/contexts/R3alContext";
+import { TutorialProvider } from "@/app/contexts/TutorialContext";
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -78,9 +79,11 @@ export default function RootLayout() {
           <R3alContext>
             <ThemeProvider>
               <AuthProvider>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <RootLayoutNav />
-                </GestureHandlerRootView>
+                <TutorialProvider>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <RootLayoutNav />
+                  </GestureHandlerRootView>
+                </TutorialProvider>
               </AuthProvider>
             </ThemeProvider>
           </R3alContext>

@@ -3,11 +3,24 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { User, Award, Settings, LogOut } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
+import { useTutorial } from "@/app/contexts/TutorialContext";
+import { TutorialOverlay } from "@/components/TutorialOverlay";
+import { OptimaAssistant } from "@/components/OptimaAssistant";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import { useEffect } from "react";
 
 export default function R3alHome() {
   const router = useRouter();
   const { userProfile, truthScore, resetR3al } = useR3al();
+  const { shouldAutoStart, startTutorial } = useTutorial();
+
+  useEffect(() => {
+    if (shouldAutoStart("home_tour")) {
+      setTimeout(() => {
+        startTutorial("home_tour");
+      }, 500);
+    }
+  }, [shouldAutoStart, startTutorial]);
 
 
   const handleReset = () => {
@@ -16,19 +29,20 @@ export default function R3alHome() {
   };
 
   return (
-    <LinearGradient
-      colors={[tokens.colors.background, tokens.colors.surface]}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
+    <>
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.header}>
+          <View style={styles.header} testID="home-header">
             <Text style={styles.greeting}>Welcome Back</Text>
             <Text style={styles.title}>{userProfile?.name || "User"}</Text>
           </View>
 
           {truthScore && (
-            <View style={styles.scoreCard}>
+            <View style={styles.scoreCard} testID="truth-score-card">
               <View style={styles.scoreHeader}>
                 <Award size={32} color={tokens.colors.gold} strokeWidth={1.5} />
                 <Text style={styles.scoreLabel}>Your Truth Score</Text>
@@ -45,11 +59,12 @@ export default function R3alHome() {
             </View>
           )}
 
-          <View style={styles.actions}>
+          <View style={styles.actions} testID="home-content">
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => {}}
               activeOpacity={0.7}
+              testID="edit-profile-btn"
             >
               <User size={24} color={tokens.colors.gold} strokeWidth={1.5} />
               <Text style={styles.actionText}>Edit Profile</Text>
@@ -59,6 +74,7 @@ export default function R3alHome() {
               style={styles.actionButton}
               onPress={() => {}}
               activeOpacity={0.7}
+              testID="settings-btn"
             >
               <Settings size={24} color={tokens.colors.gold} strokeWidth={1.5} />
               <Text style={styles.actionText}>Settings</Text>
@@ -76,13 +92,17 @@ export default function R3alHome() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.footer}>
+          <View style={styles.footer} testID="home-footer">
             <Text style={styles.motto}>Reveal • Relate • Respect</Text>
             <Text style={styles.compliance}>Privacy Act of 1974 Compliant</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+      </LinearGradient>
+      
+      <TutorialOverlay />
+      <OptimaAssistant />
+    </>
   );
 }
 
