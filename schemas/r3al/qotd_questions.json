@@ -1,0 +1,525 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "total_questions": 100,
+    "categories": ["ethics", "emotion", "decision", "professional", "relationship"],
+    "token_rewards": {
+      "daily_answer": 5,
+      "streak_7_days": 10,
+      "streak_30_days": 25,
+      "streak_90_days": 50
+    }
+  },
+  "questions": {
+    "ethics": [
+      {
+        "id": "eth_001",
+        "prompt": "If you witnessed someone cheating on an important exam, would you report it? Why or why not?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_002",
+        "prompt": "You find $500 in cash with no identification. What do you do and why?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_003",
+        "prompt": "A close friend admits to lying on their resume to get a job. How do you respond?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_004",
+        "prompt": "If you could break a small law with zero consequences, would you? Which one and why?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_005",
+        "prompt": "Someone takes credit for your work at your job. Do you confront them publicly or privately?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_006",
+        "prompt": "You discover your company is polluting illegally. Do you blow the whistle or stay silent?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_007",
+        "prompt": "A cashier gives you too much change. Do you return it or keep it?",
+        "weight": "low"
+      },
+      {
+        "id": "eth_008",
+        "prompt": "Would you lie to protect a loved one from serious legal consequences?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_009",
+        "prompt": "You see someone shoplifting baby formula. Do you intervene?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_010",
+        "prompt": "If you could read minds for one day, would you? What would you use it for?",
+        "weight": "low"
+      },
+      {
+        "id": "eth_011",
+        "prompt": "A stranger asks you to vouch for them in court. They seem honest but you don't know them. What do you do?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_012",
+        "prompt": "You discover a coworker is being paid more for the same work. Do you speak up?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_013",
+        "prompt": "Would you sacrifice your own career opportunity to help a struggling colleague?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_014",
+        "prompt": "Someone offers you insider trading information. Do you act on it?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_015",
+        "prompt": "You know a secret that could hurt someone's reputation but protect others. Do you tell?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_016",
+        "prompt": "A friend asks you to lie to their partner about their whereabouts. Do you?",
+        "weight": "medium"
+      },
+      {
+        "id": "eth_017",
+        "prompt": "Would you accept a bribe to look the other way on something unethical but not illegal?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_018",
+        "prompt": "You find out a popular charity is misusing donations. Do you expose them?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_019",
+        "prompt": "Is it ever acceptable to steal if you're starving? What about if your family is starving?",
+        "weight": "high"
+      },
+      {
+        "id": "eth_020",
+        "prompt": "Would you turn in a family member who committed a serious crime?",
+        "weight": "high"
+      }
+    ],
+    "emotion": [
+      {
+        "id": "emo_001",
+        "prompt": "What emotion do you struggle to express, and why do you think that is?",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_002",
+        "prompt": "Describe a moment when you felt completely understood by someone.",
+        "weight": "low"
+      },
+      {
+        "id": "emo_003",
+        "prompt": "What makes you feel most vulnerable, and how do you protect yourself from it?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_004",
+        "prompt": "When was the last time you cried, and what triggered it?",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_005",
+        "prompt": "What would you tell your younger self about handling difficult emotions?",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_006",
+        "prompt": "Describe a time when jealousy controlled your actions. What happened?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_007",
+        "prompt": "What brings you genuine, unfiltered joy?",
+        "weight": "low"
+      },
+      {
+        "id": "emo_008",
+        "prompt": "How do you typically react when someone hurts your feelings?",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_009",
+        "prompt": "What fear holds you back the most in life?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_010",
+        "prompt": "When do you feel most at peace with yourself?",
+        "weight": "low"
+      },
+      {
+        "id": "emo_011",
+        "prompt": "What emotion do you feel you're not 'allowed' to express? Why?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_012",
+        "prompt": "Describe a moment when anger served you well.",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_013",
+        "prompt": "Who in your life makes you feel most emotionally safe?",
+        "weight": "low"
+      },
+      {
+        "id": "emo_014",
+        "prompt": "What does loneliness feel like to you?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_015",
+        "prompt": "When was the last time you felt proud of yourself?",
+        "weight": "low"
+      },
+      {
+        "id": "emo_016",
+        "prompt": "How do you respond when someone is emotionally vulnerable with you?",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_017",
+        "prompt": "What past regret still weighs on your heart?",
+        "weight": "high"
+      },
+      {
+        "id": "emo_018",
+        "prompt": "Describe the feeling you get when you know someone truly sees you.",
+        "weight": "medium"
+      },
+      {
+        "id": "emo_019",
+        "prompt": "What emotion are you feeling right now, and why?",
+        "weight": "low"
+      },
+      {
+        "id": "emo_020",
+        "prompt": "How do you handle disappointment when things don't go as planned?",
+        "weight": "medium"
+      }
+    ],
+    "decision": [
+      {
+        "id": "dec_001",
+        "prompt": "What's the most difficult decision you've ever had to make?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_002",
+        "prompt": "When making big decisions, do you trust your gut or logic more?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_003",
+        "prompt": "Describe a choice you made that changed the course of your life.",
+        "weight": "high"
+      },
+      {
+        "id": "dec_004",
+        "prompt": "Would you rather know the outcome of every decision before making it, or keep life's uncertainty?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_005",
+        "prompt": "What decision do you regret most, and would you change it if you could?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_006",
+        "prompt": "How do you make decisions when the 'right' choice hurts someone you care about?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_007",
+        "prompt": "Do you consult others before making major decisions, or do you prefer to decide alone?",
+        "weight": "low"
+      },
+      {
+        "id": "dec_008",
+        "prompt": "What's a decision you keep putting off, and why?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_009",
+        "prompt": "If you could redo one decision from the past year, which would it be?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_010",
+        "prompt": "How do you prioritize between what you want and what you need?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_011",
+        "prompt": "Describe a time when you made a decision purely based on emotion. How did it turn out?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_012",
+        "prompt": "Would you sacrifice your comfort for someone else's happiness? When?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_013",
+        "prompt": "What's the quickest major decision you've ever made, and do you regret it?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_014",
+        "prompt": "How do you choose between two things you want equally?",
+        "weight": "low"
+      },
+      {
+        "id": "dec_015",
+        "prompt": "If you had to choose between wealth and health, which would you pick?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_016",
+        "prompt": "What influences your decisions more: fear or hope?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_017",
+        "prompt": "Describe a decision you made that everyone disagreed with. Did it work out?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_018",
+        "prompt": "How do you balance your own needs against the needs of others when making choices?",
+        "weight": "high"
+      },
+      {
+        "id": "dec_019",
+        "prompt": "Would you rather make a bad decision or no decision at all?",
+        "weight": "medium"
+      },
+      {
+        "id": "dec_020",
+        "prompt": "What's the best piece of advice you ever received about making tough choices?",
+        "weight": "low"
+      }
+    ],
+    "professional": [
+      {
+        "id": "pro_001",
+        "prompt": "What motivates you more at work: recognition or financial reward?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_002",
+        "prompt": "Describe a time when you failed professionally. What did you learn?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_003",
+        "prompt": "Would you accept a higher-paying job you'd hate, or stay at a lower-paying job you love?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_004",
+        "prompt": "What's the most valuable professional skill you've learned?",
+        "weight": "low"
+      },
+      {
+        "id": "pro_005",
+        "prompt": "How do you handle criticism from a boss or coworker?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_006",
+        "prompt": "Have you ever compromised your values for career advancement?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_007",
+        "prompt": "What does success mean to you in your career?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_008",
+        "prompt": "Would you work for a company whose values conflict with your personal beliefs if the pay was excellent?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_009",
+        "prompt": "Describe a mentor or colleague who significantly impacted your career.",
+        "weight": "low"
+      },
+      {
+        "id": "pro_010",
+        "prompt": "How do you balance work and personal life?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_011",
+        "prompt": "What's the most uncomfortable conversation you've had at work?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_012",
+        "prompt": "Would you rather work alone on your own terms or collaboratively with a team?",
+        "weight": "low"
+      },
+      {
+        "id": "pro_013",
+        "prompt": "What professional achievement are you most proud of?",
+        "weight": "low"
+      },
+      {
+        "id": "pro_014",
+        "prompt": "How do you handle working with someone you strongly dislike?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_015",
+        "prompt": "If you could change careers tomorrow with no financial consequences, would you? To what?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_016",
+        "prompt": "What aspect of your current job drains your energy the most?",
+        "weight": "medium"
+      },
+      {
+        "id": "pro_017",
+        "prompt": "Describe a time when you had to choose between loyalty to a colleague and company policy.",
+        "weight": "high"
+      },
+      {
+        "id": "pro_018",
+        "prompt": "How do you measure your professional worth?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_019",
+        "prompt": "Would you accept a promotion that required relocating away from loved ones?",
+        "weight": "high"
+      },
+      {
+        "id": "pro_020",
+        "prompt": "What's the biggest risk you've taken in your career?",
+        "weight": "medium"
+      }
+    ],
+    "relationship": [
+      {
+        "id": "rel_001",
+        "prompt": "What's the most important quality you look for in a close friend?",
+        "weight": "low"
+      },
+      {
+        "id": "rel_002",
+        "prompt": "Describe a relationship that taught you the most about yourself.",
+        "weight": "high"
+      },
+      {
+        "id": "rel_003",
+        "prompt": "How do you handle conflict with someone you care about?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_004",
+        "prompt": "Have you ever had to end a friendship? What led to that decision?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_005",
+        "prompt": "What boundary do you struggle to maintain in your relationships?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_006",
+        "prompt": "Describe someone who knows you better than you know yourself.",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_007",
+        "prompt": "What's your biggest fear in romantic relationships?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_008",
+        "prompt": "How do you show love or appreciation to the people you care about?",
+        "weight": "low"
+      },
+      {
+        "id": "rel_009",
+        "prompt": "Have you ever stayed in a relationship longer than you should have? Why?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_010",
+        "prompt": "What does trust mean to you in relationships?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_011",
+        "prompt": "Describe a time when someone betrayed your trust. How did you respond?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_012",
+        "prompt": "What relationship pattern do you keep repeating?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_013",
+        "prompt": "How do you ask for help when you need it?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_014",
+        "prompt": "What's the hardest thing you've ever had to tell someone you love?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_015",
+        "prompt": "Do you believe in second chances in relationships? When do you draw the line?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_016",
+        "prompt": "Describe the most meaningful conversation you've had with someone recently.",
+        "weight": "low"
+      },
+      {
+        "id": "rel_017",
+        "prompt": "How do you balance independence and connection in your relationships?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_018",
+        "prompt": "What would make you immediately end a relationship?",
+        "weight": "high"
+      },
+      {
+        "id": "rel_019",
+        "prompt": "Who do you wish you could reconnect with, and what's stopping you?",
+        "weight": "medium"
+      },
+      {
+        "id": "rel_020",
+        "prompt": "How do you know when a relationship is worth fighting for?",
+        "weight": "high"
+      }
+    ]
+  }
+}

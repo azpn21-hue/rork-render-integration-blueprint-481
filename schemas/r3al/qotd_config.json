@@ -1,0 +1,74 @@
+{
+  "module": "QotD",
+  "version": "1.0.0",
+  "description": "Question of the Day - Daily reflection system for Trust Token rewards and Integrity Index contribution",
+  "enabled": true,
+  "deployment": {
+    "path": "/apps/r3al/qotd/",
+    "api_routes": [
+      "/api/v1/r3al/qotd/get-daily",
+      "/api/v1/r3al/qotd/submit-answer",
+      "/api/v1/r3al/qotd/get-stats"
+    ],
+    "dependencies": [
+      "trust-token-engine",
+      "integrity-index-engine",
+      "vault-encryption-service"
+    ]
+  },
+  "features": {
+    "daily_rotation": true,
+    "streak_tracking": true,
+    "token_rewards": true,
+    "encrypted_storage": true,
+    "anonymized_analytics": true,
+    "category_rotation": true
+  },
+  "notifications": {
+    "enabled": true,
+    "daily_reminder": {
+      "time": "09:00",
+      "timezone": "user_local",
+      "message": "💭 Today's reflection is ready"
+    },
+    "streak_alerts": {
+      "7_day": "🔥 7-day streak! Keep going!",
+      "30_day": "🔥 30-day streak! You're unstoppable!",
+      "90_day": "🔥 90-day streak! Legendary!"
+    }
+  },
+  "privacy": {
+    "encryption": "AES-256",
+    "storage": "vault",
+    "anonymization": true,
+    "legal_disclaimer": "QotD is a voluntary reflection tool, not a psychological or medical assessment.",
+    "data_retention_days": 365,
+    "user_export": true
+  },
+  "token_rewards": {
+    "daily_answer": 5,
+    "streak_7_days": 10,
+    "streak_30_days": 25,
+    "streak_90_days": 50
+  },
+  "integrity_contribution": {
+    "enabled": true,
+    "weight": 0.15,
+    "factors": [
+      "consistency_streak",
+      "answer_depth",
+      "reflection_frequency"
+    ]
+  },
+  "admin": {
+    "add_questions": true,
+    "moderate_responses": false,
+    "view_analytics": true,
+    "dashboard_metrics": [
+      "daily_participation_rate",
+      "average_streak",
+      "category_distribution",
+      "token_distribution"
+    ]
+  }
+}

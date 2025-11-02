@@ -6,6 +6,9 @@ import { createNFTProcedure } from "./nft/create";
 import { listNFTForSaleProcedure } from "./nft/list-for-sale";
 import { purchaseNFTProcedure } from "./nft/purchase";
 import { giftNFTProcedure } from "./nft/gift";
+import { getDailyQuestionProcedure } from "./qotd/get-daily";
+import { submitAnswerProcedure } from "./qotd/submit-answer";
+import { getStatsProcedure } from "./qotd/get-stats";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -15,4 +18,9 @@ export const r3alRouter = createTRPCRouter({
   listNFTForSale: listNFTForSaleProcedure,
   purchaseNFT: purchaseNFTProcedure,
   giftNFT: giftNFTProcedure,
+  qotd: createTRPCRouter({
+    getDaily: getDailyQuestionProcedure,
+    submitAnswer: submitAnswerProcedure,
+    getStats: getStatsProcedure,
+  }),
 });
