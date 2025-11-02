@@ -77,7 +77,8 @@ export const [R3alContext, useR3al] = createContextHook(() => {
 
   useEffect(() => {
     loadState();
-  }, [loadState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadState = useCallback(async () => {
     try {

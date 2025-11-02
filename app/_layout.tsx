@@ -6,6 +6,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
 import { Text, View, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
+import { AuthProvider } from "@/app/contexts/AuthContext";
+import { ThemeProvider } from "@/app/contexts/ThemeContext";
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -72,9 +74,13 @@ export default function RootLayout() {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <RootLayoutNav />
-          </GestureHandlerRootView>
+          <ThemeProvider>
+            <AuthProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <RootLayoutNav />
+              </GestureHandlerRootView>
+            </AuthProvider>
+          </ThemeProvider>
         </trpc.Provider>
       </QueryClientProvider>
     </ErrorBoundary>
