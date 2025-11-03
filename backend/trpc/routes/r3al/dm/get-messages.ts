@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure } from "@/backend/trpc/create-context";
+import { getMessagesForConversation } from "./send-message";
 
 export const dmGetMessagesProcedure = protectedProcedure
   .input(
@@ -11,9 +12,12 @@ export const dmGetMessagesProcedure = protectedProcedure
   .query(async ({ input }) => {
     const { userId, otherUserId } = input;
 
-    console.log(`[DM API] Fetching messages between ${userId} and ${otherUserId}`);
+    const messages = getMessagesForConversation(userId, otherUserId);
+
+    console.log(`[DM API] Fetching messages between ${userId} and ${otherUserId}: ${messages.length} found`);
 
     return {
-      messages: [],
+      success: true,
+      messages,
     };
   });
