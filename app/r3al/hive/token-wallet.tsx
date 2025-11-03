@@ -13,11 +13,21 @@ export default function TokenWallet() {
   const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('[TokenWallet] Balance query error:', error);
+    },
   });
   
   const transactionsQuery = trpc.r3al.tokens.getTransactions.useQuery(undefined, {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('[TokenWallet] Transactions query error:', error);
+    },
   });
   
   const tokenBalance = balanceQuery.data?.balance || localBalance || {
@@ -30,6 +40,20 @@ export default function TokenWallet() {
   const isLoading = balanceQuery.isLoading || transactionsQuery.isLoading;
   const isError = balanceQuery.isError || transactionsQuery.isError;
   
+  console.log('[TokenWallet] Balance query status:', {
+    isLoading: balanceQuery.isLoading,
+    isError: balanceQuery.isError,
+    error: balanceQuery.error?.message,
+    data: balanceQuery.data,
+  });
+  
+  console.log('[TokenWallet] Transactions query status:', {
+    isLoading: transactionsQuery.isLoading,
+    isError: transactionsQuery.isError,
+    error: transactionsQuery.error?.message,
+    data: transactionsQuery.data,
+  });
+  
   const handleRefresh = () => {
     balanceQuery.refetch();
     transactionsQuery.refetch();
@@ -38,23 +62,23 @@ export default function TokenWallet() {
   const backendTransactions = transactionsQuery.data?.transactions || [];
   
   const nftTransactions = [
-    ...nfts
-      .filter(nft => nft.metadata.creatorId === (userProfile?.name || 'user'))
+    ...(nfts || [])
+      .filter(nft => nft?.metadata?.creatorId === (userProfile?.name || 'user'))
       .map(nft => ({
         id: `nft_mint_${nft.id}`,
         type: 'spent' as const,
-        amount: nft.metadata.tokenCost,
+        amount: nft.metadata.tokenCost || 0,
         reason: `Minted "${nft.metadata.title}"`,
         timestamp: nft.metadata.mintedAt,
       })),
-    ...nfts
+    ...(nfts || [])
       .filter(nft => 
-        nft.transferHistory.some(t => 
+        nft?.transferHistory?.some(t => 
           t.type === 'purchase' && t.to === (userProfile?.name || 'user')
         )
       )
       .map(nft => {
-        const purchase = nft.transferHistory.find(
+        const purchase = nft.transferHistory?.find(
           t => t.type === 'purchase' && t.to === (userProfile?.name || 'user')
         );
         return {
@@ -67,7 +91,8 @@ export default function TokenWallet() {
       }),
   ];
   
-  const transactions = [...backendTransactions, ...nftTransactions]
+  const transactions = [...(backendTransactions || []), ...(nftTransactions || [])]
+    .filter(tx => tx && tx.timestamp)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return (

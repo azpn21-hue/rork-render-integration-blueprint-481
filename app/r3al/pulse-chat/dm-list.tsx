@@ -32,6 +32,11 @@ export default function DMListScreen() {
   const conversations = useMemo(() => {
     const conversationMap = new Map<string, any>();
 
+    if (!directMessages || !Array.isArray(directMessages)) {
+      console.warn('[DMList] directMessages is not an array:', directMessages);
+      return [];
+    }
+
     directMessages.forEach((msg) => {
       const otherUserId =
         msg.fromUserId === currentUserId ? msg.toUserId : msg.fromUserId;
@@ -68,6 +73,7 @@ export default function DMListScreen() {
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
+    if (!conversations || !Array.isArray(conversations)) return [];
     return conversations.filter((conv) =>
       conv.userName.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -84,7 +90,10 @@ export default function DMListScreen() {
   };
 
   const totalUnread = useMemo(
-    () => conversations.reduce((sum, conv) => sum + conv.unreadCount, 0),
+    () => {
+      if (!conversations || !Array.isArray(conversations)) return 0;
+      return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+    },
     [conversations]
   );
 
