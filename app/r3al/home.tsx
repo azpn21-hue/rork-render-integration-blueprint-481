@@ -116,16 +116,16 @@ export default function R3alHome() {
             <View style={styles.tokenPreview}>
               <View style={styles.tokenBalance}>
                 <Text style={styles.tokenLabel}>Available Balance</Text>
-                <Text style={styles.tokenValue}>{tokenBalance?.available?.toLocaleString() || '0'}</Text>
+                <Text style={styles.tokenValue}>{tokenBalance && typeof tokenBalance.available === 'number' ? tokenBalance.available.toLocaleString() : '0'}</Text>
               </View>
               <View style={styles.tokenStats}>
                 <View style={styles.tokenStat}>
                   <TrendingUp size={16} color="#10B981" strokeWidth={2} />
-                  <Text style={styles.tokenStatText}>+{tokenBalance?.earned || 0}</Text>
+                  <Text style={styles.tokenStatText}>+{tokenBalance && typeof tokenBalance.earned === 'number' ? tokenBalance.earned : 0}</Text>
                 </View>
                 <View style={styles.tokenStat}>
                   <Zap size={16} color="#EF4444" strokeWidth={2} />
-                  <Text style={styles.tokenStatText}>-{tokenBalance?.spent || 0}</Text>
+                  <Text style={styles.tokenStatText}>-{tokenBalance && typeof tokenBalance.spent === 'number' ? tokenBalance.spent : 0}</Text>
                 </View>
               </View>
             </View>

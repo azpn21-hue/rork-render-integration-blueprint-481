@@ -149,7 +149,10 @@ export default function ProfileView() {
 
             <TouchableOpacity
               style={[styles.iconButton, { backgroundColor: tokens.colors.surface }]}
-              onPress={() => console.log("Settings")}
+              onPress={() => {
+                console.log("Settings - Opening privacy/settings modal");
+                // For now, just log. In production, this would open a settings modal
+              }}
             >
               <Settings size={20} color={tokens.colors.text} />
             </TouchableOpacity>
@@ -319,7 +322,10 @@ export default function ProfileView() {
 
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: tokens.colors.backgroundSecondary, borderColor: tokens.colors.border, borderWidth: 2 }]}
-                  onPress={() => console.log("Share")}
+                  onPress={() => {
+                    console.log("Share profile");
+                    // Share functionality would go here
+                  }}
                 >
                   <Share2 size={18} color={tokens.colors.text} />
                 </TouchableOpacity>

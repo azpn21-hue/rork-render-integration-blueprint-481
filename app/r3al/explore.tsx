@@ -124,6 +124,7 @@ export default function ExplorePage() {
       activeOpacity={0.8}
       onPress={() => {
         console.log(`Navigate to profile: ${user.name}`);
+        router.push("/r3al/profile/view");
       }}
     >
       <View style={styles.userHeader}>
@@ -179,11 +180,25 @@ export default function ExplorePage() {
       </View>
 
       <View style={styles.cardActions}>
-        <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
+        <TouchableOpacity 
+          style={styles.actionBtn} 
+          activeOpacity={0.7}
+          onPress={() => {
+            console.log(`Message ${user.name}`);
+            router.push("/r3al/pulse-chat/index");
+          }}
+        >
           <MessageCircle size={18} color={tokens.colors.gold} strokeWidth={2} />
           <Text style={styles.actionBtnText}>Message</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.actionBtnSecondary]} activeOpacity={0.7}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, styles.actionBtnSecondary]} 
+          activeOpacity={0.7}
+          onPress={() => {
+            console.log(`View profile: ${user.name}`);
+            router.push("/r3al/profile/view");
+          }}
+        >
           <Users size={18} color={tokens.colors.text} strokeWidth={2} />
           <Text style={styles.actionBtnText}>View Profile</Text>
         </TouchableOpacity>
