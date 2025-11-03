@@ -22,7 +22,7 @@ export default function HiveHome() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>R3AL Hive</Text>
+          <Text style={styles.headerTitle}>R3AL Hive™</Text>
           <View style={styles.placeholder} />
         </View>
 
@@ -30,7 +30,7 @@ export default function HiveHome() {
           <View style={styles.heroCard}>
             <Text style={styles.heroTitle}>NFT Marketplace</Text>
             <Text style={styles.heroSubtitle}>
-              Create, trade, and gift unique digital assets using Trust-Tokens
+              Create, trade, and gift unique digital assets using Trust-Tokens™
             </Text>
             <View style={styles.heroStats}>
               <View style={styles.heroStat}>
@@ -109,7 +109,7 @@ export default function HiveHome() {
           </View>
 
           <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>🪙 Trust-Token Economy</Text>
+            <Text style={styles.infoTitle}>🪙 Trust-Token™ Economy</Text>
             <Text style={styles.infoText}>
               • Earn tokens through verification and community engagement{"\n"}
               • Use tokens to mint NFTs and unlock features{"\n"}

@@ -38,6 +38,7 @@ export default function IdentityVerification() {
       hasEarnTokens: !!earnTokens,
     });
     console.log("[IdentityVerification] Permission:", permission);
+    console.log("[IdentityVerification] Step:", step);
     
     const initCamera = async () => {
       if (isRequestingPermission) {
@@ -214,7 +215,7 @@ export default function IdentityVerification() {
     setFacing(current => (current === "back" ? "front" : "back"));
   };
 
-  if (!permission || (typeof permission.granted === 'undefined' && !permissionError)) {
+  if (!permission) {
     return (
       <LinearGradient
         colors={[tokens.colors.background, tokens.colors.surface]}
