@@ -21,6 +21,10 @@ import { startRealificationProcedure } from "./pulse-chat/start-realification";
 import { finishRealificationProcedure } from "./pulse-chat/finish-realification";
 import { startHonestyCheckProcedure } from "./pulse-chat/start-honesty-check";
 import { finishHonestyCheckProcedure } from "./pulse-chat/finish-honesty-check";
+import { getBalanceProcedure } from "./tokens/get-balance";
+import { earnTokensProcedure } from "./tokens/earn-tokens";
+import { spendTokensProcedure } from "./tokens/spend-tokens";
+import { getTransactionsProcedure } from "./tokens/get-transactions";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -50,5 +54,11 @@ export const r3alRouter = createTRPCRouter({
     finishRealification: finishRealificationProcedure,
     startHonestyCheck: startHonestyCheckProcedure,
     finishHonestyCheck: finishHonestyCheckProcedure,
+  }),
+  tokens: createTRPCRouter({
+    getBalance: getBalanceProcedure,
+    earnTokens: earnTokensProcedure,
+    spendTokens: spendTokensProcedure,
+    getTransactions: getTransactionsProcedure,
   }),
 });

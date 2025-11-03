@@ -16,10 +16,19 @@ import {
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import { trpc } from "@/lib/trpc";
 
 export default function R3alHome() {
   const router = useRouter();
-  const { userProfile, truthScore, resetR3al, tokenBalance, isLoading } = useR3al();
+  const { userProfile, truthScore, resetR3al, tokenBalance: localBalance, isLoading } = useR3al();
+  
+  const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: 30000,
+  });
+  
+  const tokenBalance = balanceQuery.data?.balance || localBalance;
 
   const handleReset = () => {
     resetR3al();

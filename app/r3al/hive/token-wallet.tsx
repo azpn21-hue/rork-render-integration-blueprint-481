@@ -1,45 +1,46 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeft, TrendingUp, TrendingDown, Award } from "lucide-react-native";
+import { ArrowLeft, TrendingUp, TrendingDown, Award, RefreshCw } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import { trpc } from "@/lib/trpc";
 
 export default function TokenWallet() {
   const router = useRouter();
-  const { tokenBalance, nfts, userProfile } = useR3al();
+  const { tokenBalance: localBalance, nfts, userProfile } = useR3al();
+  
+  const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
+  
+  const transactionsQuery = trpc.r3al.tokens.getTransactions.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
+  
+  const tokenBalance = balanceQuery.data?.balance || localBalance;
 
-  if (!tokenBalance) {
-    return (
-      <LinearGradient
-        colors={[tokens.colors.background, tokens.colors.surface]}
-        style={styles.container}
-      >
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Token Wallet</Text>
-            <View style={styles.placeholder} />
-          </View>
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: tokens.colors.text }}>Loading...</Text>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-    );
-  }
+  const isLoading = balanceQuery.isLoading || transactionsQuery.isLoading;
+  const isError = balanceQuery.isError || transactionsQuery.isError;
+  
+  const handleRefresh = () => {
+    balanceQuery.refetch();
+    transactionsQuery.refetch();
+  };
 
-  const transactions = [
-    { type: 'earned', amount: 100, reason: 'Initial bonus', date: tokenBalance.lastUpdated },
+  const backendTransactions = transactionsQuery.data?.transactions || [];
+  
+  const nftTransactions = [
     ...nfts
       .filter(nft => nft.metadata.creatorId === (userProfile?.name || 'user'))
       .map(nft => ({
+        id: `nft_mint_${nft.id}`,
         type: 'spent' as const,
         amount: nft.metadata.tokenCost,
         reason: `Minted "${nft.metadata.title}"`,
-        date: nft.metadata.mintedAt,
+        timestamp: nft.metadata.mintedAt,
       })),
     ...nfts
       .filter(nft => 
@@ -52,13 +53,17 @@ export default function TokenWallet() {
           t => t.type === 'purchase' && t.to === (userProfile?.name || 'user')
         );
         return {
+          id: `nft_purchase_${nft.id}`,
           type: 'spent' as const,
           amount: purchase?.price || 0,
           reason: `Purchased "${nft.metadata.title}"`,
-          date: purchase?.timestamp || new Date().toISOString(),
+          timestamp: purchase?.timestamp || new Date().toISOString(),
         };
       }),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  ];
+  
+  const transactions = [...backendTransactions, ...nftTransactions]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return (
     <LinearGradient
@@ -71,10 +76,30 @@ export default function TokenWallet() {
             <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Token Wallet</Text>
-          <View style={styles.placeholder} />
+          <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton} disabled={isLoading}>
+            <RefreshCw size={20} color={tokens.colors.gold} strokeWidth={2} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
+          {isLoading && !tokenBalance ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={tokens.colors.gold} />
+              <Text style={styles.loadingText}>Loading wallet...</Text>
+            </View>
+          ) : isError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed to load wallet data</Text>
+              <TouchableOpacity onPress={handleRefresh} style={styles.retryButton}>
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : !tokenBalance ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>No token data available</Text>
+            </View>
+          ) : (
+            <>
           <View style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>Available Balance</Text>
             <Text style={styles.balanceValue}>{tokenBalance.available} 🪙</Text>
@@ -126,7 +151,7 @@ export default function TokenWallet() {
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionReason}>{tx.reason}</Text>
                     <Text style={styles.transactionDate}>
-                      {new Date(tx.date).toLocaleDateString()} at {new Date(tx.date).toLocaleTimeString()}
+                      {new Date(tx.timestamp).toLocaleDateString()} at {new Date(tx.timestamp).toLocaleTimeString()}
                     </Text>
                   </View>
                   <Text style={[
@@ -153,6 +178,8 @@ export default function TokenWallet() {
               </Text>
             </View>
           </View>
+            </>
+          )}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -183,8 +210,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
   },
-  placeholder: {
-    width: 32,
+  refreshButton: {
+    padding: 4,
   },
   content: {
     padding: 20,
@@ -336,5 +363,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: tokens.colors.text,
     lineHeight: 22,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: tokens.colors.textSecondary,
+  },
+  errorContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
+    gap: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: tokens.colors.textSecondary,
+    textAlign: "center",
+  },
+  retryButton: {
+    backgroundColor: tokens.colors.gold,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: tokens.dimensions.borderRadius,
+  },
+  retryButtonText: {
+    fontSize: 14,
+    fontWeight: "bold" as const,
+    color: tokens.colors.background,
   },
 });

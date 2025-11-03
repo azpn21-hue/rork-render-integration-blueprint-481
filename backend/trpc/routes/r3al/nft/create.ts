@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { publicProcedure } from "@/backend/trpc/create-context";
+import { protectedProcedure } from "@/backend/trpc/create-context";
+import { getOrCreateBalance, tokenBalances } from "../tokens/get-balance";
+import { addTransaction, TokenTransaction } from "../tokens/get-transactions";
 
-export const createNFTProcedure = publicProcedure
+export const createNFTProcedure = protectedProcedure
   .input(
     z.object({
       title: z.string().min(1).max(50),
@@ -12,8 +14,15 @@ export const createNFTProcedure = publicProcedure
       creatorName: z.string(),
     })
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ ctx, input }) => {
     console.log("[tRPC] createNFT called:", input);
+    
+    const userId = ctx.user?.id || 'anonymous';
+    const balance = getOrCreateBalance(userId);
+    
+    if (balance.available < input.tokenCost) {
+      throw new Error('Insufficient tokens to mint NFT');
+    }
 
     const nftId = `nft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const timestamp = new Date().toISOString();
@@ -43,9 +52,32 @@ export const createNFTProcedure = publicProcedure
         },
       ],
     };
+    
+    const updatedBalance = {
+      available: balance.available - input.tokenCost,
+      earned: balance.earned,
+      spent: balance.spent + input.tokenCost,
+      lastUpdated: new Date().toISOString(),
+    };
+    
+    tokenBalances.set(userId, updatedBalance);
+    
+    const transaction: TokenTransaction = {
+      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: 'spent' as const,
+      amount: input.tokenCost,
+      reason: `Minted NFT: ${input.title}`,
+      timestamp: new Date().toISOString(),
+    };
+    
+    addTransaction(userId, transaction);
+    
+    console.log(`[NFT] ${userId} minted NFT "${input.title}" for ${input.tokenCost} tokens`);
 
     return {
       success: true,
       nft,
+      balance: updatedBalance,
+      transaction,
     };
   });
