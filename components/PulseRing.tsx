@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 
 interface PulseRingProps {
-  color: "green" | "blue" | "crimson";
+  color: "green" | "blue" | "crimson" | "gold";
   intensity?: number;
   size?: number;
 }
@@ -50,6 +50,7 @@ export default function PulseRing({ color, intensity = 1, size = 200 }: PulseRin
     green: "#00FF66",
     blue: "#00D4FF",
     crimson: "#DC143C",
+    gold: "#FFD700",
   };
 
   return (

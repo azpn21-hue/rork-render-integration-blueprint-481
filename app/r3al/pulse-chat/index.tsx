@@ -1,14 +1,16 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { MessageCircle, Video, Heart, Brain, Send } from "lucide-react-native";
+import { MessageCircle, Video, Heart, Brain, Send, X, Clock, Shield } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
+import PulseRing from "@/components/PulseRing";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import * as Haptics from "expo-haptics";
 
 export default function PulseChatIndex() {
   const router = useRouter();
-  const { activeSessionId, getActiveSession, startChatSession, sendMessage, loadState, isLoading } = usePulseChat();
+  const { activeSessionId, getActiveSession, startChatSession, sendMessage, loadState, isLoading, endChatSession } = usePulseChat();
   const [participantName, setParticipantName] = useState("");
   const [messageText, setMessageText] = useState("");
   
@@ -16,7 +18,7 @@ export default function PulseChatIndex() {
 
   useEffect(() => {
     loadState();
-  }, []);
+  }, [loadState]);
 
   useEffect(() => {
     if (!isLoading && !activeSession && !activeSessionId) {
@@ -30,9 +32,13 @@ export default function PulseChatIndex() {
       return;
     }
 
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
     Alert.alert(
-      "🫀 Pulse Chat Disclaimer",
-      "Pulse Check and Honesty Check are optional entertainment features. They use device sensors to create visual effects but do not record or transmit biometric data.\n\nMessages and attachments delete automatically after 7 days (media after 24 hours).\n\nDo you want to continue?",
+      "🫀 Pulse Chat™ Disclaimer",
+      "Pulse Check™ and Honesty Check™ are optional entertainment features. They use device sensors to create visual effects but do not record or transmit biometric data.\n\nMessages and attachments delete automatically after 7 days (media after 24 hours).\n\nDo you want to continue?",
       [
         { text: "Cancel", style: "cancel" },
         { 
@@ -40,6 +46,9 @@ export default function PulseChatIndex() {
           onPress: () => {
             const sessionId = startChatSession(participantName);
             console.log(`🫀 [PulseChat] Session started: ${sessionId}`);
+            if (Platform.OS !== "web") {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
           }
         },
       ]
@@ -49,8 +58,34 @@ export default function PulseChatIndex() {
   const handleSendMessage = () => {
     if (!activeSessionId || !messageText.trim()) return;
     
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    
     sendMessage(activeSessionId, messageText.trim());
     setMessageText("");
+  };
+
+  const handleEndSession = () => {
+    if (!activeSessionId) return;
+    
+    Alert.alert(
+      "End Session",
+      "Are you sure you want to end this Pulse Chat™ session? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "End Session",
+          style: "destructive",
+          onPress: () => {
+            endChatSession(activeSessionId);
+            if (Platform.OS !== "web") {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleStartVideo = () => {
@@ -82,7 +117,8 @@ export default function PulseChatIndex() {
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading...</Text>
+              <PulseRing color="green" intensity={1} size={80} />
+              <Text style={styles.loadingText}>Loading Pulse Chat™...</Text>
             </View>
           ) : !activeSession ? (
             <View style={styles.startSection}>
@@ -107,16 +143,36 @@ export default function PulseChatIndex() {
           ) : (
             <>
               <View style={styles.sessionInfo}>
-                <Text style={styles.sessionLabel}>Active Session</Text>
+                <View style={styles.sessionHeader}>
+                  <View style={styles.pulseIndicator}>
+                    <View style={styles.pulseDot} />
+                    <Text style={styles.sessionLabel}>Active Session</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.endSessionButton}
+                    onPress={handleEndSession}
+                    activeOpacity={0.7}
+                  >
+                    <X size={20} color={tokens.colors.error} strokeWidth={2} />
+                  </TouchableOpacity>
+                </View>
                 <Text style={styles.sessionParticipant}>
                   {activeSession.participantNames[activeSession.participants[1]]}
                 </Text>
-                <Text style={styles.sessionMeta}>
-                  Started: {new Date(activeSession.startTime).toLocaleTimeString()}
-                </Text>
-                <Text style={styles.sessionMeta}>
-                  Auto-delete: {new Date(activeSession.autoDeleteTime).toLocaleDateString()}
-                </Text>
+                <View style={styles.sessionMetaContainer}>
+                  <View style={styles.sessionMetaItem}>
+                    <Clock size={14} color={tokens.colors.textSecondary} strokeWidth={2} />
+                    <Text style={styles.sessionMeta}>
+                      {new Date(activeSession.startTime).toLocaleTimeString()}
+                    </Text>
+                  </View>
+                  <View style={styles.sessionMetaItem}>
+                    <Shield size={14} color={tokens.colors.highlight} strokeWidth={2} />
+                    <Text style={styles.sessionMeta}>
+                      Encrypted • Auto-delete {new Date(activeSession.autoDeleteTime).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
               </View>
 
               <View style={styles.featuresGrid}>
@@ -149,18 +205,46 @@ export default function PulseChatIndex() {
               </View>
 
               <View style={styles.messagesSection}>
-                <Text style={styles.messagesLabel}>Messages</Text>
-                <ScrollView style={styles.messagesList}>
+                <View style={styles.messagesHeader}>
+                  <MessageCircle size={20} color={tokens.colors.gold} strokeWidth={2} />
+                  <Text style={styles.messagesLabel}>Conversation</Text>
+                  <View style={styles.messageCount}>
+                    <Text style={styles.messageCountText}>{activeSession.messages.length}</Text>
+                  </View>
+                </View>
+                <ScrollView 
+                  style={styles.messagesList}
+                  contentContainerStyle={styles.messagesListContent}
+                  showsVerticalScrollIndicator={false}
+                >
                   {activeSession.messages.length === 0 ? (
-                    <Text style={styles.noMessages}>No messages yet. Start chatting!</Text>
+                    <View style={styles.emptyMessages}>
+                      <MessageCircle size={48} color={tokens.colors.textSecondary} strokeWidth={1.5} />
+                      <Text style={styles.noMessages}>No messages yet</Text>
+                      <Text style={styles.noMessagesHint}>Start your secure conversation!</Text>
+                    </View>
                   ) : (
-                    activeSession.messages.map((msg) => (
-                      <View key={msg.id} style={styles.messageItem}>
-                        <Text style={styles.messageSender}>{msg.senderName}</Text>
+                    activeSession.messages.map((msg, index) => (
+                      <View 
+                        key={msg.id} 
+                        style={[
+                          styles.messageItem,
+                          msg.senderId === "user" && styles.messageItemSent
+                        ]}
+                      >
+                        <View style={styles.messageHeader}>
+                          <Text style={styles.messageSender}>{msg.senderName}</Text>
+                          <Text style={styles.messageTime}>
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </Text>
+                        </View>
                         <Text style={styles.messageContent}>{msg.content}</Text>
-                        <Text style={styles.messageTime}>
-                          {new Date(msg.timestamp).toLocaleTimeString()}
-                        </Text>
+                        {msg.encrypted && (
+                          <View style={styles.encryptedBadge}>
+                            <Shield size={10} color={tokens.colors.highlight} strokeWidth={2} />
+                            <Text style={styles.encryptedText}>Encrypted</Text>
+                          </View>
+                        )}
                       </View>
                     ))
                   )}
@@ -213,12 +297,14 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   loadingContainer: {
-    paddingVertical: 40,
+    paddingVertical: 60,
     alignItems: "center" as const,
+    gap: 24,
   },
   loadingText: {
     fontSize: 16,
-    color: tokens.colors.textSecondary,
+    fontWeight: "600" as const,
+    color: tokens.colors.gold,
   },
   header: {
     alignItems: "center",
@@ -276,11 +362,32 @@ const styles = StyleSheet.create({
     borderColor: tokens.colors.gold,
     marginBottom: 24,
   },
+  sessionHeader: {
+    flexDirection: "row" as const,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  pulseIndicator: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 8,
+  },
+  pulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#00FF66",
+  },
   sessionLabel: {
     fontSize: 14,
     fontWeight: "600" as const,
     color: tokens.colors.gold,
-    marginBottom: 8,
+  },
+  endSessionButton: {
+    padding: 8,
+    backgroundColor: tokens.colors.error + "20",
+    borderRadius: 8,
   },
   sessionParticipant: {
     fontSize: 24,
@@ -288,10 +395,17 @@ const styles = StyleSheet.create({
     color: tokens.colors.text,
     marginBottom: 12,
   },
+  sessionMetaContainer: {
+    gap: 6,
+  },
+  sessionMetaItem: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 6,
+  },
   sessionMeta: {
-    fontSize: 12,
+    fontSize: 11,
     color: tokens.colors.textSecondary,
-    marginBottom: 4,
   },
   featuresGrid: {
     flexDirection: "row" as const,
@@ -317,42 +431,97 @@ const styles = StyleSheet.create({
   messagesSection: {
     flex: 1,
     marginBottom: 16,
+    minHeight: 300,
+  },
+  messagesHeader: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
   },
   messagesLabel: {
+    flex: 1,
     fontSize: 16,
     fontWeight: "600" as const,
     color: tokens.colors.gold,
-    marginBottom: 12,
+  },
+  messageCount: {
+    backgroundColor: tokens.colors.gold,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  messageCountText: {
+    fontSize: 12,
+    fontWeight: "700" as const,
+    color: tokens.colors.background,
   },
   messagesList: {
-    maxHeight: 200,
+    flex: 1,
+  },
+  messagesListContent: {
+    flexGrow: 1,
+  },
+  emptyMessages: {
+    flex: 1,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    paddingVertical: 60,
+    gap: 12,
   },
   noMessages: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    color: tokens.colors.text,
+    textAlign: "center" as const,
+  },
+  noMessagesHint: {
     fontSize: 14,
     color: tokens.colors.textSecondary,
     textAlign: "center" as const,
-    padding: 20,
   },
   messageItem: {
     backgroundColor: tokens.colors.surface,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: tokens.colors.gold + "30",
+  },
+  messageItemSent: {
+    backgroundColor: tokens.colors.gold + "15",
+    borderColor: tokens.colors.gold,
+  },
+  messageHeader: {
+    flexDirection: "row" as const,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
   },
   messageSender: {
     fontSize: 12,
-    fontWeight: "600" as const,
+    fontWeight: "700" as const,
     color: tokens.colors.gold,
-    marginBottom: 4,
   },
   messageContent: {
     fontSize: 14,
     color: tokens.colors.text,
-    marginBottom: 4,
+    lineHeight: 20,
   },
   messageTime: {
     fontSize: 10,
     color: tokens.colors.textSecondary,
+  },
+  encryptedBadge: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 4,
+    marginTop: 6,
+  },
+  encryptedText: {
+    fontSize: 9,
+    color: tokens.colors.highlight,
+    fontWeight: "600" as const,
   },
   inputSection: {
     flexDirection: "row" as const,

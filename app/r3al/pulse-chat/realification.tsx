@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowRight, CheckCircle } from "lucide-react-native";
+import { ArrowRight, CheckCircle, Sparkles } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import PulseRing from "@/components/PulseRing";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import * as Haptics from "expo-haptics";
 
 export default function Realification() {
   const router = useRouter();
@@ -60,16 +61,24 @@ export default function Realification() {
       return;
     }
 
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
     answerRealificationQuestion(currentQuestion.id, answer.trim());
     setAnswer("");
 
     if (isLastQuestion) {
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
       const verdict = finishRealification();
       if (verdict) {
         setTimeout(() => {
           Alert.alert(
             `${verdict.icon} ${verdict.title}`,
-            verdict.description,
+            verdict.description + `\n\nYou earned ${verdict.trustBonus} Trust Score bonus!`,
             [
               {
                 text: "Awesome!",
@@ -129,7 +138,8 @@ export default function Realification() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>🫀 Realification Mode</Text>
+            <Sparkles size={32} color={tokens.colors.accent} strokeWidth={2} />
+            <Text style={styles.title}>🫀 Realification™</Text>
             <Text style={styles.progress}>
               Question {realificationSession.currentQuestionIndex + 1} of{" "}
               {realificationSession.questions.length}
@@ -168,8 +178,21 @@ export default function Realification() {
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => {
-              endRealificationSession();
-              router.back();
+              Alert.alert(
+                "Cancel Realification™?",
+                "Your progress will be lost.",
+                [
+                  { text: "Continue", style: "cancel" },
+                  {
+                    text: "Cancel",
+                    style: "destructive",
+                    onPress: () => {
+                      endRealificationSession();
+                      router.back();
+                    },
+                  },
+                ]
+              );
             }}
             activeOpacity={0.7}
           >

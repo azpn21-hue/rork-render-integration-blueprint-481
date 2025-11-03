@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Video as VideoIcon, PhoneOff, Mic, MicOff, Camera as CameraIcon, CameraOff } from "lucide-react-native";
+import { PhoneOff, Mic, MicOff, Camera as CameraIcon, CameraOff } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
+import PulseRing from "@/components/PulseRing";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import * as Haptics from "expo-haptics";
 
 export default function VideoCall() {
   const router = useRouter();
@@ -41,6 +43,10 @@ export default function VideoCall() {
   };
 
   const handleEndCall = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+    
     Alert.alert("End Call", "Are you sure you want to end this video call?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -48,6 +54,9 @@ export default function VideoCall() {
         style: "destructive",
         onPress: () => {
           endVideoCall();
+          if (Platform.OS !== "web") {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
           router.back();
         },
       },
@@ -78,11 +87,12 @@ export default function VideoCall() {
         <View style={styles.content}>
           <View style={styles.videoContainer}>
             <View style={styles.remoteVideo}>
-              <VideoIcon size={64} color={tokens.colors.textSecondary} strokeWidth={1.5} />
+              <PulseRing color="blue" intensity={0.8} size={120} />
               <Text style={styles.videoLabel}>
                 {activeSession?.participantNames[activeSession.participants[1]]}
               </Text>
               <Text style={styles.encryptedBadge}>🔒 End-to-end encrypted</Text>
+              <Text style={styles.demoNotice}>Entertainment Feature Only</Text>
             </View>
 
             <View style={styles.localVideo}>
@@ -104,7 +114,12 @@ export default function VideoCall() {
           <View style={styles.controls}>
             <TouchableOpacity
               style={[styles.controlButton, isMuted && styles.controlButtonActive]}
-              onPress={() => setIsMuted(!isMuted)}
+              onPress={() => {
+                if (Platform.OS !== "web") {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setIsMuted(!isMuted);
+              }}
               activeOpacity={0.7}
             >
               {isMuted ? (
@@ -124,7 +139,12 @@ export default function VideoCall() {
 
             <TouchableOpacity
               style={[styles.controlButton, isCameraOff && styles.controlButtonActive]}
-              onPress={() => setIsCameraOff(!isCameraOff)}
+              onPress={() => {
+                if (Platform.OS !== "web") {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setIsCameraOff(!isCameraOff);
+              }}
               activeOpacity={0.7}
             >
               {isCameraOff ? (
@@ -184,6 +204,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: tokens.colors.highlight,
     marginTop: 8,
+  },
+  demoNotice: {
+    fontSize: 10,
+    color: tokens.colors.textSecondary,
+    marginTop: 4,
   },
   localVideo: {
     position: "absolute" as const,

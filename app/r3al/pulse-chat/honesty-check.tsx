@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { CheckCircle, Brain } from "lucide-react-native";
+import { CheckCircle, Brain, Shield } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import * as Haptics from "expo-haptics";
 
 export default function HonestyCheck() {
   const router = useRouter();
@@ -50,16 +51,24 @@ export default function HonestyCheck() {
       return;
     }
 
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
     answerHonestyQuestion(currentQuestion.id, selectedOption);
     setSelectedOption(null);
 
     if (isLastQuestion) {
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
       const verdict = finishHonestyCheck();
       if (verdict) {
         setTimeout(() => {
           Alert.alert(
             `${verdict.icon} ${verdict.title}`,
-            `${verdict.description}\n\nYou earned ${verdict.trustBonus} Trust Token!`,
+            `${verdict.description}\n\nYou earned ${verdict.trustBonus} Trust Token™!`,
             [
               {
                 text: "Awesome!",
@@ -119,8 +128,11 @@ export default function HonestyCheck() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Brain size={48} color={tokens.colors.highlight} strokeWidth={1.5} />
-            <Text style={styles.title}>🧠 Honesty Check</Text>
+            <View style={styles.iconContainer}>
+              <Brain size={40} color={tokens.colors.highlight} strokeWidth={2} />
+              <Shield size={24} color={tokens.colors.gold} strokeWidth={2} style={styles.shieldIcon} />
+            </View>
+            <Text style={styles.title}>🧠 Honesty Check™</Text>
             <Text style={styles.progress}>
               Question {honestyCheckSession.currentQuestionIndex + 1} of{" "}
               {honestyCheckSession.questions.length}
@@ -139,7 +151,12 @@ export default function HonestyCheck() {
                   styles.optionButton,
                   selectedOption === option && styles.optionButtonSelected,
                 ]}
-                onPress={() => setSelectedOption(option)}
+                onPress={() => {
+                  if (Platform.OS !== "web") {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }
+                  setSelectedOption(option);
+                }}
                 activeOpacity={0.7}
               >
                 <Text
@@ -195,6 +212,15 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 32,
+  },
+  iconContainer: {
+    position: "relative" as const,
+    marginBottom: 12,
+  },
+  shieldIcon: {
+    position: "absolute" as const,
+    bottom: -4,
+    right: -8,
   },
   title: {
     fontSize: 28,
