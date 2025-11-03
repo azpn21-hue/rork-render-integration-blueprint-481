@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   FlatList,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,7 +17,7 @@ import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 export default function CircleMembersPage() {
   const router = useRouter();
   const { circleId } = useLocalSearchParams();
-  const { getCircleById, sendDirectMessage } = useCircles();
+  const { getCircleById } = useCircles();
   const { userProfile } = useR3al();
 
   const circle = getCircleById(circleId as string);
@@ -42,29 +41,10 @@ export default function CircleMembersPage() {
   }
 
   const handleSendDM = (memberId: string, memberName: string) => {
-    Alert.prompt(
-      `Send DM to ${memberName}`,
-      "Enter your message:",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Send",
-          onPress: (message) => {
-            if (message?.trim()) {
-              sendDirectMessage(
-                userProfile?.name || "user",
-                memberId,
-                userProfile?.name || "User",
-                memberName,
-                message.trim()
-              );
-              Alert.alert("Sent!", `Your encrypted message was sent to ${memberName}`);
-            }
-          },
-        },
-      ],
-      "plain-text"
-    );
+    router.push({
+      pathname: "/r3al/pulse-chat/dm",
+      params: { userId: memberId, userName: memberName },
+    });
   };
 
   const getRoleIcon = (role: string) => {

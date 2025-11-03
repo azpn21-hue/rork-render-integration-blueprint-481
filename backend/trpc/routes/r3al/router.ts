@@ -25,6 +25,10 @@ import { getBalanceProcedure } from "./tokens/get-balance";
 import { earnTokensProcedure } from "./tokens/earn-tokens";
 import { spendTokensProcedure } from "./tokens/spend-tokens";
 import { getTransactionsProcedure } from "./tokens/get-transactions";
+import { dmSendMessageProcedure } from "./dm/send-message";
+import { dmGetConversationsProcedure } from "./dm/get-conversations";
+import { dmMarkReadProcedure } from "./dm/mark-read";
+import { dmGetMessagesProcedure } from "./dm/get-messages";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -60,5 +64,11 @@ export const r3alRouter = createTRPCRouter({
     earnTokens: earnTokensProcedure,
     spendTokens: spendTokensProcedure,
     getTransactions: getTransactionsProcedure,
+  }),
+  dm: createTRPCRouter({
+    sendMessage: dmSendMessageProcedure,
+    getConversations: dmGetConversationsProcedure,
+    markRead: dmMarkReadProcedure,
+    getMessages: dmGetMessagesProcedure,
   }),
 });
