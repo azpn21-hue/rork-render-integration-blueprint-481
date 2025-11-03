@@ -30,6 +30,11 @@ export default function R3alLayout() {
       <Stack.Screen name="explore" />
       <Stack.Screen name="circles" />
       <Stack.Screen name="truth-score-detail" />
+      <Stack.Screen name="legal" />
+      <Stack.Screen name="circles/create" />
+      <Stack.Screen name="circles/[circleId]" />
+      <Stack.Screen name="circles/[circleId]/members" />
+      <Stack.Screen name="circles/[circleId]/dm" />
     </Stack>
   );
 }

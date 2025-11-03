@@ -231,6 +231,9 @@ export default function R3alHome() {
             <Text style={styles.compliance}>Privacy Act of 1974 Compliant</Text>
             <Text style={styles.copyright}>© 2025 R3AL Technologies. All Rights Reserved.</Text>
             <Text style={styles.trademarks}>R3AL™, Hive™, Pulse Chat™, Trust-Tokens™, Realification™, Optima II™, Question of the Day™ are trademarks of R3AL Technologies.</Text>
+            <TouchableOpacity onPress={() => router.push("/r3al/legal")} style={styles.legalLink}>
+              <Text style={styles.legalLinkText}>View Trademarks & Legal Information</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -484,5 +487,14 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: tokens.colors.gold,
+  },
+  legalLink: {
+    marginTop: 12,
+    padding: 8,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    color: tokens.colors.gold,
+    textDecorationLine: "underline" as const,
   },
 });

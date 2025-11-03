@@ -37,6 +37,8 @@ export default function CircleDetailPage() {
   const [postContent, setPostContent] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [showPhotoInput, setShowPhotoInput] = useState(false);
+  const [photoDropMode, setPhotoDropMode] = useState(false);
+  const [dropAnimation, setDropAnimation] = useState<"fade" | "slide" | "bounce" | "pulse">("fade");
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
 
@@ -69,7 +71,7 @@ export default function CircleDetailPage() {
       return;
     }
 
-    const type = photoUrl.trim() ? "photo" : "text";
+    const type = photoUrl.trim() ? (photoDropMode ? "photo_drop" : "photo") : "text";
     postToCircle(
       circle.id,
       userProfile?.name || "user",
@@ -77,13 +79,16 @@ export default function CircleDetailPage() {
       postContent.trim(),
       type,
       photoUrl.trim() || undefined,
-      postContent.trim() || undefined
+      postContent.trim() || undefined,
+      photoDropMode,
+      dropAnimation
     );
 
     setPostContent("");
     setPhotoUrl("");
     setShowPhotoInput(false);
-    Alert.alert("Success", "Post shared with the circle!");
+    setPhotoDropMode(false);
+    Alert.alert("Success", photoDropMode ? "Photo Drop shared with the circle! 🎉" : "Post shared with the circle!");
   };
 
   const handleLike = (postId: string) => {
@@ -159,8 +164,15 @@ export default function CircleDetailPage() {
           </TouchableOpacity>
         </View>
 
-        {item.type === "photo" && item.photoUrl && (
-          <Image source={{ uri: item.photoUrl }} style={styles.postPhoto} resizeMode="cover" />
+        {(item.type === "photo" || item.type === "photo_drop") && item.photoUrl && (
+          <View style={item.isPhotoDrop ? styles.photoDropContainer : undefined}>
+            {item.isPhotoDrop && (
+              <View style={styles.photoDropBadge}>
+                <Text style={styles.photoDropBadgeText}>✨ Photo Drop™</Text>
+              </View>
+            )}
+            <Image source={{ uri: item.photoUrl }} style={styles.postPhoto} resizeMode="cover" />
+          </View>
         )}
 
         {item.content && (
@@ -288,15 +300,48 @@ export default function CircleDetailPage() {
             </View>
 
             {showPhotoInput && (
-              <TextInput
-                style={styles.photoUrlInput}
-                placeholder="Photo URL (optional)"
-                placeholderTextColor={tokens.colors.textSecondary}
-                value={photoUrl}
-                onChangeText={setPhotoUrl}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+              <View>
+                <TextInput
+                  style={styles.photoUrlInput}
+                  placeholder="Photo URL (optional)"
+                  placeholderTextColor={tokens.colors.textSecondary}
+                  value={photoUrl}
+                  onChangeText={setPhotoUrl}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <View style={styles.photoDropToggle}>
+                  <TouchableOpacity
+                    style={[styles.photoDropButton, photoDropMode && styles.photoDropButtonActive]}
+                    onPress={() => setPhotoDropMode(!photoDropMode)}
+                  >
+                    <Text style={[styles.photoDropButtonText, photoDropMode && styles.photoDropButtonTextActive]}>
+                      ✨ Photo Drop™ {photoDropMode ? "Enabled" : "Disabled"}
+                    </Text>
+                  </TouchableOpacity>
+                  {photoDropMode && (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.animationSelector}>
+                      {["fade", "slide", "bounce", "pulse"].map((anim) => (
+                        <TouchableOpacity
+                          key={anim}
+                          style={[
+                            styles.animationChip,
+                            dropAnimation === anim && styles.animationChipActive,
+                          ]}
+                          onPress={() => setDropAnimation(anim as any)}
+                        >
+                          <Text style={[
+                            styles.animationChipText,
+                            dropAnimation === anim && styles.animationChipTextActive,
+                          ]}>
+                            {anim}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
+              </View>
             )}
           </View>
         )}
@@ -575,5 +620,73 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: tokens.colors.gold,
+  },
+  photoDropToggle: {
+    marginTop: 12,
+    gap: 12,
+  },
+  photoDropButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: tokens.colors.background,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
+    alignItems: "center" as const,
+  },
+  photoDropButtonActive: {
+    backgroundColor: "#FFD700" + "20",
+    borderColor: "#FFD700",
+  },
+  photoDropButtonText: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: tokens.colors.textSecondary,
+  },
+  photoDropButtonTextActive: {
+    color: "#FFD700",
+  },
+  animationSelector: {
+    flexDirection: "row" as const,
+  },
+  animationChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: tokens.colors.background,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "30",
+    marginRight: 8,
+  },
+  animationChipActive: {
+    backgroundColor: tokens.colors.gold,
+    borderColor: tokens.colors.gold,
+  },
+  animationChipText: {
+    fontSize: 12,
+    fontWeight: "600" as const,
+    color: tokens.colors.textSecondary,
+    textTransform: "capitalize" as const,
+  },
+  animationChipTextActive: {
+    color: tokens.colors.background,
+  },
+  photoDropContainer: {
+    position: "relative" as const,
+  },
+  photoDropBadge: {
+    position: "absolute" as const,
+    top: 12,
+    right: 12,
+    backgroundColor: "rgba(255, 215, 0, 0.95)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    zIndex: 10,
+  },
+  photoDropBadgeText: {
+    fontSize: 11,
+    fontWeight: "700" as const,
+    color: tokens.colors.background,
   },
 });

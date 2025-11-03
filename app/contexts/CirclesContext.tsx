@@ -18,12 +18,14 @@ export interface CirclePost {
   authorName: string;
   authorAvatar?: string;
   content: string;
-  type: "text" | "photo";
+  type: "text" | "photo" | "photo_drop";
   photoUrl?: string;
   photoCaption?: string;
   timestamp: string;
   likes: string[];
   comments: CircleComment[];
+  isPhotoDrop?: boolean;
+  dropAnimation?: "fade" | "slide" | "bounce" | "pulse";
 }
 
 export interface CircleComment {
@@ -266,9 +268,11 @@ export const [CirclesContext, useCircles] = createContextHook(() => {
       authorId: string,
       authorName: string,
       content: string,
-      type: "text" | "photo" = "text",
+      type: "text" | "photo" | "photo_drop" = "text",
       photoUrl?: string,
-      photoCaption?: string
+      photoCaption?: string,
+      isPhotoDrop?: boolean,
+      dropAnimation?: "fade" | "slide" | "bounce" | "pulse"
     ) => {
       const newPost: CirclePost = {
         id: `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -282,6 +286,8 @@ export const [CirclesContext, useCircles] = createContextHook(() => {
         timestamp: new Date().toISOString(),
         likes: [],
         comments: [],
+        isPhotoDrop: isPhotoDrop || false,
+        dropAnimation: dropAnimation || "fade",
       };
 
       const updatedCircles = state.circles.map((circle) => {
