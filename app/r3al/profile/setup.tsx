@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Tex
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { User } from "lucide-react-native";
+import { User, ArrowLeft } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import { useScreenshotDetection } from "@/hooks/useScreenshotDetection";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -46,6 +46,14 @@ export default function ProfileSetup() {
     >
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <ArrowLeft size={24} color={tokens.colors.gold} />
+          </TouchableOpacity>
+
           <View style={styles.header}>
             <User size={60} color={tokens.colors.gold} strokeWidth={1.5} />
             <Text style={styles.title}>{t.profile_title}</Text>
@@ -104,8 +112,15 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 20,
     justifyContent: "space-between",
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   header: {
     alignItems: "center",
