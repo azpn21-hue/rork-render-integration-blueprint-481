@@ -9,6 +9,7 @@ export default function HiveHome() {
   const router = useRouter();
   const { nfts, tokenBalance, userProfile } = useR3al();
 
+  const safeBalance = tokenBalance || { available: 0, earned: 0, spent: 0, lastUpdated: new Date().toISOString() };
   const myNFTs = nfts.filter(nft => nft.ownerId === (userProfile?.name || 'user'));
   const forSaleNFTs = nfts.filter(nft => nft.forSale);
 
@@ -39,7 +40,7 @@ export default function HiveHome() {
               </View>
               <View style={styles.heroDivider} />
               <View style={styles.heroStat}>
-                <Text style={styles.heroStatValue}>{tokenBalance.available}</Text>
+                <Text style={styles.heroStatValue}>{safeBalance.available}</Text>
                 <Text style={styles.heroStatLabel}>Tokens</Text>
               </View>
               <View style={styles.heroDivider} />

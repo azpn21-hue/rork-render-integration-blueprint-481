@@ -56,6 +56,12 @@ export default function TrustTokenWallet({
   onEarnMore,
   testID 
 }: TrustTokenWalletProps) {
+  const safeBalance = balance || {
+    available: 0,
+    earned: 0,
+    spent: 0,
+    lastUpdated: new Date().toISOString(),
+  };
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
 
@@ -153,14 +159,14 @@ export default function TrustTokenWallet({
           </View>
           
           <Text style={styles.balanceLabel}>Trust-Token Balance</Text>
-          <Text style={styles.balanceValue}>{balance.available.toLocaleString()}</Text>
+          <Text style={styles.balanceValue}>{safeBalance.available.toLocaleString()}</Text>
           
           <View style={styles.balanceStats}>
             <View style={styles.balanceStat}>
               <TrendingUp size={16} color="#10B981" strokeWidth={2} />
               <Text style={styles.balanceStatLabel}>Earned</Text>
               <Text style={[styles.balanceStatValue, { color: "#10B981" }]}>
-                {balance.earned.toLocaleString()}
+                {safeBalance.earned.toLocaleString()}
               </Text>
             </View>
             <View style={styles.statDivider} />
@@ -168,7 +174,7 @@ export default function TrustTokenWallet({
               <ShoppingBag size={16} color="#EF4444" strokeWidth={2} />
               <Text style={styles.balanceStatLabel}>Spent</Text>
               <Text style={[styles.balanceStatValue, { color: "#EF4444" }]}>
-                {balance.spent.toLocaleString()}
+                {safeBalance.spent.toLocaleString()}
               </Text>
             </View>
           </View>

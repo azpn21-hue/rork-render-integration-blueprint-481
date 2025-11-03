@@ -125,7 +125,30 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
         
         try {
           const parsedState = JSON.parse(stored);
-          setState({ ...parsedState, isLoading: false });
+          
+          if (typeof parsedState !== 'object' || parsedState === null) {
+            console.error("[PulseChat] Parsed state is not an object");
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setState((prev) => ({ ...prev, isLoading: false }));
+            return;
+          }
+          
+          const validatedState: PulseChatState = {
+            sessions: Array.isArray(parsedState.sessions) ? parsedState.sessions : [],
+            activeSessionId: parsedState.activeSessionId || null,
+            videoCall: parsedState.videoCall || {
+              active: false,
+              sessionId: null,
+              startTime: null,
+              participants: [],
+            },
+            realificationSession: parsedState.realificationSession || null,
+            honestyCheckSession: parsedState.honestyCheckSession || null,
+            isLoading: false,
+          };
+          
+          setState(validatedState);
+          console.log("[PulseChat] State loaded successfully");
         } catch (parseError: any) {
           console.error("[PulseChat] JSON parse error:", parseError?.message || parseError);
           console.error("[PulseChat] Invalid data:", stored?.substring(0, 100));
@@ -133,6 +156,7 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
           setState((prev) => ({ ...prev, isLoading: false }));
         }
       } else {
+        console.log("[PulseChat] No stored state found");
         setState((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error: any) {
@@ -144,11 +168,19 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
   const saveState = useCallback(
     async (newState: Partial<PulseChatState>) => {
       try {
-        const updated = { ...state, ...newState };
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        const updated = { ...state, ...newState, isLoading: false };
+        const serialized = JSON.stringify(updated);
+        
+        if (!serialized || serialized === 'undefined' || serialized === 'null') {
+          console.error("[PulseChat] Invalid state to save");
+          return;
+        }
+        
+        await AsyncStorage.setItem(STORAGE_KEY, serialized);
         setState(updated);
-      } catch (error) {
-        console.error("[PulseChat] Failed to save state:", error);
+        console.log("[PulseChat] State saved successfully");
+      } catch (error: any) {
+        console.error("[PulseChat] Failed to save state:", error?.message || error);
       }
     },
     [state]

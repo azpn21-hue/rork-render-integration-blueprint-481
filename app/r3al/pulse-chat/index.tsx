@@ -8,17 +8,21 @@ import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 export default function PulseChatIndex() {
   const router = useRouter();
-  const { activeSessionId, getActiveSession, startChatSession, sendMessage } = usePulseChat();
+  const { activeSessionId, getActiveSession, startChatSession, sendMessage, loadState, isLoading } = usePulseChat();
   const [participantName, setParticipantName] = useState("");
   const [messageText, setMessageText] = useState("");
   
   const activeSession = getActiveSession();
 
   useEffect(() => {
-    if (!activeSession && !activeSessionId) {
+    loadState();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !activeSession && !activeSessionId) {
       console.log("🫀 [PulseChat] No active session found");
     }
-  }, [activeSession, activeSessionId]);
+  }, [activeSession, activeSessionId, isLoading]);
 
   const handleStartSession = () => {
     if (!participantName.trim()) {
@@ -76,7 +80,11 @@ export default function PulseChatIndex() {
             <Text style={styles.subtitle}>Secure • Encrypted • Ephemeral</Text>
           </View>
 
-          {!activeSession ? (
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          ) : !activeSession ? (
             <View style={styles.startSection}>
               <Text style={styles.label}>Start a New Session</Text>
               <TextInput
@@ -203,6 +211,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingVertical: 40,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: "center" as const,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: tokens.colors.textSecondary,
   },
   header: {
     alignItems: "center",

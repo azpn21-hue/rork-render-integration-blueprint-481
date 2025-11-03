@@ -20,7 +20,12 @@ export default function TokenWallet() {
     refetchOnWindowFocus: false,
   });
   
-  const tokenBalance = balanceQuery.data?.balance || localBalance;
+  const tokenBalance = balanceQuery.data?.balance || localBalance || {
+    available: 0,
+    earned: 0,
+    spent: 0,
+    lastUpdated: new Date().toISOString(),
+  };
 
   const isLoading = balanceQuery.isLoading || transactionsQuery.isLoading;
   const isError = balanceQuery.isError || transactionsQuery.isError;
@@ -94,30 +99,26 @@ export default function TokenWallet() {
                 <Text style={styles.retryButtonText}>Retry</Text>
               </TouchableOpacity>
             </View>
-          ) : !tokenBalance ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>No token data available</Text>
-            </View>
           ) : (
             <>
           <View style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>Available Balance</Text>
-            <Text style={styles.balanceValue}>{tokenBalance.available} 🪙</Text>
+            <Text style={styles.balanceValue}>{tokenBalance?.available ?? 0} 🪙</Text>
             <Text style={styles.balanceDate}>
-              Updated {new Date(tokenBalance.lastUpdated).toLocaleString()}
+              Updated {tokenBalance?.lastUpdated ? new Date(tokenBalance.lastUpdated).toLocaleString() : 'Just now'}
             </Text>
           </View>
 
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <TrendingUp size={24} color="#4ade80" strokeWidth={2} />
-              <Text style={styles.statValue}>{tokenBalance.earned}</Text>
+              <Text style={styles.statValue}>{tokenBalance?.earned ?? 0}</Text>
               <Text style={styles.statLabel}>Total Earned</Text>
             </View>
 
             <View style={styles.statCard}>
               <TrendingDown size={24} color="#f87171" strokeWidth={2} />
-              <Text style={styles.statValue}>{tokenBalance.spent}</Text>
+              <Text style={styles.statValue}>{tokenBalance?.spent ?? 0}</Text>
               <Text style={styles.statLabel}>Total Spent</Text>
             </View>
           </View>
