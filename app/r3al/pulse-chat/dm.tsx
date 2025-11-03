@@ -23,6 +23,7 @@ import {
 } from "lucide-react-native";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useCircles } from "@/app/contexts/CirclesContext";
+import { trpc } from "@/lib/trpc";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import * as Haptics from "expo-haptics";
 
@@ -32,9 +33,9 @@ export default function DMConversationScreen() {
   const { userId, userName } = params as { userId: string; userName: string };
   
   const {
-    directMessages,
-    sendDirectMessage,
-    markMessageAsRead,
+    directMessages: localMessages,
+    sendDirectMessage: sendLocalMessage,
+    markMessageAsRead: markLocalRead,
     getDirectMessagesWithUser,
   } = useCircles();
   
@@ -45,18 +46,40 @@ export default function DMConversationScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const typingTimer = useRef<NodeJS.Timeout | null>(null);
 
+  const messagesQuery = trpc.r3al.dm.getMessages.useQuery(
+    { userId: currentUserId, otherUserId: userId },
+    {
+      refetchInterval: 3000,
+      refetchOnMount: true,
+    }
+  );
+
+  const sendMessageMutation = trpc.r3al.dm.sendMessage.useMutation({
+    onSuccess: () => {
+      messagesQuery.refetch();
+    },
+  });
+
+  const markReadMutation = trpc.r3al.dm.markRead.useMutation();
+
   const conversation = useMemo(
-    () => getDirectMessagesWithUser(userId, currentUserId),
-    [userId, currentUserId, directMessages, getDirectMessagesWithUser]
+    () => {
+      if (messagesQuery.data?.messages) {
+        return messagesQuery.data.messages;
+      }
+      return getDirectMessagesWithUser(userId, currentUserId);
+    },
+    [messagesQuery.data, userId, currentUserId, getDirectMessagesWithUser]
   );
 
   useEffect(() => {
     conversation.forEach((msg) => {
       if (msg.toUserId === currentUserId && !msg.read) {
-        markMessageAsRead(msg.id);
+        markReadMutation.mutate({ messageId: msg.id });
+        markLocalRead(msg.id);
       }
     });
-  }, [conversation, currentUserId, markMessageAsRead]);
+  }, [conversation, currentUserId]);
 
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -69,7 +92,15 @@ export default function DMConversationScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    sendDirectMessage(currentUserId, userId, "You", userName, messageText.trim());
+    sendMessageMutation.mutate({
+      fromUserId: currentUserId,
+      toUserId: userId,
+      fromUserName: "You",
+      toUserName: userName,
+      content: messageText.trim(),
+    });
+
+    sendLocalMessage(currentUserId, userId, "You", userName, messageText.trim());
     setMessageText("");
     setIsTyping(false);
 

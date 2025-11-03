@@ -20,24 +20,37 @@ import {
 } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { useCircles } from "@/app/contexts/CirclesContext";
+import { trpc } from "@/lib/trpc";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import * as Haptics from "expo-haptics";
 
 export default function DMListScreen() {
   const router = useRouter();
-  const { directMessages, getUnreadMessageCount } = useCircles();
+  const { directMessages: localMessages } = useCircles();
   const [searchQuery, setSearchQuery] = useState("");
   const currentUserId = "user";
 
+  const conversationsQuery = trpc.r3al.dm.getConversations.useQuery(
+    { userId: currentUserId },
+    {
+      refetchInterval: 5000,
+      refetchOnMount: true,
+    }
+  );
+
   const conversations = useMemo(() => {
+    if (conversationsQuery.data?.conversations) {
+      return conversationsQuery.data.conversations;
+    }
+
     const conversationMap = new Map<string, any>();
 
-    if (!directMessages || !Array.isArray(directMessages)) {
-      console.warn('[DMList] directMessages is not an array:', directMessages);
+    if (!localMessages || !Array.isArray(localMessages)) {
+      console.warn('[DMList] localMessages is not an array:', localMessages);
       return [];
     }
 
-    directMessages.forEach((msg) => {
+    localMessages.forEach((msg) => {
       const otherUserId =
         msg.fromUserId === currentUserId ? msg.toUserId : msg.fromUserId;
       const otherUserName =
@@ -69,7 +82,7 @@ export default function DMListScreen() {
         new Date(b.lastMessageTime).getTime() -
         new Date(a.lastMessageTime).getTime()
     );
-  }, [directMessages, currentUserId]);
+  }, [conversationsQuery.data, localMessages, currentUserId]);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
@@ -91,10 +104,13 @@ export default function DMListScreen() {
 
   const totalUnread = useMemo(
     () => {
+      if (conversationsQuery.data?.totalUnread !== undefined) {
+        return conversationsQuery.data.totalUnread;
+      }
       if (!conversations || !Array.isArray(conversations)) return 0;
       return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
     },
-    [conversations]
+    [conversationsQuery.data, conversations]
   );
 
   return (
@@ -126,7 +142,7 @@ export default function DMListScreen() {
           </View>
           <TouchableOpacity
             style={styles.newChatButton}
-            onPress={() => router.push("/r3al/circles")}
+            onPress={() => router.push("/r3al/pulse-chat/contacts")}
             activeOpacity={0.7}
           >
             <Users size={24} color={tokens.colors.gold} strokeWidth={2} />
@@ -153,7 +169,16 @@ export default function DMListScreen() {
           contentContainerStyle={styles.conversationsContent}
           showsVerticalScrollIndicator={false}
         >
-          {filteredConversations.length === 0 ? (
+          {conversationsQuery.isLoading ? (
+            <View style={styles.emptyState}>
+              <MessageCircle
+                size={64}
+                color={tokens.colors.textSecondary}
+                strokeWidth={1.5}
+              />
+              <Text style={styles.emptyTitle}>Loading conversations...</Text>
+            </View>
+          ) : filteredConversations.length === 0 ? (
             <View style={styles.emptyState}>
               <MessageCircle
                 size={64}

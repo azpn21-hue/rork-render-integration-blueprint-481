@@ -26,6 +26,7 @@ export default function R3alLayout() {
       <Stack.Screen name="pulse-chat/index" />
       <Stack.Screen name="pulse-chat/dm-list" />
       <Stack.Screen name="pulse-chat/dm" />
+      <Stack.Screen name="pulse-chat/contacts" />
       <Stack.Screen name="pulse-chat/video" />
       <Stack.Screen name="pulse-chat/realification" />
       <Stack.Screen name="pulse-chat/honesty-check" />
