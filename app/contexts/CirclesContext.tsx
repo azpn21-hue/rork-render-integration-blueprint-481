@@ -158,13 +158,27 @@ export const [CirclesContext, useCircles] = createContextHook(() => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsedState = JSON.parse(stored);
-        setState({ ...parsedState, isLoading: false });
+        if (typeof stored !== 'string' || stored.trim().length === 0) {
+          console.error("[Circles] Invalid stored data");
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          setState((prev) => ({ ...prev, isLoading: false }));
+          return;
+        }
+        
+        try {
+          const parsedState = JSON.parse(stored);
+          setState({ ...parsedState, isLoading: false });
+        } catch (parseError: any) {
+          console.error("[Circles] JSON parse error:", parseError?.message || parseError);
+          console.error("[Circles] Invalid data:", stored?.substring(0, 100));
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
       } else {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
-    } catch (error) {
-      console.error("[Circles] Failed to load state:", error);
+    } catch (error: any) {
+      console.error("[Circles] Failed to load state:", error?.message || error);
       setState((prev) => ({ ...prev, isLoading: false }));
     }
   }, []);

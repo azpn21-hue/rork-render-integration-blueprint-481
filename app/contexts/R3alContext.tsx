@@ -194,8 +194,36 @@ export const [R3alContext, useR3al] = createContextHook(() => {
       
       if (stored) {
         try {
+          if (typeof stored !== 'string') {
+            console.error("[R3AL] Stored value is not a string:", typeof stored);
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setState((prev) => ({ ...prev, isLoading: false }));
+            return;
+          }
+          
+          if (stored.trim().length === 0) {
+            console.error("[R3AL] Stored value is empty");
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setState((prev) => ({ ...prev, isLoading: false }));
+            return;
+          }
+          
           const parsedState = JSON.parse(stored);
           console.log("[R3AL] State parsed successfully");
+          
+          if (typeof parsedState !== 'object' || parsedState === null) {
+            console.error("[R3AL] Parsed state is not an object");
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setState((prev) => ({ ...prev, isLoading: false }));
+            return;
+          }
+          
+          const tokenBalance: TokenBalance = parsedState.tokenBalance || {
+            available: 100,
+            earned: 100,
+            spent: 0,
+            lastUpdated: new Date().toISOString(),
+          };
           
           const securityState: SecurityState = {
             captureStrikes: parsedState.security?.captureStrikes || 0,
@@ -204,19 +232,25 @@ export const [R3alContext, useR3al] = createContextHook(() => {
             lastCaptureTimestamp: parsedState.security?.lastCaptureTimestamp || null,
           };
           
-          setState({ ...parsedState, security: securityState, isLoading: false });
+          setState({ 
+            ...parsedState, 
+            security: securityState, 
+            tokenBalance,
+            isLoading: false 
+          });
           console.log("[R3AL] State loaded and set");
-        } catch (parseError) {
-          console.error("[R3AL] JSON parse error:", parseError);
-          console.error("[R3AL] Problematic data:", stored?.substring(0, 200));
+        } catch (parseError: any) {
+          console.error("[R3AL] JSON parse error:", parseError?.message || parseError);
+          console.error("[R3AL] Problematic data (first 200 chars):", stored?.substring(0, 200));
+          await AsyncStorage.removeItem(STORAGE_KEY);
           setState((prev) => ({ ...prev, isLoading: false }));
         }
       } else {
         console.log("[R3AL] No stored state, using defaults");
         setState((prev) => ({ ...prev, isLoading: false }));
       }
-    } catch (error) {
-      console.error("[R3AL] AsyncStorage error:", error);
+    } catch (error: any) {
+      console.error("[R3AL] AsyncStorage error:", error?.message || error);
       setState((prev) => ({ ...prev, isLoading: false }));
     }
     console.log("[R3AL] Load state complete");

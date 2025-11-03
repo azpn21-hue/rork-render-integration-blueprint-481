@@ -116,13 +116,27 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsedState = JSON.parse(stored);
-        setState({ ...parsedState, isLoading: false });
+        if (typeof stored !== 'string' || stored.trim().length === 0) {
+          console.error("[PulseChat] Invalid stored data");
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          setState((prev) => ({ ...prev, isLoading: false }));
+          return;
+        }
+        
+        try {
+          const parsedState = JSON.parse(stored);
+          setState({ ...parsedState, isLoading: false });
+        } catch (parseError: any) {
+          console.error("[PulseChat] JSON parse error:", parseError?.message || parseError);
+          console.error("[PulseChat] Invalid data:", stored?.substring(0, 100));
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
       } else {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
-    } catch (error) {
-      console.error("[PulseChat] Failed to load state:", error);
+    } catch (error: any) {
+      console.error("[PulseChat] Failed to load state:", error?.message || error);
       setState((prev) => ({ ...prev, isLoading: false }));
     }
   }, []);

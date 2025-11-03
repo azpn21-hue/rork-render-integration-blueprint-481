@@ -48,13 +48,29 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
           AsyncStorage.getItem(AUTH_STORAGE_KEYS.ndaAccepted),
         ]);
         
+        let parsedUser = null;
+        if (storedUser) {
+          try {
+            if (typeof storedUser !== 'string' || storedUser.trim().length === 0) {
+              console.warn("[Auth] Invalid stored user data");
+              await AsyncStorage.removeItem(AUTH_STORAGE_KEYS.user);
+            } else {
+              parsedUser = JSON.parse(storedUser);
+            }
+          } catch (parseError: any) {
+            console.error("[Auth] JSON parse error:", parseError?.message || parseError);
+            console.error("[Auth] Invalid data:", storedUser?.substring(0, 100));
+            await AsyncStorage.removeItem(AUTH_STORAGE_KEYS.user);
+          }
+        }
+        
         return {
-          user: storedUser ? JSON.parse(storedUser) : null,
+          user: parsedUser,
           token: storedToken,
           ndaAccepted: storedNda === "true",
         };
-      } catch (error) {
-        console.warn("[Auth] Failed to load stored auth:", error);
+      } catch (error: any) {
+        console.warn("[Auth] Failed to load stored auth:", error?.message || error);
         return {
           user: null,
           token: null,

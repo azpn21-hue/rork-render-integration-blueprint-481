@@ -133,8 +133,32 @@ export const [TutorialProvider, useTutorial] = createContextHook<TutorialContext
   const tutorialQuery = useQuery({
     queryKey: ["tutorial-state"],
     queryFn: async (): Promise<TutorialState> => {
-      const stored = await AsyncStorage.getItem(TUTORIAL_STORAGE_KEY);
-      if (!stored) {
+      try {
+        const stored = await AsyncStorage.getItem(TUTORIAL_STORAGE_KEY);
+        if (!stored) {
+          return {
+            completedFlows: [],
+            currentFlow: null,
+            currentStepIndex: 0,
+            lastCompletedAt: null
+          };
+        }
+        
+        if (typeof stored !== 'string' || stored.trim().length === 0) {
+          console.error("[Tutorial] Invalid stored data");
+          await AsyncStorage.removeItem(TUTORIAL_STORAGE_KEY);
+          return {
+            completedFlows: [],
+            currentFlow: null,
+            currentStepIndex: 0,
+            lastCompletedAt: null
+          };
+        }
+        
+        return JSON.parse(stored);
+      } catch (error: any) {
+        console.error("[Tutorial] JSON parse error:", error?.message || error);
+        await AsyncStorage.removeItem(TUTORIAL_STORAGE_KEY);
         return {
           completedFlows: [],
           currentFlow: null,
@@ -142,7 +166,6 @@ export const [TutorialProvider, useTutorial] = createContextHook<TutorialContext
           lastCompletedAt: null
         };
       }
-      return JSON.parse(stored);
     }
   });
 

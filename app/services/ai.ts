@@ -120,10 +120,23 @@ export async function getTruthScore(userId: string): Promise<TruthScoreResponse>
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
     });
+    
+    if (!res.ok) {
+      console.error("getTruthScore HTTP error:", res.status);
+      return { success: false };
+    }
+    
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error("getTruthScore non-JSON response:", text.substring(0, 100));
+      return { success: false };
+    }
+    
     const data = await res.json();
     return data as TruthScoreResponse;
   } catch (err) {
-    console.log("getTruthScore error", err);
+    console.error("getTruthScore error:", err);
     return { success: false };
   }
 }
