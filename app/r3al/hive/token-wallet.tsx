@@ -9,6 +9,28 @@ export default function TokenWallet() {
   const router = useRouter();
   const { tokenBalance, nfts, userProfile } = useR3al();
 
+  if (!tokenBalance) {
+    return (
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Token Wallet</Text>
+            <View style={styles.placeholder} />
+          </View>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: tokens.colors.text }}>Loading...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
   const transactions = [
     { type: 'earned', amount: 100, reason: 'Initial bonus', date: tokenBalance.lastUpdated },
     ...nfts
