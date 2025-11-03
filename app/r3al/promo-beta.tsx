@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -44,7 +44,11 @@ export default function PromoBeta() {
       >
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>R3AL</Text>
+            <Image 
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/etwz6wynbmclnaf4sb7bm' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
           
           <View style={styles.betaBadge}>
@@ -64,19 +68,19 @@ export default function PromoBeta() {
 
         <View style={styles.featuresContainer}>
           <FeatureCard
-            icon={<Shield color={tokens.colors.gold} size={32} />}
+            icon={<Shield color="#FF6B3D" size={32} />}
             title="Military-Grade Security"
             description="Your data is protected with the same principles used in Special Operations."
           />
           
           <FeatureCard
-            icon={<Lock color={tokens.colors.gold} size={32} />}
+            icon={<Lock color="#20B2AA" size={32} />}
             title="Privacy First"
             description="No tracking, no selling data. Your truth stays yours."
           />
           
           <FeatureCard
-            icon={<Eye color={tokens.colors.gold} size={32} />}
+            icon={<Eye color="#FF6B3D" size={32} />}
             title="Unfiltered Reality"
             description="Designed to protect truth, privacy, and authenticity in modern relationships."
           />
@@ -160,23 +164,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: tokens.colors.gold,
+    width: 80,
+    height: 80,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: tokens.colors.goldLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
-    elevation: 8,
   },
-  logoText: {
-    fontSize: 20,
-    fontWeight: "bold" as const,
-    color: tokens.colors.secondary,
-    letterSpacing: 1,
+  logoImage: {
+    width: 80,
+    height: 80,
   },
   betaBadge: {
     backgroundColor: tokens.colors.accent,
@@ -202,7 +197,7 @@ const styles = StyleSheet.create({
   },
   subhead: {
     fontSize: 18,
-    color: tokens.colors.gold,
+    color: "#FF6B3D",
     lineHeight: 26,
     fontWeight: "500" as const,
   },
@@ -215,7 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
+    borderColor: "rgba(255, 107, 61, 0.2)",
   },
   featureIcon: {
     marginBottom: 12,
@@ -245,18 +240,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   primaryButton: {
-    backgroundColor: tokens.colors.gold,
+    backgroundColor: "#FF6B3D",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
-    shadowColor: tokens.colors.gold,
+    shadowColor: "#FF6B3D",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
   primaryButtonText: {
-    color: tokens.colors.secondary,
+    color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold" as const,
     letterSpacing: 0.5,
@@ -267,10 +262,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: tokens.colors.gold,
+    borderColor: "#20B2AA",
   },
   secondaryButtonText: {
-    color: tokens.colors.gold,
+    color: "#20B2AA",
     fontSize: 16,
     fontWeight: "600" as const,
     letterSpacing: 0.5,

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Animated, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, Animated, TouchableOpacity, Alert, Image } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -114,7 +114,11 @@ export default function R3alSplash() {
           ]}
         >
           <View style={styles.logo}>
-            <Text style={styles.logoText}>R3AL</Text>
+            <Image 
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/etwz6wynbmclnaf4sb7bm' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
         </Animated.View>
       </TouchableOpacity>
@@ -148,23 +152,14 @@ const styles = StyleSheet.create({
     marginBottom: 60,
   },
   logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: tokens.colors.gold,
+    width: 200,
+    height: 200,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: tokens.colors.goldLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-    elevation: 10,
   },
-  logoText: {
-    fontSize: 36,
-    fontWeight: "bold" as const,
-    color: tokens.colors.secondary,
-    letterSpacing: 2,
+  logoImage: {
+    width: 200,
+    height: 200,
   },
   mottoContainer: {
     position: "absolute" as const,
@@ -173,7 +168,7 @@ const styles = StyleSheet.create({
   },
   motto: {
     fontSize: 18,
-    color: tokens.colors.gold,
+    color: "#FF6B3D",
     letterSpacing: 1,
     marginBottom: 20,
   },
@@ -186,7 +181,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: tokens.colors.accent,
+    backgroundColor: "#20B2AA",
   },
   bpmText: {
     fontSize: 14,

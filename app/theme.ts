@@ -2,12 +2,12 @@ import { Platform } from "react-native";
 
 export const theme = {
   colors: {
-    background: "#0D0F1A",
-    card: "#1F2937",
-    accent: "#FFC845",
-    sensor: "#2CE7E1",
+    background: "#000000",
+    card: "#121212",
+    accent: "#FF6B3D",
+    sensor: "#20B2AA",
     white: "#FFFFFF",
-    muted: "#94A3B8",
+    muted: "#8A8A8A",
   },
   fonts: {
     heading: Platform.select({ default: "System", web: "system-ui" }) as string,
@@ -23,7 +23,7 @@ export const theme = {
       elevation: 8,
     },
     button: {
-      shadowColor: "#FFC845",
+      shadowColor: "#FF6B3D",
       shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.35,
       shadowRadius: 12,
