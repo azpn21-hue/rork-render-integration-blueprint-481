@@ -227,7 +227,10 @@ export default function R3alHome() {
 
           <View style={styles.footer}>
             <Text style={styles.motto}>Reveal • Relate • Respect</Text>
+            <Text style={styles.brandName}>R3AL™</Text>
             <Text style={styles.compliance}>Privacy Act of 1974 Compliant</Text>
+            <Text style={styles.copyright}>© 2025 R3AL Technologies. All Rights Reserved.</Text>
+            <Text style={styles.trademarks}>R3AL™, Hive™, Pulse Chat™, Trust-Tokens™ are trademarks of R3AL Technologies.</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -452,6 +455,25 @@ const styles = StyleSheet.create({
   compliance: {
     fontSize: 12,
     color: tokens.colors.textSecondary,
+  },
+  brandName: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+    marginVertical: 8,
+  },
+  copyright: {
+    fontSize: 11,
+    color: tokens.colors.textSecondary,
+    marginTop: 8,
+  },
+  trademarks: {
+    fontSize: 10,
+    color: tokens.colors.textSecondary,
+    textAlign: "center" as const,
+    maxWidth: 320,
+    lineHeight: 14,
+    marginTop: 4,
   },
   loadingContainer: {
     flex: 1,

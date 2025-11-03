@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { R3alContext } from "@/app/contexts/R3alContext";
 import { TutorialProvider } from "@/app/contexts/TutorialContext";
 import { PulseChatContext } from "@/app/contexts/PulseChatContext";
+import { CirclesContext } from "@/app/contexts/CirclesContext";
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -57,17 +58,19 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <R3alContext>
-            <PulseChatContext>
-              <ThemeProvider>
-                <AuthProvider>
-                  <TutorialProvider>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                      <RootLayoutNav />
-                    </GestureHandlerRootView>
-                  </TutorialProvider>
-                </AuthProvider>
-              </ThemeProvider>
-            </PulseChatContext>
+            <CirclesContext>
+              <PulseChatContext>
+                <ThemeProvider>
+                  <AuthProvider>
+                    <TutorialProvider>
+                      <GestureHandlerRootView style={{ flex: 1 }}>
+                        <RootLayoutNav />
+                      </GestureHandlerRootView>
+                    </TutorialProvider>
+                  </AuthProvider>
+                </ThemeProvider>
+              </PulseChatContext>
+            </CirclesContext>
           </R3alContext>
         </trpc.Provider>
       </QueryClientProvider>

@@ -14,6 +14,8 @@ import {
   Award,
   Target
 } from "lucide-react-native";
+import { useCircles } from "@/app/contexts/CirclesContext";
+import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 type Circle = {
@@ -113,15 +115,22 @@ const MOCK_CIRCLES: Circle[] = [
 
 export default function CirclesPage() {
   const router = useRouter();
+  const { circles, myCircles, joinCircle } = useCircles();
+  const { userProfile } = useR3al();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const categories = ["all", "Technology", "Community", "Business", "Arts & Design", "Leadership"];
 
-  const filteredCircles = selectedCategory === "all" 
-    ? MOCK_CIRCLES 
-    : MOCK_CIRCLES.filter((c) => c.category === selectedCategory);
+  const allCircles = circles.map(c => ({
+    ...c,
+    isMember: myCircles.includes(c.id)
+  }));
 
-  const myCircles = MOCK_CIRCLES.filter((c) => c.isMember);
+  const filteredCircles = selectedCategory === "all" 
+    ? allCircles 
+    : allCircles.filter((c) => c.category === selectedCategory);
+
+  const myCirclesList = allCircles.filter((c) => myCircles.includes(c.id));
 
   const getActivityColor = (level: string) => {
     if (level === "high") return "#00FF66";
@@ -135,7 +144,7 @@ export default function CirclesPage() {
       style={[styles.circleCard, { borderColor: circle.color + "40" }]}
       activeOpacity={0.8}
       onPress={() => {
-        console.log(`Navigate to circle: ${circle.name}`);
+        router.push(`/r3al/circles/${circle.id}`);
       }}
     >
       <View style={styles.circleHeader}>
@@ -186,7 +195,13 @@ export default function CirclesPage() {
             </View>
           </>
         ) : (
-          <TouchableOpacity style={[styles.actionBtn, styles.actionBtnOutline]} activeOpacity={0.7}>
+          <TouchableOpacity 
+            style={[styles.actionBtn, styles.actionBtnOutline]} 
+            activeOpacity={0.7}
+            onPress={() => {
+              joinCircle(circle.id, userProfile?.name || "user", userProfile?.name || "User", userProfile?.truthScore?.score || 75);
+            }}
+          >
             <Plus size={18} color={tokens.colors.gold} strokeWidth={2} />
             <Text style={[styles.actionBtnText, { color: tokens.colors.gold }]}>
               {circle.isPrivate ? "Request to Join" : "Join Circle"}
@@ -205,7 +220,11 @@ export default function CirclesPage() {
             <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Hive Circles</Text>
-          <TouchableOpacity style={styles.createButton} activeOpacity={0.7}>
+          <TouchableOpacity 
+            style={styles.createButton} 
+            activeOpacity={0.7}
+            onPress={() => router.push("/r3al/circles/create")}
+          >
             <Plus size={24} color={tokens.colors.gold} strokeWidth={2} />
           </TouchableOpacity>
         </View>
@@ -219,25 +238,25 @@ export default function CirclesPage() {
             </Text>
             <View style={styles.heroStats}>
               <View style={styles.heroStat}>
-                <Text style={styles.heroStatValue}>{myCircles.length}</Text>
+                <Text style={styles.heroStatValue}>{myCirclesList.length}</Text>
                 <Text style={styles.heroStatLabel}>Your Circles</Text>
               </View>
               <View style={styles.heroDivider} />
               <View style={styles.heroStat}>
-                <Text style={styles.heroStatValue}>{MOCK_CIRCLES.length}</Text>
+                <Text style={styles.heroStatValue}>{circles.length}</Text>
                 <Text style={styles.heroStatLabel}>Total Circles</Text>
               </View>
             </View>
           </View>
 
-          {myCircles.length > 0 && (
+          {myCirclesList.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Target size={20} color={tokens.colors.gold} strokeWidth={2} />
                 <Text style={styles.sectionTitle}>Your Circles</Text>
               </View>
               <View style={styles.circlesList}>
-                {myCircles.map(renderCircleCard)}
+                {myCirclesList.map(renderCircleCard)}
               </View>
             </View>
           )}
