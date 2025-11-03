@@ -1,7 +1,7 @@
-/**
- * Optima-Core TypeScript API Client
- * Connects R3AL app to Optima-Core Python backend
- */
+// ============================================================
+// RORK BRIDGE — Optima-Core Connector (v1.0)
+// Provides secure communication between R3AL front-end and Optima-Core
+// ============================================================
 
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { OPTIMA_CORE_BASE_URL } from "@/app/config/optima-core";
@@ -88,8 +88,9 @@ class OptimaCoreClient {
       baseURL,
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_RORK_API_KEY || "rnd_w0obVzrvycssNp2SbIA3q2sbZZW0",
       },
-      timeout: 30000,
+      timeout: 10000,
     });
 
     console.log("[Optima-Core Client] Initialized with URL:", baseURL);

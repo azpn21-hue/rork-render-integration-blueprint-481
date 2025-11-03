@@ -1,6 +1,10 @@
 # Optima-Core Integration Guide
 
-Complete integration package for connecting R3AL app to Optima-Core backend.
+**Complete Deployment Package for R3AL + Optima-Core**
+
+This guide provides everything needed to deploy and integrate Optima-Core with the R3AL application.
+
+---
 
 ## 📦 Delivered Artifacts
 
@@ -24,8 +28,16 @@ Complete integration package for connecting R3AL app to Optima-Core backend.
 - ✅ `backend/trpc/routes/r3al/optima/create-nft.ts`
 - ✅ Updated `backend/trpc/routes/r3al/router.ts` with Optima routes
 
-### 4. **Deployment**
-- ✅ `Dockerfile.optima` - Container for Cloud Run deployment
+### 4. **Deployment Files**
+- ✅ `Dockerfile.optima` - Simplified Docker container for Cloud Run/Render
+- ✅ `optima-core-manifest.yaml` - Complete system specification
+- ✅ `.env.example` - Updated with RORK API keys
+
+### 5. **Integration Points**
+- ✅ Python FastAPI backend routes ready
+- ✅ TypeScript client with axios interceptors
+- ✅ Environment-based URL switching (local/production)
+- ✅ GCP service integration specs
 
 ---
 
@@ -126,12 +138,24 @@ All routes are accessible via `trpc.r3al.optima.*`:
 
 ## 🔧 Backend Setup (Python)
 
+### Prerequisites
+
+- Python 3.10.11 (exact version required)
+- pip package manager
+- GCP service account JSON key
+- Access to Google Cloud Project: `civic-origin-476705-j8`
+
 ### Local Development
 
 1. **Install dependencies:**
 ```bash
 cd backend
 pip install -r requirements.txt
+```
+
+**Note:** If you encounter module errors, install GCP SDKs explicitly:
+```bash
+pip install google-cloud-aiplatform google-cloud-storage
 ```
 
 2. **Configure GCP credentials:**
@@ -141,13 +165,28 @@ mkdir -p .secrets
 cp /path/to/service-account.json .secrets/
 ```
 
-3. **Run the server:**
+3. **Set environment variables:**
+```bash
+cp .env.example .env
+# Edit .env and update GOOGLE_APPLICATION_CREDENTIALS path
+```
+
+4. **Run the server:**
 ```bash
 uvicorn app:app --reload --port 8080
 ```
 
-4. **Test endpoints:**
+5. **Test endpoints:**
 Visit http://localhost:8080/docs for FastAPI Swagger UI
+
+**Expected Routes:**
+- `GET /` - Root heartbeat
+- `GET /health` - Health check + GCP connection status
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /pulse` - Log behavioral/activity data
+- `POST /hive` - Submit social graph data
+- `POST /market/nft` - Create NFT credential
 
 ### Render Deployment
 

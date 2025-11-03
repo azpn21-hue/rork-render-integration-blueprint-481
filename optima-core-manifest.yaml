@@ -1,25 +1,26 @@
-# Optima-Core System Manifest v1.0
-# Central orchestration layer for Hive, Pulse, NFT Market, and Optima AI Assistant
+# ============================================================
+# OPTIMA-CORE SYSTEM MANIFEST (v1.0)
+# Unified orchestration layer for Optima AI, Hive, Pulse & Market
+# ============================================================
 
 system:
   name: Optima-Core
   version: 1.0.0
-  maintainer: R3AL Systems / Rork Integration Team
-  environment: production
+  maintainer: R3AL Systems / Rork Integration
   description: >
-    Unified backend for Optima's data intelligence, relationship AI,
-    NFT credential registry, and real-time behavioral tracking systems.
+    FastAPI backend and AI management hub for Optima's behavioral,
+    market, and relationship data pipeline.
 
-backend:
-  language: Python 3.10.11
-  framework: FastAPI + Uvicorn
-  entrypoint: app:app
+environment:
+  python: "3.10.11"
+  framework: "FastAPI"
   port: 8080
-  folders:
-    - backend/
-    - backend/auth/
-    - backend/routes/
-    - .secrets/
+  mode: production
+
+folders:
+  backend_root: "backend/"
+  secrets: ".secrets/"
+  logs: "logs/"
   primary_files:
     - app.py
     - vertex_init.py
@@ -50,39 +51,47 @@ routes:
     method: POST
     description: NFT creation and linking
 
+services:
+  - name: Vertex AI
+    id: vertex_ai
+    project: civic-origin-476705-j8
+    region: us-central1
+    purpose: Model training and adaptive AI inference
+
+  - name: Cloud Storage
+    id: gcs
+    bucket: optima-core-data
+    purpose: Data, model weights, and logs
+
+  - name: BigQuery
+    id: bq
+    dataset: optima_core_analytics
+    purpose: Behavioral and market analytics
+
+  - name: Firestore
+    id: firestore
+    purpose: Real-time user and pulse tracking
+
+  - name: PubSub
+    id: pubsub
+    purpose: Event-based communication between microservices
+
 gcp:
   project_id: civic-origin-476705-j8
   project_name: optima-core-dev
   region: us-central1
-  services:
-    - vertex_ai
-    - cloud_storage
-    - firestore
-    - bigquery
-    - pubsub
-    - looker
   credentials_path: .secrets/service-account.json
 
-deployment:
+deploy:
   platform: render
-  services:
-    - type: web
-      name: optima-core-backend
-      env: python
-      plan: free
-      buildCommand: pip install -r requirements.txt
-      startCommand: uvicorn app:app --host 0.0.0.0 --port 8080
-      envVars:
-        - key: GOOGLE_APPLICATION_CREDENTIALS
-          value: /opt/render/project/.secrets/service-account.json
-        - key: GOOGLE_CLOUD_PROJECT
-          value: civic-origin-476705-j8
-        - key: GOOGLE_CLOUD_REGION
-          value: us-central1
-        - key: RORK_API_URL
-          value: https://rork-r3al-connection.onrender.com/inference
-        - key: RORK_API_KEY
-          value: rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
+  buildCommand: "pip install -r requirements.txt"
+  startCommand: "uvicorn app:app --host 0.0.0.0 --port 8080"
+  envVars:
+    GOOGLE_APPLICATION_CREDENTIALS: "/opt/render/project/.secrets/service-account.json"
+    GOOGLE_CLOUD_PROJECT: "civic-origin-476705-j8"
+    GOOGLE_CLOUD_REGION: "us-central1"
+    RORK_API_URL: "https://rork-r3al-connection.onrender.com/inference"
+    RORK_API_KEY: "rnd_w0obVzrvycssNp2SbIA3q2sbZZW0"
 
 environment_variables:
   GOOGLE_APPLICATION_CREDENTIALS: .secrets/service-account.json
