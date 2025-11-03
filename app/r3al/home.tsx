@@ -64,7 +64,7 @@ export default function R3alHome() {
           </View>
           <TouchableOpacity 
             style={styles.settingsBtn} 
-            onPress={() => console.log("Settings")}
+            onPress={() => router.push("/r3al/settings")}
             activeOpacity={0.7}
           >
             <Settings size={24} color={tokens.colors.gold} strokeWidth={2} />
