@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { 
@@ -19,12 +19,28 @@ import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 export default function R3alHome() {
   const router = useRouter();
-  const { userProfile, truthScore, resetR3al, tokenBalance } = useR3al();
+  const { userProfile, truthScore, resetR3al, tokenBalance, isLoading } = useR3al();
 
   const handleReset = () => {
     resetR3al();
     router.replace("/r3al/splash");
   };
+
+  if (isLoading) {
+    return (
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={tokens.colors.gold} />
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -100,16 +116,16 @@ export default function R3alHome() {
             <View style={styles.tokenPreview}>
               <View style={styles.tokenBalance}>
                 <Text style={styles.tokenLabel}>Available Balance</Text>
-                <Text style={styles.tokenValue}>{tokenBalance.available.toLocaleString()}</Text>
+                <Text style={styles.tokenValue}>{tokenBalance?.available?.toLocaleString() || '0'}</Text>
               </View>
               <View style={styles.tokenStats}>
                 <View style={styles.tokenStat}>
                   <TrendingUp size={16} color="#10B981" strokeWidth={2} />
-                  <Text style={styles.tokenStatText}>+{tokenBalance.earned}</Text>
+                  <Text style={styles.tokenStatText}>+{tokenBalance?.earned || 0}</Text>
                 </View>
                 <View style={styles.tokenStat}>
                   <Zap size={16} color="#EF4444" strokeWidth={2} />
-                  <Text style={styles.tokenStatText}>-{tokenBalance.spent}</Text>
+                  <Text style={styles.tokenStatText}>-{tokenBalance?.spent || 0}</Text>
                 </View>
               </View>
             </View>
@@ -436,5 +452,15 @@ const styles = StyleSheet.create({
   compliance: {
     fontSize: 12,
     color: tokens.colors.textSecondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: tokens.colors.gold,
   },
 });

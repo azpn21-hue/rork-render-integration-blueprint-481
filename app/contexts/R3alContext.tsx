@@ -504,7 +504,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   }, [state?.security]);
 
   const createNFT = useCallback((metadata: Omit<NFTMetadata, 'id' | 'creatorId' | 'creatorName' | 'createdAt' | 'mintedAt'>) => {
-    if (state.tokenBalance.available < metadata.tokenCost) {
+    if (!state?.tokenBalance || state.tokenBalance.available < metadata.tokenCost) {
       throw new Error('Insufficient tokens');
     }
 
@@ -562,7 +562,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     if (!nft || !nft.forSale || !nft.salePrice) {
       throw new Error('NFT not for sale');
     }
-    if (state.tokenBalance.available < nft.salePrice) {
+    if (!state?.tokenBalance || state.tokenBalance.available < nft.salePrice) {
       throw new Error('Insufficient tokens');
     }
 
@@ -626,15 +626,21 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   }, [saveState, state.nfts]);
 
   const earnTokens = useCallback((amount: number, reason: string) => {
+    const currentBalance = state?.tokenBalance || {
+      available: 100,
+      earned: 100,
+      spent: 0,
+      lastUpdated: new Date().toISOString(),
+    };
     const updatedBalance: TokenBalance = {
-      available: state.tokenBalance.available + amount,
-      earned: state.tokenBalance.earned + amount,
-      spent: state.tokenBalance.spent,
+      available: currentBalance.available + amount,
+      earned: currentBalance.earned + amount,
+      spent: currentBalance.spent,
       lastUpdated: new Date().toISOString(),
     };
     console.log(`🪙 [Tokens] Earned ${amount} tokens: ${reason}`);
     saveState({ tokenBalance: updatedBalance });
-  }, [saveState, state.tokenBalance]);
+  }, [saveState, state?.tokenBalance]);
 
   const resetR3al = useCallback(async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
