@@ -1,0 +1,176 @@
+# Optima-Core System Manifest v1.0
+# Central orchestration layer for Hive, Pulse, NFT Market, and Optima AI Assistant
+
+system:
+  name: Optima-Core
+  version: 1.0.0
+  maintainer: R3AL Systems / Rork Integration Team
+  environment: production
+  description: >
+    Unified backend for Optima's data intelligence, relationship AI,
+    NFT credential registry, and real-time behavioral tracking systems.
+
+backend:
+  language: Python 3.10.11
+  framework: FastAPI + Uvicorn
+  entrypoint: app:app
+  port: 8080
+  folders:
+    - backend/
+    - backend/auth/
+    - backend/routes/
+    - .secrets/
+  primary_files:
+    - app.py
+    - vertex_init.py
+    - requirements.txt
+    - .env
+    - .secrets/service-account.json
+
+routes:
+  - path: /
+    method: GET
+    description: Root API heartbeat
+  - path: /health
+    method: GET
+    description: Returns server + GCP connection health
+  - path: /pulse
+    method: POST
+    description: Logs pulse and activity data
+  - path: /auth/register
+    method: POST
+    description: Simulated registration
+  - path: /auth/login
+    method: POST
+    description: Auth placeholder for JWT
+  - path: /hive
+    method: POST
+    description: User community graph data
+  - path: /market/nft
+    method: POST
+    description: NFT creation and linking
+
+gcp:
+  project_id: civic-origin-476705-j8
+  project_name: optima-core-dev
+  region: us-central1
+  services:
+    - vertex_ai
+    - cloud_storage
+    - firestore
+    - bigquery
+    - pubsub
+    - looker
+  credentials_path: .secrets/service-account.json
+
+deployment:
+  platform: render
+  services:
+    - type: web
+      name: optima-core-backend
+      env: python
+      plan: free
+      buildCommand: pip install -r requirements.txt
+      startCommand: uvicorn app:app --host 0.0.0.0 --port 8080
+      envVars:
+        - key: GOOGLE_APPLICATION_CREDENTIALS
+          value: /opt/render/project/.secrets/service-account.json
+        - key: GOOGLE_CLOUD_PROJECT
+          value: civic-origin-476705-j8
+        - key: GOOGLE_CLOUD_REGION
+          value: us-central1
+        - key: RORK_API_URL
+          value: https://rork-r3al-connection.onrender.com/inference
+        - key: RORK_API_KEY
+          value: rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
+
+environment_variables:
+  GOOGLE_APPLICATION_CREDENTIALS: .secrets/service-account.json
+  GOOGLE_CLOUD_PROJECT: civic-origin-476705-j8
+  GOOGLE_CLOUD_REGION: us-central1
+  RORK_API_URL: https://rork-r3al-connection.onrender.com/inference
+  RORK_API_KEY: rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
+  API_ENV: production
+  API_PORT: 8080
+
+dependencies:
+  fastapi: "==0.120.2"
+  uvicorn: "==0.38.0"
+  google-cloud-aiplatform: "==1.71.1"
+  google-cloud-storage: "==2.18.2"
+  python-dotenv: "==1.0.1"
+  requests: "==2.32.3"
+  motor: ">=3.6.0,<3.7.0"
+  pymongo: ">=4.9,<4.10"
+  passlib: "==1.7.4"
+  python-jose: "==3.3.0"
+  pyjwt: "==2.9.0"
+  email-validator: "==2.2.0"
+  bcrypt: "==4.1.2"
+  cryptography: "==43.0.3"
+  starlette: ">=0.40.0,<0.50.0"
+  aiofiles: "==24.1.0"
+  pydantic: "==2.8.2"
+  numpy: ">=1.26.4"
+  pandas: ">=2.2.2"
+  black: "==24.10.0"
+  pytest: "==8.3.3"
+
+deployment_checklist:
+  pre_deploy:
+    - Confirm service-account.json exists and matches project optima-core-dev
+    - Set environment variables in Render or .env before first boot
+    - Verify Python version must be 3.10.x
+    - Run locally once before deployment with uvicorn app:app --reload
+    - Confirm http://127.0.0.1:8000/docs loads without error
+  
+  common_errors:
+    - error: ModuleNotFoundError No module named 'google'
+      cause: Missing GCP SDKs
+      fix: pip install google-cloud-aiplatform google-cloud-storage
+    - error: DefaultCredentialsError
+      cause: Missing JSON key
+      fix: Place service-account.json in .secrets folder
+    - error: ImportError cannot import name 'register' from 'auth'
+      cause: File permissions or wrong name
+      fix: Ensure auth/register.py exists and readable
+    - error: Set-Content Access Denied
+      cause: Windows ACL lock
+      fix: Run PowerShell as Admin and icacls auth /grant "%USERNAME%:(F)" /T
+    - error: pydantic version conflict
+      cause: Dependency mismatch
+      fix: Use pinned pydantic==2.8.2
+    - error: FastAPI/Starlette conflict
+      cause: Starlette too new
+      fix: Use starlette>=0.40.0,<0.50.0
+
+future_modules:
+  - module: /hive
+    description: Network / user graph
+    data_target: Firestore + BigQuery
+  - module: /pulse
+    description: Mood + behavior logs
+    data_target: Vertex AI Dataset + Pub/Sub
+  - module: /market/nft
+    description: Ownership + proof NFTs
+    data_target: Blockchain + Cloud Storage
+  - module: /assistant
+    description: Optima AI persona + dialog layer
+    data_target: Vertex AI Model & Fine-tuning
+  - module: /logs
+    description: Metadata stream
+    data_target: BigQuery analytics table
+
+optima_role:
+  description: >
+    Once deployed, Optima-Core becomes the single AI backplane for all app functions.
+    Each feature (Hive, Pulse, Market) feeds structured behavioral and contextual data 
+    into Vertex AI. Optima's AI agent can learn from this data driving adaptive relationship 
+    insights, predictive recommendations, and emotional and market intelligence feedback loops.
+
+integration:
+  typescript_client: lib/optima-core-client.ts
+  trpc_routes: backend/trpc/routes/r3al/optima/
+  config_file: app/config/optima-core.ts
+  environment_example: .env.example
+  dockerfile: Dockerfile.optima

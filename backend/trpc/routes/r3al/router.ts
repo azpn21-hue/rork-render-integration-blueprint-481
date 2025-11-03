@@ -29,6 +29,10 @@ import { dmSendMessageProcedure } from "./dm/send-message";
 import { dmGetConversationsProcedure } from "./dm/get-conversations";
 import { dmMarkReadProcedure } from "./dm/mark-read";
 import { dmGetMessagesProcedure } from "./dm/get-messages";
+import { optimaHealthProcedure } from "./optima/health";
+import { logPulseProcedure } from "./optima/log-pulse";
+import { submitHiveProcedure } from "./optima/submit-hive";
+import { createNFTProcedure as optimaCreateNFTProcedure } from "./optima/create-nft";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -70,5 +74,11 @@ export const r3alRouter = createTRPCRouter({
     getConversations: dmGetConversationsProcedure,
     markRead: dmMarkReadProcedure,
     getMessages: dmGetMessagesProcedure,
+  }),
+  optima: createTRPCRouter({
+    health: optimaHealthProcedure,
+    logPulse: logPulseProcedure,
+    submitHive: submitHiveProcedure,
+    createNFT: optimaCreateNFTProcedure,
   }),
 });
