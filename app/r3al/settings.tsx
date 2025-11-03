@@ -21,6 +21,12 @@ import {
   ChevronRight,
   Trash2,
   Info,
+  Award,
+  Image,
+  Eye,
+  FileText,
+  HelpCircle,
+  BookOpen,
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -36,6 +42,7 @@ type SettingsItem = {
   id: string;
   label: string;
   type: "toggle" | "select" | "navigation" | "action";
+  icon?: React.ReactNode;
   value?: any;
   options?: { label: string; value: string }[];
   onPress?: () => void;
@@ -145,18 +152,28 @@ export default function SettingsPage() {
           id: "edit_profile",
           label: "Edit Profile",
           type: "navigation",
+          icon: <User size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => router.push("/r3al/profile/setup"),
+        },
+        {
+          id: "view_profile",
+          label: "View My Profile",
+          type: "navigation",
+          icon: <Eye size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
+          onPress: () => router.push("/r3al/profile/view"),
         },
         {
           id: "verification",
           label: "Verification Status",
           type: "navigation",
+          icon: <Shield size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => router.push("/r3al/verification/intro"),
         },
         {
           id: "truth_score",
           label: "Truth Score Details",
           type: "navigation",
+          icon: <Award size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => router.push("/r3al/truth-score-detail"),
         },
       ],
@@ -170,6 +187,7 @@ export default function SettingsPage() {
           id: "profile_privacy",
           label: "Profile Visibility",
           type: "select",
+          icon: <Eye size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           value: localSettings.profilePrivacy,
           options: privacyOptions,
         },
@@ -177,6 +195,7 @@ export default function SettingsPage() {
           id: "photos_privacy",
           label: "Photos Visibility",
           type: "select",
+          icon: <Image size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           value: localSettings.photosPrivacy,
           options: privacyOptions,
         },
@@ -184,6 +203,7 @@ export default function SettingsPage() {
           id: "watchlist_privacy",
           label: "Watchlist Visibility",
           type: "select",
+          icon: <BookOpen size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           value: localSettings.watchlistPrivacy,
           options: privacyOptions,
         },
@@ -256,18 +276,21 @@ export default function SettingsPage() {
           id: "help",
           label: "Help & Support",
           type: "navigation",
+          icon: <HelpCircle size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => Alert.alert("Help", "Help documentation coming soon"),
         },
         {
           id: "legal",
           label: "Legal & Trademarks",
           type: "navigation",
+          icon: <FileText size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => router.push("/r3al/legal"),
         },
         {
           id: "version",
           label: "App Version",
           type: "navigation",
+          icon: <Info size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
           onPress: () => Alert.alert("Version", "R3AL v1.0.0\nBuild 2025.01.03"),
         },
       ],
@@ -293,7 +316,10 @@ export default function SettingsPage() {
       case "toggle":
         return (
           <View key={item.id} style={styles.settingRow}>
-            <Text style={styles.settingLabel}>{item.label}</Text>
+            <View style={styles.settingRowLeft}>
+              {item.icon && <View style={styles.settingIcon}>{item.icon}</View>}
+              <Text style={styles.settingLabel}>{item.label}</Text>
+            </View>
             <Switch
               value={item.value}
               onValueChange={(val) => handleToggle(item.id, val)}
@@ -306,7 +332,10 @@ export default function SettingsPage() {
       case "select":
         return (
           <View key={item.id} style={styles.settingColumn}>
-            <Text style={styles.settingLabel}>{item.label}</Text>
+            <View style={styles.settingRowLeft}>
+              {item.icon && <View style={styles.settingIcon}>{item.icon}</View>}
+              <Text style={styles.settingLabel}>{item.label}</Text>
+            </View>
             <View style={styles.optionsRow}>
               {item.options?.map((option) => (
                 <TouchableOpacity
@@ -346,7 +375,10 @@ export default function SettingsPage() {
             onPress={item.onPress}
             activeOpacity={0.7}
           >
-            <Text style={styles.settingLabel}>{item.label}</Text>
+            <View style={styles.settingRowLeft}>
+              {item.icon && <View style={styles.settingIcon}>{item.icon}</View>}
+              <Text style={styles.settingLabel}>{item.label}</Text>
+            </View>
             <ChevronRight size={20} color={tokens.colors.textSecondary} strokeWidth={2} />
           </TouchableOpacity>
         );
@@ -359,9 +391,12 @@ export default function SettingsPage() {
             onPress={item.onPress}
             activeOpacity={0.7}
           >
-            <Text style={[styles.settingLabel, item.destructive && styles.destructiveText]}>
-              {item.label}
-            </Text>
+            <View style={styles.settingRowLeft}>
+              {item.icon && <View style={styles.settingIcon}>{item.icon}</View>}
+              <Text style={[styles.settingLabel, item.destructive && styles.destructiveText]}>
+                {item.label}
+              </Text>
+            </View>
             <ChevronRight
               size={20}
               color={item.destructive ? tokens.colors.error : tokens.colors.textSecondary}
@@ -517,6 +552,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: tokens.colors.gold + "10",
+  },
+  settingRowLeft: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  settingIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: tokens.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.gold + "30",
   },
   settingColumn: {
     paddingVertical: 16,

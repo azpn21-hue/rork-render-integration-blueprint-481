@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { MessageCircle, Video, Heart, Brain, Send, X, Clock, Shield, Users } from "lucide-react-native";
+import { MessageCircle, Video, Heart, Brain, Send, X, Clock, Shield, Users, ArrowLeft } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import PulseRing from "@/components/PulseRing";
@@ -109,20 +109,22 @@ export default function PulseChatIndex() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
+        <View style={styles.headerBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+            <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Pulse Chat™</Text>
+          <TouchableOpacity
+            style={styles.dmListButton}
+            onPress={() => router.push("/r3al/pulse-chat/dm-list")}
+            activeOpacity={0.7}
+          >
+            <Users size={24} color={tokens.colors.gold} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.header}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>🫀 Pulse Chat</Text>
-              <TouchableOpacity
-                style={styles.dmListButton}
-                onPress={() => router.push("/r3al/pulse-chat/dm-list")}
-                activeOpacity={0.7}
-              >
-                <Users size={24} color={tokens.colors.gold} strokeWidth={2} />
-                <Text style={styles.dmListButtonText}>My Chats</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.subtitle}>Secure • Encrypted • Ephemeral</Text>
+            <Text style={styles.subtitle}>🫀 Secure • Encrypted • Ephemeral</Text>
           </View>
 
           {isLoading ? (
@@ -281,13 +283,7 @@ export default function PulseChatIndex() {
             </>
           )}
 
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.backButtonText}>← Back to Home</Text>
-          </TouchableOpacity>
+
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -301,10 +297,27 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  headerBar: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.gold + "30",
+  },
+  headerBackButton: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
   content: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 20,
   },
   loadingContainer: {
     paddingVertical: 60,
@@ -317,40 +330,18 @@ const styles = StyleSheet.create({
     color: tokens.colors.gold,
   },
   header: {
-    marginBottom: 32,
-  },
-  titleContainer: {
-    flexDirection: "row" as const,
+    marginBottom: 24,
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
   },
   dmListButton: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: tokens.colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 2,
-    borderColor: tokens.colors.gold,
-  },
-  dmListButtonText: {
-    fontSize: 14,
-    fontWeight: "600" as const,
-    color: tokens.colors.gold,
+    padding: 4,
   },
   subtitle: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
+    fontSize: 16,
+    color: tokens.colors.gold,
     letterSpacing: 1,
     textAlign: "center" as const,
+    fontWeight: "600" as const,
   },
   startSection: {
     marginBottom: 32,
@@ -579,13 +570,5 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: "center",
     justifyContent: "center",
-  },
-  backButton: {
-    padding: 16,
-    alignItems: "center",
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: tokens.colors.gold,
   },
 });
