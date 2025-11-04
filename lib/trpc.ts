@@ -6,26 +6,27 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  if (envUrl && envUrl.trim().length > 0) {
+    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
+    return envUrl.replace(/\/$/, "");
+  }
+
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    
+
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:10000";
     }
-    
+
     if (hostname.includes('.rork.live') || hostname.includes('.rork.app')) {
       const baseUrl = window.location.origin;
       console.log("[tRPC] Detected Rork platform, using origin:", baseUrl);
       return baseUrl;
     }
-    
+
     console.log("[tRPC] Using window.location.origin:", window.location.origin);
     return window.location.origin;
-  }
-  
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
   console.log("[tRPC] Defaulting to localhost:10000");
