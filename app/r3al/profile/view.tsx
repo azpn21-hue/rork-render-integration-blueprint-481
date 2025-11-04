@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Animated, TextInput, Image } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Animated, TextInput } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +21,7 @@ import {
 import { useR3al } from "@/app/contexts/R3alContext";
 import PhotoCameraModal from "@/components/PhotoCameraModal";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import SafeImage from "@/components/SafeImage";
 
 export default function ProfileView() {
   const router = useRouter();
@@ -161,9 +162,10 @@ export default function ProfileView() {
           <Animated.View style={[styles.profileCard, { opacity: fadeAnim }]}>
             <View style={styles.coverContainer}>
               {userProfile?.cover ? (
-                <Image 
-                  source={{ uri: userProfile.cover }} 
+                <SafeImage 
+                  source={{ uri: userProfile?.cover ?? undefined }} 
                   style={styles.coverImage}
+                  testID="profile-cover-image"
                 />
               ) : (
                 <LinearGradient
@@ -186,9 +188,10 @@ export default function ProfileView() {
                 <Animated.View style={[styles.avatarContainer, { transform: [{ scale: pulseAnim }] }]}>
                   <View style={[styles.avatarBorder, { borderColor: tokens.colors.gold }]}>
                     {userProfile?.avatar ? (
-                      <Image 
-                        source={{ uri: userProfile.avatar }} 
+                      <SafeImage 
+                        source={{ uri: userProfile?.avatar ?? undefined }} 
                         style={styles.avatarImage}
+                        testID="profile-avatar-image"
                       />
                     ) : (
                       <View style={[styles.avatarPlaceholder, { backgroundColor: tokens.colors.backgroundSecondary }]}>
@@ -348,9 +351,10 @@ export default function ProfileView() {
                   style={styles.photoItem}
                   onLongPress={() => handleDeletePhoto(photo.id)}
                 >
-                  <Image 
-                    source={{ uri: photo.url }} 
+                  <SafeImage 
+                    source={{ uri: photo.url ?? undefined }} 
                     style={styles.galleryImage}
+                    testID={`gallery-photo-${photo.id}`}
                   />
                   {photo.safe && (
                     <View style={[styles.safetyBadge, { backgroundColor: "rgba(0,255,102,0.9)" }]}>
