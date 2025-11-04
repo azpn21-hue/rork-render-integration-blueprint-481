@@ -33,7 +33,10 @@ app.use("*", cors({
 }));
 
 console.log('[Backend] Registering tRPC server at /api/trpc/*');
-console.log('[Backend] Available routes:', Object.keys(appRouter._def.procedures));
+const procedures = Object.keys(appRouter._def.procedures);
+console.log('[Backend] Found', procedures.length, 'available routes');
+console.log('[Backend] Routes:', procedures.slice(0, 10).join(', '), procedures.length > 10 ? `... and ${procedures.length - 10} more` : '');
+
 app.use(
   "/api/trpc/*",
   trpcServer({
@@ -41,13 +44,20 @@ app.use(
     createContext,
     onError({ error, path }) {
       console.error(`[tRPC] Error on ${path}:`, error);
-      console.error(`[tRPC] Error details:`, JSON.stringify(error, null, 2));
+      console.error(`[tRPC] Error code:`, error.code);
+      console.error(`[tRPC] Error message:`, error.message);
     },
   })
 );
 console.log('[Backend] tRPC server registered successfully');
-console.log('[Backend] Full router structure:');
-console.log(JSON.stringify(Object.keys(appRouter._def.procedures), null, 2));
+console.log('[Backend] Checking r3al routes specifically:');
+const r3alRoutes = procedures.filter(p => p.startsWith('r3al.'));
+console.log('[Backend] R3AL routes:', r3alRoutes.length, 'found');
+if (r3alRoutes.length === 0) {
+  console.warn('[Backend] ⚠️  WARNING: No r3al routes found! Check router configuration.');
+} else {
+  console.log('[Backend] R3AL route examples:', r3alRoutes.slice(0, 5).join(', '));
+}
 
 app.get("/", (c) => {
   return c.json({ 
