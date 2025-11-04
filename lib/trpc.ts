@@ -19,7 +19,7 @@ const getBaseUrl = () => {
       return "http://localhost:10000";
     }
 
-    if (hostname.includes('.rork.live') || hostname.includes('.rork.app')) {
+    if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
       const baseUrl = window.location.origin;
       console.log("[tRPC] Detected Rork platform, using origin:", baseUrl);
       return baseUrl;

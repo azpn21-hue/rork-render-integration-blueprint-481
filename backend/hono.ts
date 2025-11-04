@@ -21,7 +21,7 @@ app.use("*", cors({
     
     if (allowed.includes(origin)) return origin;
     
-    if (origin.includes('.rork.live') || origin.includes('.rork.app')) {
+    if (origin.includes('.rork.live') || origin.includes('.rork.app') || origin.includes('.rorktest.dev')) {
       return origin;
     }
     
