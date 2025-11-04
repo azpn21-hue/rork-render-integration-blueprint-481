@@ -38,6 +38,7 @@ export default function R3alLayout() {
       <Stack.Screen name="circles/[circleId]" />
       <Stack.Screen name="circles/[circleId]/members" />
       <Stack.Screen name="circles/[circleId]/dm" />
+      <Stack.Screen name="optima-ai" />
     </Stack>
   );
 }

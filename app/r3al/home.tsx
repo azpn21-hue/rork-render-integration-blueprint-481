@@ -12,7 +12,8 @@ import {
   Coins,
   Users,
   TrendingUp,
-  Zap
+  Zap,
+  Sparkles
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -72,6 +73,22 @@ export default function R3alHome() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
+          <TouchableOpacity
+            style={styles.optimaAiBanner}
+            onPress={() => router.push("/r3al/optima-ai")}
+            activeOpacity={0.85}
+          >
+            <View style={styles.optimaAiIconContainer}>
+              <Sparkles size={32} color={tokens.colors.gold} strokeWidth={2} />
+            </View>
+            <View style={styles.optimaAiContent}>
+              <Text style={styles.optimaAiTitle}>✨ Ask Optima II™</Text>
+              <Text style={styles.optimaAiSubtitle}>
+                Your AI consultant for R3AL features, Trust Scores, and relationship guidance
+              </Text>
+            </View>
+          </TouchableOpacity>
+
           <View style={styles.quickActions}>
             <TouchableOpacity
               style={[styles.quickAction, styles.quickActionPrimary]}
@@ -505,5 +522,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: tokens.colors.gold,
     textDecorationLine: "underline" as const,
+  },
+  optimaAiBanner: {
+    flexDirection: "row" as const,
+    backgroundColor: tokens.colors.surface,
+    padding: 20,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+    marginBottom: 24,
+    gap: 16,
+    alignItems: "center",
+  },
+  optimaAiIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: tokens.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
+  },
+  optimaAiContent: {
+    flex: 1,
+    gap: 4,
+  },
+  optimaAiTitle: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    color: tokens.colors.gold,
+  },
+  optimaAiSubtitle: {
+    fontSize: 13,
+    color: tokens.colors.textSecondary,
+    lineHeight: 18,
   },
 });
