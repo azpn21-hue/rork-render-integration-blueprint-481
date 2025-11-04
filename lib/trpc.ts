@@ -14,16 +14,21 @@ const getBaseUrl = () => {
     }
     
     if (hostname.includes('.rork.live') || hostname.includes('.rork.app')) {
-      return window.location.origin;
+      const baseUrl = window.location.origin;
+      console.log("[tRPC] Detected Rork platform, using origin:", baseUrl);
+      return baseUrl;
     }
     
+    console.log("[tRPC] Using window.location.origin:", window.location.origin);
     return window.location.origin;
   }
   
   if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
+    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
+  console.log("[tRPC] Defaulting to localhost:10000");
   return "http://localhost:10000";
 };
 

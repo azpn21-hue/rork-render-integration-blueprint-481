@@ -4,8 +4,10 @@ import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
 
+console.log('[Backend] Initializing Hono application...');
 const app = new Hono();
 
+console.log('[Backend] Setting up CORS...');
 app.use("*", cors({
   origin: (origin) => {
     const allowed = [
@@ -30,13 +32,18 @@ app.use("*", cors({
   allowHeaders: ["Content-Type", "Authorization"],
 }));
 
+console.log('[Backend] Registering tRPC server at /api/trpc/*');
 app.use(
   "/api/trpc/*",
   trpcServer({
     router: appRouter,
     createContext,
+    onError({ error, path }) {
+      console.error(`[tRPC] Error on ${path}:`, error);
+    },
   })
 );
+console.log('[Backend] tRPC server registered successfully');
 
 app.get("/", (c) => {
   return c.json({ 
