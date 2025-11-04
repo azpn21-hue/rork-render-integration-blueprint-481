@@ -26,7 +26,11 @@ export default function R3alHome() {
   const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    refetchInterval: 30000,
+    refetchInterval: false,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 60000,
+    enabled: !isLoading,
   });
   
   const tokenBalance = balanceQuery.data?.balance || localBalance;

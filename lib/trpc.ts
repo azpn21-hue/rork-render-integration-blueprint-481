@@ -104,24 +104,24 @@ export const trpcClient = trpc.createClient({
             const text = await response.text();
             
             if (response.status === 404) {
-              console.warn("[tRPC] ⚠️  404 - Route not found:", urlString);
-              console.warn("[tRPC] Backend URL:", getBaseUrl());
-              console.warn("[tRPC] This is expected if the backend is not deployed or route is missing.");
-              console.warn("[tRPC] App will continue with local state only.");
+              console.warn("[tRPC] 404 Error - Route not found. Check if backend is running and route exists.");
+            } else if (response.status === 429) {
+              console.warn("[tRPC] ⚠️  429 - Rate limited. Backend is receiving too many requests.");
+              console.warn("[tRPC] This is likely due to hosting provider limits. Request will be retried automatically.");
             } else {
               console.error("[tRPC] Response error:", response.status, "Body:", text.substring(0, 200));
             }
             
+            console.log("[tRPC] Requested URL:", urlString);
             throw new Error(`HTTP ${response.status}: ${response.statusText || text.substring(0, 100)}`);
           }
           console.log("[tRPC] ✅ Request successful:", urlString);
           return response;
         }).catch((error) => {
-          if (error.message && error.message.includes('404')) {
-            console.warn("[tRPC] ⚠️  Backend route unavailable - using local state");
-          } else {
-            console.error("[tRPC] ❌ Fetch failed for:", urlString);
-            console.error("[tRPC] Error:", error.message);
+          console.error("[tRPC] ❌ Fetch failed for:", urlString);
+          console.error("[tRPC] Error:", error.message);
+          if (error.stack) {
+            console.error("[tRPC] Error stack:", error.stack);
           }
           throw error;
         });
