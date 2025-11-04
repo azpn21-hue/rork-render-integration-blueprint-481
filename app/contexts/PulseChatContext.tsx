@@ -1,5 +1,5 @@
 import createContextHook from "@nkzw/create-context-hook";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useR3al } from "./R3alContext";
 
@@ -111,6 +111,19 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
     honestyCheckSession: null,
     isLoading: true,
   });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log("[PulseChat] Load timeout - forcing ready state");
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }, 2000);
+
+    loadState().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const loadState = useCallback(async () => {
     try {

@@ -21,11 +21,25 @@ export default function Index() {
       isLoading: r3alContext.isLoading 
     });
 
+    const timeoutId = setTimeout(() => {
+      if (!hasNavigated) {
+        console.log("[Index] Force navigation after timeout");
+        setHasNavigated(true);
+        try {
+          router.replace("/r3al/splash");
+          console.log("[Index] Navigation initiated (forced)");
+        } catch (error) {
+          console.error("[Index] Navigation error:", error);
+          setDebugInfo(`Nav error: ${error}`);
+        }
+      }
+    }, 2000);
+
     if (!hasNavigated && !r3alContext.isLoading) {
       console.log("[Index] Conditions met, navigating to splash");
       setHasNavigated(true);
+      clearTimeout(timeoutId);
       
-      // Navigate immediately without timeout
       try {
         router.replace("/r3al/splash");
         console.log("[Index] Navigation initiated");
@@ -34,6 +48,8 @@ export default function Index() {
         setDebugInfo(`Nav error: ${error}`);
       }
     }
+
+    return () => clearTimeout(timeoutId);
   }, [router, r3alContext.isLoading, hasNavigated]);
 
   return (

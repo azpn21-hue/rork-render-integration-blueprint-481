@@ -182,7 +182,16 @@ export const [R3alContext, useR3al] = createContextHook(() => {
   });
 
   useEffect(() => {
-    loadState();
+    const timeoutId = setTimeout(() => {
+      console.log("[R3AL] Load timeout - forcing ready state");
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }, 3000);
+
+    loadState().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

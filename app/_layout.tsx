@@ -20,14 +20,17 @@ if (Platform.OS !== 'web') {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: Platform.OS === 'web' ? 0 : 1,
+      retry: false,
       retryDelay: 1000,
       staleTime: 5000,
+      cacheTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
       networkMode: 'offlineFirst',
     },
     mutations: {
-      retry: 0,
+      retry: false,
       networkMode: 'offlineFirst',
     },
   },
