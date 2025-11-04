@@ -185,7 +185,7 @@ export const [R3alContext, useR3al] = createContextHook(() => {
     const timeoutId = setTimeout(() => {
       console.log("[R3AL] Load timeout - forcing ready state");
       setState((prev) => ({ ...prev, isLoading: false }));
-    }, 1000);
+    }, 500);
 
     loadState().finally(() => {
       clearTimeout(timeoutId);

@@ -27,10 +27,10 @@ export default function R3alHome() {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: false,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 0,
+    retryDelay: 1000,
     staleTime: 60000,
-    enabled: !isLoading,
+    enabled: false,
   });
   
   const tokenBalance = balanceQuery.data?.balance || localBalance;

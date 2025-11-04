@@ -28,6 +28,7 @@ const queryClient = new QueryClient({
       refetchOnMount: false,
       refetchOnReconnect: false,
       networkMode: 'offlineFirst',
+      suspense: false,
     },
     mutations: {
       retry: 0,
@@ -38,8 +39,8 @@ const queryClient = new QueryClient({
     log: (...args) => console.log('[ReactQuery]', ...args),
     warn: (...args) => console.warn('[ReactQuery]', ...args),
     error: (error) => {
-      if (error instanceof Error && error.message.includes('404')) {
-        console.warn('[ReactQuery] Ignoring 404 error - backend route not found');
+      if (error instanceof Error && (error.message.includes('404') || error.message.includes('429'))) {
+        console.warn('[ReactQuery] Ignoring error:', error.message.substring(0, 50));
         return;
       }
       console.error('[ReactQuery]', error);

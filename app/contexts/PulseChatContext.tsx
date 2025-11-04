@@ -116,7 +116,7 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
     const timeoutId = setTimeout(() => {
       console.log("[PulseChat] Load timeout - forcing ready state");
       setState((prev) => ({ ...prev, isLoading: false }));
-    }, 800);
+    }, 300);
 
     loadState().finally(() => {
       clearTimeout(timeoutId);
