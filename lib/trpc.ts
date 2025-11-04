@@ -75,7 +75,7 @@ const checkBackendHealth = async () => {
   return backendIsHealthy;
 };
 
-export const trpcClient = trpc.createClient({
+const client = trpc.createClient({
   links: [
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
@@ -129,3 +129,5 @@ export const trpcClient = trpc.createClient({
     }),
   ],
 });
+
+export const trpcClient = client;

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { trpc } from "@/lib/trpc";
+import { trpcClient } from "@/lib/trpc";
+import { Stack } from "expo-router";
 
 export default function BackendTest() {
   const [results, setResults] = useState<Record<string, any>>({});
+  const [isRunningAll, setIsRunningAll] = useState(false);
 
   const tests = [
     {
@@ -24,28 +26,49 @@ export default function BackendTest() {
     {
       name: "Token Balance (tRPC)",
       test: async () => {
-        const result = await trpc.r3al.tokens.getBalance.query();
+        const result = await trpcClient.r3al.tokens.getBalance.query();
         return result;
       },
     },
     {
       name: "QOTD Daily Question",
       test: async () => {
-        const result = await trpc.r3al.qotd.getDaily.query();
+        const result = await trpcClient.r3al.qotd.getDaily.query();
         return result;
       },
     },
     {
       name: "Profile Get",
       test: async () => {
-        const result = await trpc.r3al.profile.getProfile.query({ profileId: "test-user" });
+        const result = await trpcClient.r3al.profile.getProfile.query({ profileId: "test-user" });
         return result;
       },
     },
     {
       name: "Example Hi",
       test: async () => {
-        const result = await trpc.example.hi.query();
+        const result = await trpcClient.example.hi.query();
+        return result;
+      },
+    },
+    {
+      name: "NFT Create (tRPC)",
+      test: async () => {
+        const result = await trpcClient.r3al.createNFT.mutate({
+          name: "Test NFT",
+          description: "Test NFT for backend testing",
+          imageUrl: "https://picsum.photos/400/400",
+          rarity: "common",
+        });
+        return result;
+      },
+    },
+    {
+      name: "Pulse Chat Start Session",
+      test: async () => {
+        const result = await trpcClient.r3al.pulseChat.startSession.mutate({
+          recipientId: "test-recipient",
+        });
         return result;
       },
     },
@@ -68,9 +91,13 @@ export default function BackendTest() {
   };
 
   const runAllTests = async () => {
+    setIsRunningAll(true);
+    setResults({});
     for (const test of tests) {
       await runTest(test.name, test.test);
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
+    setIsRunningAll(false);
   };
 
   const getBaseUrl = () => {
@@ -95,12 +122,21 @@ export default function BackendTest() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ title: "Backend Test", headerShown: true, headerStyle: { backgroundColor: "#000" }, headerTintColor: "#fff" }} />
       <ScrollView style={styles.scrollView}>
         <Text style={styles.title}>Backend Connection Test</Text>
         <Text style={styles.subtitle}>Base URL: {getBaseUrl()}</Text>
 
-        <TouchableOpacity style={styles.button} onPress={runAllTests}>
-          <Text style={styles.buttonText}>Run All Tests</Text>
+        <TouchableOpacity 
+          style={[styles.button, isRunningAll && styles.buttonDisabled]} 
+          onPress={runAllTests}
+          disabled={isRunningAll}
+        >
+          {isRunningAll ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Run All Tests</Text>
+          )}
         </TouchableOpacity>
 
         {tests.map((test) => (
@@ -174,6 +210,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 24,
+  },
+  buttonDisabled: {
+    backgroundColor: "#555",
+    opacity: 0.6,
   },
   buttonText: {
     color: "#fff",
