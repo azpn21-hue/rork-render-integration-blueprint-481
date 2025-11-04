@@ -154,7 +154,7 @@ export const [CirclesContext, useCircles] = createContextHook(() => {
     const timeoutId = setTimeout(() => {
       console.log("[Circles] Load timeout - forcing ready state");
       setState((prev) => ({ ...prev, isLoading: false }));
-    }, 2000);
+    }, 800);
 
     loadState().finally(() => {
       clearTimeout(timeoutId);

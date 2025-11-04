@@ -33,7 +33,7 @@ export default function Index() {
           setDebugInfo(`Nav error: ${error}`);
         }
       }
-    }, 2000);
+    }, 1500);
 
     if (!hasNavigated && !r3alContext.isLoading) {
       console.log("[Index] Conditions met, navigating to splash");
