@@ -27,6 +27,7 @@ import {
   FileText,
   HelpCircle,
   BookOpen,
+  TestTube,
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -264,6 +265,20 @@ export default function SettingsPage() {
           label: "Clear Security Strikes",
           type: "action",
           onPress: handleClearStrikes,
+        },
+      ],
+    },
+    {
+      id: "developer",
+      title: "Developer",
+      icon: <TestTube size={20} color={tokens.colors.gold} strokeWidth={2} />,
+      items: [
+        {
+          id: "test_features",
+          label: "Test Backend Features",
+          type: "navigation",
+          icon: <TestTube size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
+          onPress: () => router.push("/test-features"),
         },
       ],
     },
