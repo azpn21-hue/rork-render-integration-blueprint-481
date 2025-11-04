@@ -2,6 +2,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
+import { Platform } from "react-native";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -75,6 +76,58 @@ const checkBackendHealth = async () => {
   return backendIsHealthy;
 };
 
+async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | undefined, attempt = 1): Promise<Response> {
+  const urlString = typeof url === 'string' ? url : url.toString();
+
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+  }
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...(options?.headers || {}),
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 429 || response.status === 503) {
+      const maxAttempts = 5;
+      if (attempt < maxAttempts) {
+        const baseDelay = 500;
+        const jitter = Math.floor(Math.random() * 250);
+        const delay = Math.min(5000, baseDelay * 2 ** (attempt - 1)) + jitter;
+        console.warn(`[tRPC] ${response.status} received. Retrying attempt ${attempt} in ${delay}ms →`, urlString);
+        await new Promise((r) => setTimeout(r, delay));
+        return fetchWithRetry(url, options, attempt + 1);
+      }
+      console.error(`[tRPC] Exhausted retries (${attempt - 1}) for`, urlString);
+    }
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("[tRPC] Response error:", response.status, "Body:", text.substring(0, 200));
+      throw new Error(`HTTP ${response.status}: ${response.statusText || text.substring(0, 100)}`);
+    }
+
+    return response;
+  } catch (error: any) {
+    console.error("[tRPC] ❌ Fetch failed for:", urlString);
+    console.error("[tRPC] Error:", error.message);
+    if (error.stack) {
+      console.error("[tRPC] Error stack:", error.stack);
+    }
+    if (attempt <= 2) {
+      const delay = 300 + Math.floor(Math.random() * 300);
+      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}) →`, urlString);
+      await new Promise((r) => setTimeout(r, delay));
+      return fetchWithRetry(url, options, attempt + 1);
+    }
+    throw error;
+  }
+}
+
 const client = trpc.createClient({
   links: [
     httpLink({
@@ -91,40 +144,9 @@ const client = trpc.createClient({
           console.warn("[tRPC] ⚠️  Backend might not be available. Attempting request anyway...");
         }
         
-        return fetch(url, {
-          ...options,
-          signal: options?.signal,
-          headers: {
-            ...options?.headers,
-            "Content-Type": "application/json",
-          },
-        }).then(async (response) => {
-          console.log("[tRPC] Response status:", response.status, "for", urlString);
-          if (!response.ok) {
-            const text = await response.text();
-            
-            if (response.status === 404) {
-              console.warn("[tRPC] 404 Error - Route not found. Check if backend is running and route exists.");
-            } else if (response.status === 429) {
-              console.warn("[tRPC] ⚠️  429 - Rate limited. Backend is receiving too many requests.");
-              console.warn("[tRPC] This is likely due to hosting provider limits. Request will be retried automatically.");
-            } else {
-              console.error("[tRPC] Response error:", response.status, "Body:", text.substring(0, 200));
-            }
-            
-            console.log("[tRPC] Requested URL:", urlString);
-            throw new Error(`HTTP ${response.status}: ${response.statusText || text.substring(0, 100)}`);
-          }
-          console.log("[tRPC] ✅ Request successful:", urlString);
-          return response;
-        }).catch((error) => {
-          console.error("[tRPC] ❌ Fetch failed for:", urlString);
-          console.error("[tRPC] Error:", error.message);
-          if (error.stack) {
-            console.error("[tRPC] Error stack:", error.stack);
-          }
-          throw error;
-        });
+        const res = await fetchWithRetry(url, options);
+        console.log("[tRPC] ✅ Request successful:", urlString, "Status:", res.status);
+        return res;
       },
     }),
   ],

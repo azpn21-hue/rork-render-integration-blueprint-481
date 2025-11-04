@@ -1,7 +1,7 @@
 # Rork API Configuration
 # For local development, use http://localhost:10000
 # For production/preview, use the deployed backend URL
-EXPO_PUBLIC_RORK_API_BASE_URL=https://rork-r3al-backend.onrender.com
+EXPO_PUBLIC_RORK_API_BASE_URL=https://rork-optima-api-prod-gq43sdrt-uc.a.run.app
 EXPO_PUBLIC_AI_BASE_URL=http://localhost:9000
 
 # Optima-Core Configuration
