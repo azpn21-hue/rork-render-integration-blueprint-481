@@ -33,6 +33,7 @@ app.use("*", cors({
 }));
 
 console.log('[Backend] Registering tRPC server at /api/trpc/*');
+console.log('[Backend] Available routes:', Object.keys(appRouter._def.procedures));
 app.use(
   "/api/trpc/*",
   trpcServer({
@@ -40,10 +41,13 @@ app.use(
     createContext,
     onError({ error, path }) {
       console.error(`[tRPC] Error on ${path}:`, error);
+      console.error(`[tRPC] Error details:`, JSON.stringify(error, null, 2));
     },
   })
 );
 console.log('[Backend] tRPC server registered successfully');
+console.log('[Backend] Full router structure:');
+console.log(JSON.stringify(Object.keys(appRouter._def.procedures), null, 2));
 
 app.get("/", (c) => {
   return c.json({ 
@@ -58,6 +62,17 @@ app.get("/health", (c) => {
   return c.json({ 
     status: "healthy", 
     message: "R3AL Connection API health check",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/api/routes", (c) => {
+  const procedures = Object.keys(appRouter._def.procedures);
+  return c.json({ 
+    status: "ok",
+    message: "Available tRPC routes",
+    routes: procedures,
+    count: procedures.length,
     timestamp: new Date().toISOString()
   });
 });

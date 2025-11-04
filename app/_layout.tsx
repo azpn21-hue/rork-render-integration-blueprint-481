@@ -20,7 +20,7 @@ if (Platform.OS !== 'web') {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
+      retry: 0,
       retryDelay: 1000,
       staleTime: 5000,
       cacheTime: 10 * 60 * 1000,
@@ -30,8 +30,19 @@ const queryClient = new QueryClient({
       networkMode: 'offlineFirst',
     },
     mutations: {
-      retry: false,
+      retry: 0,
       networkMode: 'offlineFirst',
+    },
+  },
+  logger: {
+    log: (...args) => console.log('[ReactQuery]', ...args),
+    warn: (...args) => console.warn('[ReactQuery]', ...args),
+    error: (error) => {
+      if (error instanceof Error && error.message.includes('404')) {
+        console.warn('[ReactQuery] Ignoring 404 error - backend route not found');
+        return;
+      }
+      console.error('[ReactQuery]', error);
     },
   },
 });
