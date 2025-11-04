@@ -7,9 +7,16 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    const hostname = window.location.hostname;
+    
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:10000";
     }
+    
+    if (hostname.includes('.rork.live') || hostname.includes('.rork.app')) {
+      return window.location.origin;
+    }
+    
     return window.location.origin;
   }
   

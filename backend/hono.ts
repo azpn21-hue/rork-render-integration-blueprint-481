@@ -7,7 +7,24 @@ import { createContext } from "./trpc/create-context";
 const app = new Hono();
 
 app.use("*", cors({
-  origin: ["http://localhost:19006", "http://localhost:8081", "https://rork-r3al-connection.onrender.com"],
+  origin: (origin) => {
+    const allowed = [
+      "http://localhost:19006",
+      "http://localhost:8081",
+      "http://localhost:10000",
+      "https://rork-r3al-connection.onrender.com",
+    ];
+    
+    if (!origin) return true;
+    
+    if (allowed.includes(origin)) return origin;
+    
+    if (origin.includes('.rork.live') || origin.includes('.rork.app')) {
+      return origin;
+    }
+    
+    return false;
+  },
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],

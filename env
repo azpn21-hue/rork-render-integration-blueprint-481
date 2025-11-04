@@ -1,0 +1,20 @@
+# Rork API Configuration
+EXPO_PUBLIC_RORK_API_BASE_URL=http://localhost:10000
+EXPO_PUBLIC_AI_BASE_URL=http://localhost:9000
+
+# Optima-Core Configuration
+EXPO_PUBLIC_OPTIMA_CORE_URL=http://localhost:8080
+EXPO_PUBLIC_OPTIMA_GCP_PROJECT_ID=civic-origin-476705-j8
+EXPO_PUBLIC_OPTIMA_GCP_REGION=us-central1
+EXPO_PUBLIC_OPTIMA_ENV=development
+
+# Backend API Keys
+EXPO_PUBLIC_RORK_API_KEY=rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
+RORK_API_KEY=rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
+RORK_API_URL=https://rork-r3al-connection.onrender.com/inference
+GOOGLE_CLOUD_PROJECT=civic-origin-476705-j8
+GOOGLE_CLOUD_REGION=us-central1
+
+# API Environment
+API_ENV=development
+API_PORT=10000
