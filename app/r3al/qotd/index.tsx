@@ -23,9 +23,25 @@ export default function QotdScreen() {
   const [answer, setAnswer] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const dailyQuery = trpc.r3al.qotd.getDaily.useQuery();
-  const statsQuery = trpc.r3al.qotd.getStats.useQuery();
-  const submitMutation = trpc.r3al.qotd.submitAnswer.useMutation();
+  const dailyQuery = trpc.r3al.qotd.getDaily.useQuery(undefined, {
+    enabled: false,
+    retry: 0,
+    onError: (error) => {
+      console.error('[QotD] Backend unavailable:', error.message);
+    },
+  });
+  const statsQuery = trpc.r3al.qotd.getStats.useQuery(undefined, {
+    enabled: false,
+    retry: 0,
+    onError: (error) => {
+      console.error('[QotD] Stats backend unavailable:', error.message);
+    },
+  });
+  const submitMutation = trpc.r3al.qotd.submitAnswer.useMutation({
+    onError: (error) => {
+      console.error('[QotD] Submit backend unavailable:', error.message);
+    },
+  });
 
   const handleSubmit = async () => {
     if (answer.trim().length < 10) {
@@ -75,19 +91,23 @@ export default function QotdScreen() {
     }
   };
 
-  if (dailyQuery.isLoading || statsQuery.isLoading) {
-    return (
-      <LinearGradient colors={[tokens.colors.background, tokens.colors.surface]} style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <ActivityIndicator size="large" color={tokens.colors.gold} />
-        </SafeAreaView>
-      </LinearGradient>
-    );
-  }
-
-  const question = dailyQuery.data?.question;
-  const meta = dailyQuery.data?.meta;
-  const stats = statsQuery.data;
+  const question = dailyQuery.data?.question || {
+    id: "local_qotd_1",
+    prompt: "What moment today made you feel most authentic? How did you honor your truth in that situation?",
+    category: "self_reflection",
+  };
+  
+  const meta = dailyQuery.data?.meta || {
+    hasAnsweredToday: false,
+    rewardAvailable: 5,
+  };
+  
+  const stats = statsQuery.data || {
+    currentStreak: 0,
+    longestStreak: 0,
+    totalTokensEarned: 0,
+    totalAnswers: 0,
+  };
 
   return (
     <LinearGradient colors={[tokens.colors.background, tokens.colors.surface]} style={styles.container}>

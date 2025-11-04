@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, TrendingUp, TrendingDown, Award, RefreshCw } from "lucide-react-native";
@@ -11,22 +11,22 @@ export default function TokenWallet() {
   const { tokenBalance: localBalance, nfts, userProfile } = useR3al();
   
   const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: 1000,
+    retry: 0,
+    enabled: false,
     onError: (error) => {
-      console.error('[TokenWallet] Balance query error:', error);
+      console.error('[TokenWallet] Balance query error (backend unavailable):', error.message);
     },
   });
   
   const transactionsQuery = trpc.r3al.tokens.getTransactions.useQuery(undefined, {
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: 1000,
+    retry: 0,
+    enabled: false,
     onError: (error) => {
-      console.error('[TokenWallet] Transactions query error:', error);
+      console.error('[TokenWallet] Transactions query error (backend unavailable):', error.message);
     },
   });
   
@@ -37,8 +37,7 @@ export default function TokenWallet() {
     lastUpdated: new Date().toISOString(),
   };
 
-  const isLoading = balanceQuery.isLoading || transactionsQuery.isLoading;
-  const isError = balanceQuery.isError || transactionsQuery.isError;
+  const isLoading = false;
   
   console.log('[TokenWallet] Balance query status:', {
     isLoading: balanceQuery.isLoading,
@@ -112,20 +111,6 @@ export default function TokenWallet() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
-          {isLoading && !tokenBalance ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={tokens.colors.gold} />
-              <Text style={styles.loadingText}>Loading wallet...</Text>
-            </View>
-          ) : isError ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Failed to load wallet data</Text>
-              <TouchableOpacity onPress={handleRefresh} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>Retry</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <>
           <View style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>Available Balance</Text>
             <Text style={styles.balanceValue}>{tokenBalance?.available ?? 0} 🪙</Text>
@@ -204,8 +189,6 @@ export default function TokenWallet() {
               </Text>
             </View>
           </View>
-            </>
-          )}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
