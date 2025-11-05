@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert, Platform, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowRight, CheckCircle, Sparkles } from "lucide-react-native";
-import { useState, useEffect } from "react";
+import { ArrowRight, CheckCircle, Sparkles, ArrowLeft } from "lucide-react-native";
+import { useState, useEffect, useRef } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import PulseRing from "@/components/PulseRing";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -21,6 +21,7 @@ export default function Realification() {
 
   const [answer, setAnswer] = useState("");
   const [pulseColor, setPulseColor] = useState<"green" | "blue" | "crimson">("green");
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (!realificationSession && activeSessionId) {
@@ -150,19 +151,31 @@ export default function Realification() {
             <PulseRing color={pulseColor} intensity={1} size={150} />
           </View>
 
-          <View style={styles.questionCard}>
-            <Text style={styles.question}>{currentQuestion.text}</Text>
-          </View>
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.questionCard}>
+              <Text style={styles.question} selectable={false}>{currentQuestion.text}</Text>
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Your answer..."
-            placeholderTextColor={tokens.colors.textSecondary}
-            value={answer}
-            onChangeText={setAnswer}
-            autoFocus
-            multiline
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="Your answer..."
+              placeholderTextColor={tokens.colors.textSecondary}
+              value={answer}
+              onChangeText={setAnswer}
+              autoFocus
+              multiline
+              textAlignVertical="top"
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollToEnd({ animated: true });
+                }, 100);
+              }}
+            />
+          </ScrollView>
 
           <TouchableOpacity
             style={styles.nextButton}
@@ -176,15 +189,15 @@ export default function Realification() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={styles.backButton}
             onPress={() => {
               Alert.alert(
-                "Cancel Realification™?",
+                "Exit Realification™?",
                 "Your progress will be lost.",
                 [
                   { text: "Continue", style: "cancel" },
                   {
-                    text: "Cancel",
+                    text: "Exit",
                     style: "destructive",
                     onPress: () => {
                       endRealificationSession();
@@ -196,7 +209,8 @@ export default function Realification() {
             }}
             activeOpacity={0.7}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <ArrowLeft size={20} color={tokens.colors.textSecondary} strokeWidth={2} />
+            <Text style={styles.cancelButtonText}>Back to Chat</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -275,9 +289,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold" as const,
     color: tokens.colors.background,
   },
-  cancelButton: {
-    padding: 16,
+  backButton: {
+    flexDirection: "row" as const,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 16,
   },
   cancelButtonText: {
     fontSize: 16,

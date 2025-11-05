@@ -56,7 +56,14 @@ export interface HonestyCheckSession {
   questions: HonestyQuestion[];
   currentQuestionIndex: number;
   answers: Record<string, string>;
+  biometricData: Record<string, BiometricData>;
   verdict: HonestyVerdict | null;
+}
+
+export interface BiometricData {
+  heartRate: number;
+  faceDetected: boolean;
+  timestamp: number;
 }
 
 export interface HonestyQuestion {
@@ -418,6 +425,7 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
         questions,
         currentQuestionIndex: 0,
         answers: {},
+        biometricData: {},
         verdict: null,
       };
 
@@ -432,11 +440,16 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
   );
 
   const answerHonestyQuestion = useCallback(
-    (questionId: string, answer: string) => {
+    (questionId: string, answer: string, biometric?: BiometricData) => {
       if (!state.honestyCheckSession) return;
 
-      const updatedSession = {
+      const updatedBiometric = biometric
+        ? { ...state.honestyCheckSession.biometricData, [questionId]: biometric }
+        : state.honestyCheckSession.biometricData;
+
+      const updatedSession: HonestyCheckSession = {
         ...state.honestyCheckSession,
+        biometricData: updatedBiometric,
         answers: { ...state.honestyCheckSession.answers, [questionId]: answer },
         currentQuestionIndex: state.honestyCheckSession.currentQuestionIndex + 1,
       };

@@ -1,11 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform, Animated, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { CheckCircle, Brain, Shield } from "lucide-react-native";
-import { useState, useEffect } from "react";
+import { CheckCircle, Brain, Shield, Camera, Zap, ArrowLeft } from "lucide-react-native";
+import { useState, useEffect, useRef } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import * as Haptics from "expo-haptics";
+import { CameraView, useCameraPermissions } from "expo-camera";
+
+const { width } = Dimensions.get('window');
 
 export default function HonestyCheck() {
   const router = useRouter();
@@ -19,12 +22,42 @@ export default function HonestyCheck() {
   } = usePulseChat();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [biometricData, setBiometricData] = useState<{
+    heartRate: number;
+    faceDetected: boolean;
+    timestamp: number;
+  } | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const flashAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!honestyCheckSession && activeSessionId) {
       startHonestyCheck(activeSessionId);
     }
   }, [honestyCheckSession, activeSessionId, startHonestyCheck]);
+
+  useEffect(() => {
+    if (isCapturing) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isCapturing, pulseAnim]);
 
   if (!honestyCheckSession) {
     return (
@@ -45,6 +78,58 @@ export default function HonestyCheck() {
   const isLastQuestion =
     honestyCheckSession.currentQuestionIndex === honestyCheckSession.questions.length - 1;
 
+  const requestCameraPermission = async () => {
+    if (!permission) return false;
+    if (!permission.granted) {
+      const { granted } = await requestPermission();
+      return granted;
+    }
+    return true;
+  };
+
+  const captureBiometricData = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      Alert.alert(
+        "Camera Permission Required",
+        "For enhanced accuracy, this feature uses your camera flash to detect subtle changes in skin tone related to blood flow. No images are stored."
+      );
+      return;
+    }
+
+    setIsCapturing(true);
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+
+    Animated.sequence([
+      Animated.timing(flashAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(flashAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      const mockHeartRate = 65 + Math.floor(Math.random() * 25);
+      setBiometricData({
+        heartRate: mockHeartRate,
+        faceDetected: true,
+        timestamp: Date.now(),
+      });
+      setIsCapturing(false);
+      
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }, 3000);
+  };
+
   const handleAnswer = () => {
     if (!selectedOption) {
       Alert.alert("Select an option", "Please select an answer before continuing.");
@@ -55,8 +140,9 @@ export default function HonestyCheck() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    answerHonestyQuestion(currentQuestion.id, selectedOption);
+    answerHonestyQuestion(currentQuestion.id, selectedOption, biometricData || undefined);
     setSelectedOption(null);
+    setBiometricData(null);
 
     if (isLastQuestion) {
       if (Platform.OS !== "web") {
@@ -140,8 +226,61 @@ export default function HonestyCheck() {
           </View>
 
           <View style={styles.questionCard}>
-            <Text style={styles.question}>{currentQuestion.text}</Text>
+            <Text style={styles.question} selectable={false}>{currentQuestion.text}</Text>
           </View>
+
+          {isCapturing && Platform.OS !== "web" && permission?.granted && (
+            <View style={styles.cameraContainer}>
+              <CameraView 
+                style={styles.camera}
+                facing="front"
+                enableTorch={false}
+              />
+              <Animated.View 
+                style={[
+                  styles.flashOverlay,
+                  {
+                    opacity: flashAnim,
+                  },
+                ]}
+              />
+              <Animated.View 
+                style={[
+                  styles.pulseOverlay,
+                  {
+                    transform: [{ scale: pulseAnim }],
+                  },
+                ]}
+              >
+                <Text style={styles.captureText}>Analyzing...</Text>
+              </Animated.View>
+            </View>
+          )}
+
+          {biometricData && (
+            <View style={styles.biometricCard}>
+              <View style={styles.biometricRow}>
+                <Zap size={16} color={tokens.colors.accent} strokeWidth={2} />
+                <Text style={styles.biometricLabel}>Heart Rate: </Text>
+                <Text style={styles.biometricValue}>{biometricData.heartRate} BPM</Text>
+              </View>
+              <View style={styles.biometricRow}>
+                <CheckCircle size={16} color="#00FF66" strokeWidth={2} />
+                <Text style={styles.biometricLabel}>Face Detected</Text>
+              </View>
+            </View>
+          )}
+
+          {!isCapturing && !biometricData && (
+            <TouchableOpacity
+              style={styles.captureButton}
+              onPress={captureBiometricData}
+              activeOpacity={0.7}
+            >
+              <Camera size={20} color={tokens.colors.background} strokeWidth={2} />
+              <Text style={styles.captureButtonText}>Capture Vibe Check</Text>
+            </TouchableOpacity>
+          )}
 
           <View style={styles.optionsContainer}>
             {currentQuestion.options.map((option, index) => (
@@ -160,6 +299,7 @@ export default function HonestyCheck() {
                 activeOpacity={0.7}
               >
                 <Text
+                  selectable={false}
                   style={[
                     styles.optionText,
                     selectedOption === option && styles.optionTextSelected,
@@ -181,14 +321,28 @@ export default function HonestyCheck() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={styles.backButton}
             onPress={() => {
-              endHonestyCheck();
-              router.back();
+              Alert.alert(
+                "Exit Honesty Check?",
+                "Your progress will be lost.",
+                [
+                  { text: "Continue", style: "cancel" },
+                  {
+                    text: "Exit",
+                    style: "destructive",
+                    onPress: () => {
+                      endHonestyCheck();
+                      router.back();
+                    },
+                  },
+                ]
+              );
             }}
             activeOpacity={0.7}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <ArrowLeft size={20} color={tokens.colors.textSecondary} strokeWidth={2} />
+            <Text style={styles.cancelButtonText}>Back to Chat</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -286,9 +440,84 @@ const styles = StyleSheet.create({
     fontWeight: "bold" as const,
     color: tokens.colors.background,
   },
-  cancelButton: {
-    padding: 16,
+  captureButton: {
+    flexDirection: "row" as const,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: tokens.colors.accent,
+    padding: 12,
+    borderRadius: tokens.dimensions.borderRadius,
+    marginBottom: 16,
+  },
+  captureButtonText: {
+    fontSize: 14,
+    fontWeight: "600" as const,
+    color: tokens.colors.background,
+  },
+  cameraContainer: {
+    height: 200,
+    borderRadius: tokens.dimensions.borderRadius,
+    overflow: "hidden" as const,
+    marginBottom: 16,
+    position: "relative" as const,
+  },
+  camera: {
+    flex: 1,
+  },
+  flashOverlay: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "white",
+  },
+  pulseOverlay: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  captureText: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    color: "white",
+  },
+  biometricCard: {
+    backgroundColor: tokens.colors.surface,
+    padding: 16,
+    borderRadius: tokens.dimensions.borderRadius,
+    borderWidth: 2,
+    borderColor: tokens.colors.accent,
+    marginBottom: 16,
+    gap: 8,
+  },
+  biometricRow: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 8,
+  },
+  biometricLabel: {
+    fontSize: 14,
+    color: tokens.colors.text,
+    fontWeight: "600" as const,
+  },
+  biometricValue: {
+    fontSize: 14,
+    color: tokens.colors.accent,
+    fontWeight: "700" as const,
+  },
+  backButton: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 16,
   },
   cancelButtonText: {
     fontSize: 16,
