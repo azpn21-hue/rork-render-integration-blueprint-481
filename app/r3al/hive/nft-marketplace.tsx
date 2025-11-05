@@ -215,22 +215,26 @@ const styles = StyleSheet.create({
   },
   nftInfo: {
     padding: 16,
-    gap: 4,
+    gap: 8,
+    minHeight: 140,
   },
   nftTitle: {
     fontSize: 18,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
+    marginBottom: 4,
   },
   nftCreator: {
     fontSize: 14,
     color: tokens.colors.textSecondary,
+    marginBottom: 4,
   },
   nftDescription: {
     fontSize: 14,
     color: tokens.colors.text,
     lineHeight: 20,
     marginTop: 8,
+    marginBottom: 8,
   },
   priceRow: {
     flexDirection: "row" as const,

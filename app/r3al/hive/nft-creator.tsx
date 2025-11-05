@@ -415,16 +415,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: tokens.colors.textSecondary,
     marginBottom: 8,
+    textAlign: "center" as const,
   },
   balanceValue: {
     fontSize: 36,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
-    marginBottom: 4,
+    marginBottom: 8,
+    textAlign: "center" as const,
   },
   balanceSubtext: {
     fontSize: 12,
     color: tokens.colors.text,
+    textAlign: "center" as const,
   },
   previewCard: {
     backgroundColor: tokens.colors.surface,
@@ -494,6 +497,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: tokens.colors.gold + "30",
     backgroundColor: tokens.colors.surface,
+    minWidth: 110,
   },
   styleChipActive: {
     borderColor: tokens.colors.gold,
@@ -594,10 +598,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
     marginBottom: 12,
+    textAlign: "center" as const,
   },
   infoText: {
     fontSize: 14,
     color: tokens.colors.text,
-    lineHeight: 22,
+    lineHeight: 24,
   },
 });

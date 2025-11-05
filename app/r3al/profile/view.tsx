@@ -545,11 +545,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 12,
     borderWidth: 1.5,
+    maxWidth: "100%",
   },
   badgeText: {
     fontSize: 10,
     fontWeight: "700" as const,
     letterSpacing: 0.5,
+    flexShrink: 1,
   },
   bioContainer: {
     flexDirection: "row",
@@ -580,15 +582,18 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 14,
     gap: 6,
+    minWidth: 70,
   },
   statValue: {
     fontSize: 18,
     fontWeight: "700" as const,
+    textAlign: "center" as const,
   },
   statLabel: {
     fontSize: 11,
     fontWeight: "600" as const,
     textTransform: "uppercase" as const,
+    textAlign: "center" as const,
   },
   actionRow: {
     flexDirection: "row",
@@ -635,6 +640,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
+    minWidth: 100,
   },
   addPhotoItem: {
     justifyContent: "center",
