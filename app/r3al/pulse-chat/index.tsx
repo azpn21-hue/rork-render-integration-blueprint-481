@@ -17,12 +17,18 @@ export default function PulseChatIndex() {
   const activeSession = getActiveSession();
 
   useEffect(() => {
-    loadState();
+    console.log("[PulseChat] Mounting screen, calling loadState");
+    loadState().catch((err) => {
+      console.error("[PulseChat] Failed to load state:", err);
+    });
   }, [loadState]);
 
   useEffect(() => {
+    console.log("[PulseChat] State check:", { isLoading, hasActiveSession: !!activeSession, activeSessionId });
     if (!isLoading && !activeSession && !activeSessionId) {
-      console.log("🫀 [PulseChat] No active session found");
+      console.log("🫀 [PulseChat] No active session found - ready for new session");
+    } else if (!isLoading && activeSession) {
+      console.log("🫀 [PulseChat] Active session:", activeSession.id);
     }
   }, [activeSession, activeSessionId, isLoading]);
 
