@@ -9,6 +9,15 @@ console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`⏰ Started at: ${new Date().toISOString()}`);
 console.log('='.repeat(60));
 
+console.log('📦 Registering path aliases...');
+require('tsconfig-paths').register({
+  baseUrl: __dirname,
+  paths: {
+    '@/*': ['./*']
+  }
+});
+console.log('✅ Path aliases registered');
+
 require('ts-node').register({
   transpileOnly: true,
   compilerOptions: {

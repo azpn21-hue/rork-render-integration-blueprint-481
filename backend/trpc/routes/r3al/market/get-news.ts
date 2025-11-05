@@ -1,4 +1,4 @@
-import { protectedProcedure } from "@/backend/trpc/create-context";
+import { protectedProcedure } from "../../../create-context";
 import { z } from "zod";
 
 export const getMarketNewsProcedure = protectedProcedure

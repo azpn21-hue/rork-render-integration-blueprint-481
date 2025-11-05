@@ -1,4 +1,4 @@
-import { createTRPCRouter } from "@/backend/trpc/create-context";
+import { createTRPCRouter } from "../../create-context";
 import { verifyIdentityProcedure } from "./verify-identity/route";
 import { riseNAnalyzeProcedure } from "./riseN-analyze/route";
 import { optimaOptimizeProcedure } from "./optima-optimize/route";
