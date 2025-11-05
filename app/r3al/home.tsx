@@ -241,6 +241,54 @@ export default function R3alHome() {
                   Manage photos and endorsements
                 </Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/feed")}
+                activeOpacity={0.8}
+              >
+                <MessageCircle size={32} color="#6C5DD3" strokeWidth={2} />
+                <Text style={styles.featureTitle}>R3AL Feed</Text>
+                <Text style={styles.featureDescription}>
+                  Share and discover community posts
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/market-pulse")}
+                activeOpacity={0.8}
+              >
+                <TrendingUp size={32} color="#10B981" strokeWidth={2} />
+                <Text style={styles.featureTitle}>Market Pulse</Text>
+                <Text style={styles.featureDescription}>
+                  Live market data and insights
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/ai-insights")}
+                activeOpacity={0.8}
+              >
+                <Sparkles size={32} color="#8B5CF6" strokeWidth={2} />
+                <Text style={styles.featureTitle}>AI Insights</Text>
+                <Text style={styles.featureDescription}>
+                  Personalized growth analysis
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/local-discover")}
+                activeOpacity={0.8}
+              >
+                <Compass size={32} color="#F59E0B" strokeWidth={2} />
+                <Text style={styles.featureTitle}>Local Discovery</Text>
+                <Text style={styles.featureDescription}>
+                  Explore nearby news and events
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 

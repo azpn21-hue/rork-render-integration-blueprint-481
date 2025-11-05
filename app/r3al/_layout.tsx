@@ -39,6 +39,10 @@ export default function R3alLayout() {
       <Stack.Screen name="circles/[circleId]/members" />
       <Stack.Screen name="circles/[circleId]/dm" />
       <Stack.Screen name="optima-ai" />
+      <Stack.Screen name="feed" />
+      <Stack.Screen name="market-pulse" />
+      <Stack.Screen name="ai-insights" />
+      <Stack.Screen name="local-discover" />
     </Stack>
   );
 }

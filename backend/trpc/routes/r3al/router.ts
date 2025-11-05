@@ -33,6 +33,20 @@ import { optimaHealthProcedure } from "./optima/health";
 import { logPulseProcedure } from "./optima/log-pulse";
 import { submitHiveProcedure } from "./optima/submit-hive";
 import { createNFTProcedure as optimaCreateNFTProcedure } from "./optima/create-nft";
+import { createPostProcedure } from "./feed/create-post";
+import { getTrendingProcedure } from "./feed/get-trending";
+import { getLocalProcedure } from "./feed/get-local";
+import { likePostProcedure } from "./feed/like-post";
+import { commentPostProcedure } from "./feed/comment-post";
+import { getMarketSummaryProcedure } from "./market/get-summary";
+import { getTrendingSymbolsProcedure } from "./market/get-trending-symbols";
+import { getMarketNewsProcedure } from "./market/get-news";
+import { getInsightsProcedure } from "./ai/get-insights";
+import { getPersonalizedSummaryProcedure } from "./ai/get-personalized-summary";
+import { analyzeTrendsProcedure } from "./ai/analyze-trends";
+import { getLocalNewsProcedure } from "./location/get-local-news";
+import { getLocalEventsProcedure } from "./location/get-local-events";
+import { getNearbyUsersProcedure } from "./location/get-nearby-users";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -80,5 +94,27 @@ export const r3alRouter = createTRPCRouter({
     logPulse: logPulseProcedure,
     submitHive: submitHiveProcedure,
     createNFT: optimaCreateNFTProcedure,
+  }),
+  feed: createTRPCRouter({
+    createPost: createPostProcedure,
+    getTrending: getTrendingProcedure,
+    getLocal: getLocalProcedure,
+    likePost: likePostProcedure,
+    commentPost: commentPostProcedure,
+  }),
+  market: createTRPCRouter({
+    getSummary: getMarketSummaryProcedure,
+    getTrendingSymbols: getTrendingSymbolsProcedure,
+    getNews: getMarketNewsProcedure,
+  }),
+  ai: createTRPCRouter({
+    getInsights: getInsightsProcedure,
+    getPersonalizedSummary: getPersonalizedSummaryProcedure,
+    analyzeTrends: analyzeTrendsProcedure,
+  }),
+  location: createTRPCRouter({
+    getLocalNews: getLocalNewsProcedure,
+    getLocalEvents: getLocalEventsProcedure,
+    getNearbyUsers: getNearbyUsersProcedure,
   }),
 });
