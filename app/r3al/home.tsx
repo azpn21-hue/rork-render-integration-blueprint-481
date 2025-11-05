@@ -100,7 +100,7 @@ export default function R3alHome() {
               activeOpacity={0.8}
             >
               <Compass size={28} color={tokens.colors.background} strokeWidth={2} />
-              <Text style={styles.quickActionText}>Explore</Text>
+              <Text style={styles.quickActionText} numberOfLines={1}>Explore</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -109,7 +109,7 @@ export default function R3alHome() {
               activeOpacity={0.8}
             >
               <Hexagon size={28} color="#00FF66" strokeWidth={2} />
-              <Text style={styles.quickActionText}>Circles</Text>
+              <Text style={styles.quickActionText} numberOfLines={1}>Circles</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -118,7 +118,7 @@ export default function R3alHome() {
               activeOpacity={0.8}
             >
               <Heart size={28} color="#EF4444" strokeWidth={2} />
-              <Text style={styles.quickActionText}>Pulse</Text>
+              <Text style={styles.quickActionText} numberOfLines={1}>Pulse</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -127,7 +127,7 @@ export default function R3alHome() {
               activeOpacity={0.8}
             >
               <Coins size={28} color={tokens.colors.gold} strokeWidth={2} />
-              <Text style={styles.quickActionText}>Tokens</Text>
+              <Text style={styles.quickActionText} numberOfLines={1}>Tokens</Text>
             </TouchableOpacity>
           </View>
 
@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700" as const,
     color: tokens.colors.text,
+    textAlign: "center" as const,
   },
   section: {
     marginBottom: 24,

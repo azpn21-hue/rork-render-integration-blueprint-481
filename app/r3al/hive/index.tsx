@@ -60,10 +60,12 @@ export default function HiveHome() {
               <View style={styles.menuIconContainer}>
                 <Plus size={32} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.menuTitle}>Create NFT</Text>
-              <Text style={styles.menuDescription}>
-                Mint new NFTs using Trust-Tokens
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuTitle}>Create NFT</Text>
+                <Text style={styles.menuDescription}>
+                  Mint new NFTs using Trust-Tokens
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -74,10 +76,12 @@ export default function HiveHome() {
               <View style={styles.menuIconContainer}>
                 <ImageIcon size={32} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.menuTitle}>My Gallery</Text>
-              <Text style={styles.menuDescription}>
-                View and manage your NFT collection
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuTitle}>My Gallery</Text>
+                <Text style={styles.menuDescription}>
+                  View and manage your NFT collection
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -88,10 +92,12 @@ export default function HiveHome() {
               <View style={styles.menuIconContainer}>
                 <Store size={32} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.menuTitle}>Marketplace</Text>
-              <Text style={styles.menuDescription}>
-                Browse and purchase NFTs
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuTitle}>Marketplace</Text>
+                <Text style={styles.menuDescription}>
+                  Browse and purchase NFTs
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -102,10 +108,12 @@ export default function HiveHome() {
               <View style={styles.menuIconContainer}>
                 <Wallet size={32} color={tokens.colors.gold} strokeWidth={2} />
               </View>
-              <Text style={styles.menuTitle}>Token Wallet</Text>
-              <Text style={styles.menuDescription}>
-                View balance and transaction history
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuTitle}>Token Wallet</Text>
+                <Text style={styles.menuDescription}>
+                  View balance and transaction history
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -225,17 +233,12 @@ const styles = StyleSheet.create({
     borderColor: tokens.colors.gold,
   },
   menuTitle: {
-    flex: 1,
     fontSize: 18,
     fontWeight: "bold" as const,
     color: tokens.colors.gold,
     marginBottom: 4,
   },
   menuDescription: {
-    position: "absolute",
-    left: 92,
-    right: 20,
-    bottom: 20,
     fontSize: 14,
     color: tokens.colors.textSecondary,
     lineHeight: 20,
