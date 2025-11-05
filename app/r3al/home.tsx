@@ -114,7 +114,7 @@ export default function R3alHome() {
 
             <TouchableOpacity
               style={styles.quickAction}
-              onPress={() => router.push("/r3al/pulse-chat/index")}
+              onPress={() => router.push("/r3al/pulse-chat")}
               activeOpacity={0.8}
             >
               <Heart size={28} color="#EF4444" strokeWidth={2} />
@@ -196,7 +196,7 @@ export default function R3alHome() {
             <View style={styles.featuredGrid}>
               <TouchableOpacity
                 style={styles.featureCard}
-                onPress={() => router.push("/r3al/qotd/index")}
+                onPress={() => router.push("/r3al/qotd")}
                 activeOpacity={0.8}
               >
                 <MessageCircle size={32} color="#8B5CF6" strokeWidth={2} />
@@ -208,7 +208,7 @@ export default function R3alHome() {
 
               <TouchableOpacity
                 style={styles.featureCard}
-                onPress={() => router.push("/r3al/hive/index")}
+                onPress={() => router.push("/r3al/hive")}
                 activeOpacity={0.8}
               >
                 <Hexagon size={32} color={tokens.colors.gold} strokeWidth={2} />

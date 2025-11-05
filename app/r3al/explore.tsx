@@ -185,7 +185,7 @@ export default function ExplorePage() {
           activeOpacity={0.7}
           onPress={() => {
             console.log(`Message ${user.name}`);
-            router.push("/r3al/pulse-chat/index");
+            router.push("/r3al/pulse-chat");
           }}
         >
           <MessageCircle size={18} color={tokens.colors.gold} strokeWidth={2} />

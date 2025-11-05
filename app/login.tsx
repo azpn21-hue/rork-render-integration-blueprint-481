@@ -17,6 +17,7 @@ import { LogIn, Mail, Lock, Code } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { AUTH_STORAGE_KEYS, DEV_CREDENTIALS } from "@/app/config/constants";
+import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function LoginScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <LinearGradient colors={["#000000", "#1a1a1a", "#0a0a0a"]} style={styles.gradient}>
+      <LinearGradient colors={[tokens.colors.background, tokens.colors.surface, tokens.colors.background]} style={styles.gradient}>
         <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -62,7 +63,7 @@ export default function LoginScreen() {
             >
               <View style={styles.header}>
                 <View style={styles.iconContainer}>
-                  <LogIn color="#D4AF37" size={48} />
+                  <LogIn color={tokens.colors.gold} size={48} />
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Sign in to R3AL Connection</Text>
@@ -75,7 +76,7 @@ export default function LoginScreen() {
                     onPress={fillAdminCredentials}
                     activeOpacity={0.7}
                   >
-                    <Code size={16} color="#D4AF37" />
+                    <Code size={16} color={tokens.colors.gold} />
                     <View style={styles.devBadgeContent}>
                       <Text style={styles.devBadgeTitle}>Developer Mode</Text>
                       <Text style={styles.devBadgeText}>Tap to fill admin credentials</Text>
@@ -84,12 +85,12 @@ export default function LoginScreen() {
                 )}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputIcon}>
-                    <Mail color="#D4AF37" size={20} />
+                    <Mail color={tokens.colors.gold} size={20} />
                   </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Email"
-                    placeholderTextColor="#666666"
+                    placeholderTextColor={tokens.colors.textSecondary}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -101,12 +102,12 @@ export default function LoginScreen() {
 
                 <View style={styles.inputGroup}>
                   <View style={styles.inputIcon}>
-                    <Lock color="#D4AF37" size={20} />
+                    <Lock color={tokens.colors.gold} size={20} />
                   </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Password"
-                    placeholderTextColor="#666666"
+                    placeholderTextColor={tokens.colors.textSecondary}
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
@@ -130,7 +131,7 @@ export default function LoginScreen() {
                   testID="login-submit-button"
                 >
                   {isLoggingIn ? (
-                    <ActivityIndicator color="#000000" />
+                    <ActivityIndicator color={tokens.colors.background} />
                   ) : (
                     <Text style={styles.buttonText}>Sign In</Text>
                   )}
@@ -181,20 +182,22 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    backgroundColor: tokens.colors.surface,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
   },
   title: {
     fontSize: 32,
     fontWeight: "700" as const,
-    color: "#D4AF37",
+    color: tokens.colors.gold,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#888888",
+    color: tokens.colors.textSecondary,
   },
   form: {
     gap: 16,
@@ -202,10 +205,10 @@ const styles = StyleSheet.create({
   inputGroup: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(26, 26, 26, 0.8)",
+    backgroundColor: tokens.colors.surface,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.2)",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold + "50",
     paddingHorizontal: 16,
     height: 56,
   },
@@ -214,7 +217,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: "#FFFFFF",
+    color: tokens.colors.text,
     fontSize: 16,
   },
   errorContainer: {
@@ -236,10 +239,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryButton: {
-    backgroundColor: "#D4AF37",
+    backgroundColor: tokens.colors.gold,
   },
   buttonText: {
-    color: "#000000",
+    color: tokens.colors.background,
     fontSize: 16,
     fontWeight: "600" as const,
   },
@@ -251,20 +254,20 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(212, 175, 55, 0.2)",
+    backgroundColor: tokens.colors.gold + "30",
   },
   dividerText: {
-    color: "#666666",
+    color: tokens.colors.textSecondary,
     fontSize: 14,
     marginHorizontal: 16,
   },
   secondaryButton: {
     backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: "#D4AF37",
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
   },
   secondaryButtonText: {
-    color: "#D4AF37",
+    color: tokens.colors.gold,
     fontSize: 16,
     fontWeight: "600" as const,
   },
@@ -272,9 +275,9 @@ const styles = StyleSheet.create({
     flexDirection: "row" as const,
     alignItems: "center",
     gap: 12,
-    backgroundColor: "rgba(212, 175, 55, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(212, 175, 55, 0.3)",
+    backgroundColor: tokens.colors.surface,
+    borderWidth: 2,
+    borderColor: tokens.colors.gold,
     borderRadius: 12,
     padding: 12,
   },
@@ -285,10 +288,10 @@ const styles = StyleSheet.create({
   devBadgeTitle: {
     fontSize: 14,
     fontWeight: "600" as const,
-    color: "#D4AF37",
+    color: tokens.colors.gold,
   },
   devBadgeText: {
     fontSize: 12,
-    color: "#888888",
+    color: tokens.colors.textSecondary,
   },
 });
