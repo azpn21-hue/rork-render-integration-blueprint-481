@@ -31,7 +31,7 @@ export default function AIInsightsScreen() {
     switch (priority) {
       case "high": return "#EF4444";
       case "medium": return "#F59E0B";
-      case "low": return "#6C5DD3";
+      case "low": return "#FF6B3D";
       default: return "#8E92BC";
     }
   };
@@ -42,7 +42,7 @@ export default function AIInsightsScreen() {
         options={{
           headerShown: true,
           title: "AI Insights",
-          headerStyle: { backgroundColor: "#0A0E27" },
+          headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
         }}
       />
@@ -68,20 +68,20 @@ export default function AIInsightsScreen() {
           <RefreshControl
             refreshing={insightsQuery.isLoading}
             onRefresh={insightsQuery.refetch}
-            tintColor="#6C5DD3"
+            tintColor="#FF6B3D"
           />
         }
       >
         {insightsQuery.isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#6C5DD3" />
+            <ActivityIndicator size="large" color="#FF6B3D" />
           </View>
         )}
 
         {summaryQuery.data && (
           <View style={styles.summaryCard}>
             <View style={styles.summaryHeader}>
-              <Brain size={24} color="#6C5DD3" />
+              <Brain size={24} color="#FF6B3D" />
               <Text style={styles.summaryTitle}>AI Summary</Text>
             </View>
             <Text style={styles.summaryText}>{summaryQuery.data.overallSummary}</Text>
@@ -134,7 +134,7 @@ export default function AIInsightsScreen() {
                     </View>
                     {insight.actionable && (
                       <View style={styles.actionableBadge}>
-                        <Target size={12} color="#6C5DD3" />
+                        <Target size={12} color="#FF6B3D" />
                         <Text style={styles.actionableText}>Actionable</Text>
                       </View>
                     )}
@@ -167,7 +167,7 @@ export default function AIInsightsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A0E27",
+    backgroundColor: "#000000",
   },
   timeframeSelector: {
     flexDirection: "row",
@@ -179,11 +179,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     alignItems: "center",
   },
   timeframeButtonActive: {
-    backgroundColor: "#6C5DD3",
+    backgroundColor: "#FF6B3D",
   },
   timeframeText: {
     color: "#8E92BC",
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   summaryCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 20,
     gap: 12,
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   metricCard: {
     flex: 1,
     minWidth: "45%",
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     color: "#EF4444",
   },
   insightCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -317,15 +317,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: "rgba(108, 93, 211, 0.2)",
+    backgroundColor: "rgba(255, 107, 61, 0.2)",
   },
   actionableText: {
-    color: "#6C5DD3",
+    color: "#FF6B3D",
     fontSize: 11,
     fontWeight: "600" as const,
   },
   recommendationCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -342,13 +342,13 @@ const styles = StyleSheet.create({
   },
   recommendationBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "#2A2F4F",
+    backgroundColor: "#1A1A1A",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
   },
   recommendationBadgeText: {
-    color: "#6C5DD3",
+    color: "#FF6B3D",
     fontSize: 11,
     fontWeight: "600" as const,
     textTransform: "capitalize",

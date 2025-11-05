@@ -47,7 +47,7 @@ export default function MarketPulseScreen() {
         options={{
           headerShown: true,
           title: "Market Pulse",
-          headerStyle: { backgroundColor: "#0A0E27" },
+          headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
         }}
       />
@@ -75,12 +75,12 @@ export default function MarketPulseScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#6C5DD3" />
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#FF6B3D" />
         }
       >
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#6C5DD3" />
+            <ActivityIndicator size="large" color="#FF6B3D" />
           </View>
         )}
 
@@ -107,7 +107,7 @@ export default function MarketPulseScreen() {
                   </View>
                   <View style={styles.marketFooter}>
                     <View style={styles.priceContainer}>
-                      <DollarSign size={16} color="#6C5DD3" />
+                      <DollarSign size={16} color="#FF6B3D" />
                       <Text style={styles.price}>{index.price.toFixed(2)}</Text>
                     </View>
                     <Text style={styles.volume}>Vol: {(index.volume / 1000000).toFixed(1)}M</Text>
@@ -129,7 +129,7 @@ export default function MarketPulseScreen() {
                   </View>
                   <View style={styles.marketFooter}>
                     <View style={styles.priceContainer}>
-                      <DollarSign size={16} color="#6C5DD3" />
+                      <DollarSign size={16} color="#FF6B3D" />
                       <Text style={styles.price}>{coin.price.toLocaleString()}</Text>
                     </View>
                     <Text style={styles.volume}>Vol: {(coin.volume / 1000000000).toFixed(1)}B</Text>
@@ -145,7 +145,7 @@ export default function MarketPulseScreen() {
             {newsQuery.data.news.map((article) => (
               <View key={article.id} style={styles.newsCard}>
                 <View style={styles.newsHeader}>
-                  <Newspaper size={16} color="#6C5DD3" />
+                  <Newspaper size={16} color="#FF6B3D" />
                   <Text style={styles.newsSource}>{article.source}</Text>
                   <View style={styles.categoryBadge}>
                     <Text style={styles.categoryText}>{article.category}</Text>
@@ -168,12 +168,12 @@ export default function MarketPulseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A0E27",
+    backgroundColor: "#000000",
   },
   tabBar: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#1E2139",
+    borderBottomColor: "#121212",
     paddingHorizontal: 16,
   },
   tab: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#6C5DD3",
+    borderBottomColor: "#FF6B3D",
   },
   tabText: {
     fontSize: 16,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   sentimentCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 20,
     alignItems: "center",
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     fontWeight: "700" as const,
   },
   sentimentScore: {
-    color: "#6C5DD3",
+    color: "#FF6B3D",
     fontSize: 16,
     fontWeight: "600" as const,
   },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   marketCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   newsCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -309,13 +309,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   newsSource: {
-    color: "#6C5DD3",
+    color: "#FF6B3D",
     fontSize: 12,
     fontWeight: "600" as const,
     flex: 1,
   },
   categoryBadge: {
-    backgroundColor: "#2A2F4F",
+    backgroundColor: "#1A1A1A",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,

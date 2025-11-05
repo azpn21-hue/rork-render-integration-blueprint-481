@@ -8,7 +8,58 @@ export const getMarketSummaryProcedure = protectedProcedure
     })
   )
   .query(async ({ input }) => {
-    console.log("[Market] Fetching market summary");
+    console.log("[Market] Fetching live market summary");
+
+    let cryptoData = null;
+
+    try {
+      const cryptoResponse = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true"
+      );
+      if (cryptoResponse.ok) {
+        const crypto = await cryptoResponse.json();
+        cryptoData = [
+          {
+            symbol: "BTC",
+            name: "Bitcoin",
+            price: crypto.bitcoin?.usd || 43250,
+            change: ((crypto.bitcoin?.usd_24h_change || 0) * crypto.bitcoin?.usd) / 100,
+            changePercent: crypto.bitcoin?.usd_24h_change || 0,
+            volume: crypto.bitcoin?.usd_24h_vol || 28000000000,
+          },
+          {
+            symbol: "ETH",
+            name: "Ethereum",
+            price: crypto.ethereum?.usd || 2250,
+            change: ((crypto.ethereum?.usd_24h_change || 0) * crypto.ethereum?.usd) / 100,
+            changePercent: crypto.ethereum?.usd_24h_change || 0,
+            volume: crypto.ethereum?.usd_24h_vol || 15000000000,
+          },
+          {
+            symbol: "SOL",
+            name: "Solana",
+            price: crypto.solana?.usd || 98,
+            change: ((crypto.solana?.usd_24h_change || 0) * crypto.solana?.usd) / 100,
+            changePercent: crypto.solana?.usd_24h_change || 0,
+            volume: crypto.solana?.usd_24h_vol || 980000000,
+          },
+        ];
+        console.log("[Market] ✅ Fetched live crypto data");
+      }
+    } catch (error) {
+      console.error("[Market] ❌ Failed to fetch crypto data:", error);
+    }
+
+    const calculateSentiment = () => {
+      if (!cryptoData) {
+        return { overall: "neutral", score: 50, trending: ["tech", "crypto", "ai"] };
+      }
+      const avgChange = cryptoData.reduce((sum, coin) => sum + coin.changePercent, 0) / cryptoData.length;
+      if (avgChange > 2) return { overall: "bullish", score: 75, trending: ["tech", "crypto", "ai"] };
+      if (avgChange > 0) return { overall: "positive", score: 60, trending: ["tech", "crypto"] };
+      if (avgChange > -2) return { overall: "neutral", score: 50, trending: ["tech"] };
+      return { overall: "bearish", score: 35, trending: ["bonds", "safe-haven"] };
+    };
 
     const mockMarketData = {
       timestamp: new Date().toISOString(),
@@ -38,7 +89,7 @@ export const getMarketSummaryProcedure = protectedProcedure
           volume: 56789012,
         },
       ],
-      crypto: [
+      crypto: cryptoData || [
         {
           symbol: "BTC",
           name: "Bitcoin",
@@ -64,15 +115,11 @@ export const getMarketSummaryProcedure = protectedProcedure
           volume: 987654321,
         },
       ],
-      sentiment: {
-        overall: "bullish",
-        score: 72,
-        trending: ["tech", "crypto", "ai"],
-      },
+      sentiment: calculateSentiment(),
       lastUpdated: new Date().toISOString(),
     };
 
-    console.log("[Market] Returning market summary");
+    console.log("[Market] Returning market summary with", cryptoData ? "live" : "mock", "crypto data");
 
     return {
       success: true,

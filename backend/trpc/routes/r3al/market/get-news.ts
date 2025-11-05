@@ -9,7 +9,34 @@ export const getMarketNewsProcedure = protectedProcedure
     })
   )
   .query(async ({ input }) => {
-    console.log("[Market] Fetching market news");
+    console.log("[Market] Fetching live market news");
+
+    let liveNews: any[] = [];
+
+    try {
+      const newsResponse = await fetch(
+        "https://newsdata.io/api/1/news?apikey=pub_6383218e01e5b3ec5d58f0f6f29fce8f8ad81&q=market%20OR%20stock%20OR%20crypto%20OR%20bitcoin%20OR%20economy&language=en&category=business"
+      );
+      if (newsResponse.ok) {
+        const newsData = await newsResponse.json();
+        if (newsData.results && Array.isArray(newsData.results)) {
+          liveNews = newsData.results.slice(0, input.limit).map((article: any, index: number) => ({
+            id: `news_live_${index}`,
+            title: article.title || "Market Update",
+            summary: article.description || article.content?.substring(0, 150) + "..." || "Latest market news.",
+            source: article.source_id || "Market News",
+            url: article.link || "https://example.com",
+            timestamp: article.pubDate || new Date().toISOString(),
+            category: article.category?.[0] === "business" ? "stocks" : "all",
+            sentiment: article.sentiment || "neutral",
+            relevance: 0.9,
+          }));
+          console.log("[Market] ✅ Fetched", liveNews.length, "live news articles");
+        }
+      }
+    } catch (error) {
+      console.error("[Market] ❌ Failed to fetch live news:", error);
+    }
 
     const mockNews = [
       {
@@ -69,13 +96,14 @@ export const getMarketNewsProcedure = protectedProcedure
       },
     ];
 
+    const allNews = liveNews.length > 0 ? liveNews : mockNews;
     const filteredNews = input.category === "all" 
-      ? mockNews 
-      : mockNews.filter(n => n.category === input.category);
+      ? allNews 
+      : allNews.filter(n => n.category === input.category);
 
     const news = filteredNews.slice(0, input.limit);
 
-    console.log("[Market] Returning", news.length, "news items");
+    console.log("[Market] Returning", news.length, liveNews.length > 0 ? "live" : "mock", "news items");
 
     return {
       success: true,

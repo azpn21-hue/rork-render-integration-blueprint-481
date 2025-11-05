@@ -64,7 +64,7 @@ export default function FeedScreen() {
         options={{
           headerShown: true,
           title: "R3AL Feed",
-          headerStyle: { backgroundColor: "#0A0E27" },
+          headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
         }}
       />
@@ -95,7 +95,7 @@ export default function FeedScreen() {
           <RefreshControl
             refreshing={isLoading}
             onRefresh={refetch}
-            tintColor="#6C5DD3"
+            tintColor="#FF6B3D"
           />
         }
       >
@@ -149,7 +149,7 @@ export default function FeedScreen() {
 
         {isLoading && !posts && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#6C5DD3" />
+            <ActivityIndicator size="large" color="#FF6B3D" />
             <Text style={styles.loadingText}>Loading feed...</Text>
           </View>
         )}
@@ -227,12 +227,12 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A0E27",
+    backgroundColor: "#000000",
   },
   tabBar: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#1E2139",
+    borderBottomColor: "#121212",
     paddingHorizontal: 16,
   },
   tab: {
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#6C5DD3",
+    borderBottomColor: "#FF6B3D",
   },
   tabText: {
     fontSize: 16,
@@ -260,12 +260,12 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   createPostButton: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#2A2F4F",
+    borderColor: "#333333",
     borderStyle: "dashed",
   },
   createPostButtonText: {
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     fontWeight: "600" as const,
   },
   newPostCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    backgroundColor: "#2A2F4F",
+    backgroundColor: "#1A1A1A",
   },
   cancelButtonText: {
     color: "#8E92BC",
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    backgroundColor: "#6C5DD3",
+    backgroundColor: "#FF6B3D",
   },
   postButtonDisabled: {
     opacity: 0.5,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     fontWeight: "600" as const,
   },
   postCard: {
-    backgroundColor: "#1E2139",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#2A2F4F",
+    backgroundColor: "#1A1A1A",
   },
   postHeaderInfo: {
     flex: 1,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   tierBadge: {
-    backgroundColor: "#6C5DD3",
+    backgroundColor: "#FF6B3D",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tag: {
-    backgroundColor: "#2A2F4F",
+    backgroundColor: "#1A1A1A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
