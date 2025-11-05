@@ -185,7 +185,7 @@ export default function PulseChatIndex() {
                     </Text>
                   </View>
                   <View style={styles.sessionMetaItem}>
-                    <Shield size={14} color={tokens.colors.highlight} strokeWidth={2} />
+                    <Shield size={14} color={tokens.colors.accent} strokeWidth={2} />
                     <Text style={styles.sessionMeta}>
                       Encrypted • Auto-delete {new Date(activeSession.autoDeleteTime).toLocaleDateString()}
                     </Text>
@@ -217,7 +217,7 @@ export default function PulseChatIndex() {
                   onPress={handleStartHonestyCheck}
                   activeOpacity={0.7}
                 >
-                  <Brain size={32} color={tokens.colors.highlight} strokeWidth={1.5} />
+                  <Brain size={32} color={tokens.colors.accent} strokeWidth={1.5} />
                   <Text style={styles.featureText}>Honesty Check</Text>
                 </TouchableOpacity>
               </View>
@@ -259,7 +259,7 @@ export default function PulseChatIndex() {
                         <Text style={styles.messageContent}>{msg.content}</Text>
                         {msg.encrypted && (
                           <View style={styles.encryptedBadge}>
-                            <Shield size={10} color={tokens.colors.highlight} strokeWidth={2} />
+                            <Shield size={10} color={tokens.colors.accent} strokeWidth={2} />
                             <Text style={styles.encryptedText}>Encrypted</Text>
                           </View>
                         )}
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   },
   encryptedText: {
     fontSize: 9,
-    color: tokens.colors.highlight,
+    color: tokens.colors.accent,
     fontWeight: "600" as const,
   },
   inputSection: {

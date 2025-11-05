@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   motto: {
     fontSize: 18,
-    color: "#FF6B3D",
+    color: tokens.colors.gold,
     letterSpacing: 1,
     marginBottom: 20,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#20B2AA",
+    backgroundColor: tokens.colors.accent,
   },
   bpmText: {
     fontSize: 14,
