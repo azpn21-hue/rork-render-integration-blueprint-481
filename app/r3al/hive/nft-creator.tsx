@@ -58,6 +58,24 @@ export default function NFTCreator() {
           stylePrompt = "Transform this into a unique NFT art style that makes it look like a valuable digital collectible.";
       }
 
+      let base64Image = sourceImage;
+      if (sourceImage.startsWith('data:')) {
+        base64Image = sourceImage.split(',')[1];
+      } else if (sourceImage.startsWith('file://')) {
+        const response = await fetch(sourceImage);
+        const blob = await response.blob();
+        base64Image = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            resolve(base64.split(',')[1]);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      console.log("[NFT Creator] Sending transform request...");
       const response = await fetch("https://toolkit.rork.com/images/edit/", {
         method: "POST",
         headers: {
@@ -68,7 +86,7 @@ export default function NFTCreator() {
           images: [
             {
               type: "image",
-              image: sourceImage,
+              image: base64Image,
             },
           ],
           aspectRatio: "1:1",
@@ -76,6 +94,8 @@ export default function NFTCreator() {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[NFT Creator] API error:", errorText);
         throw new Error(`Failed to transform image: ${response.statusText}`);
       }
 
@@ -89,7 +109,7 @@ export default function NFTCreator() {
       console.error("[NFT Creator] Transform error:", error);
       Alert.alert(
         "Transform Failed",
-        "Failed to transform image. Please try again or select a different style."
+        error instanceof Error ? error.message : "Failed to transform image. Please try again or select a different style."
       );
     } finally {
       setIsTransforming(false);
