@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, Alert, Platform } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Stack } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { MessageCircle, Video, Heart, Brain, Send, X, Clock, Shield, Users, ArrowLeft } from "lucide-react-native";
+import { MessageCircle, Video, Heart, Brain, Send, X, Clock, Shield, Users } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { usePulseChat } from "@/app/contexts/PulseChatContext";
 import PulseRing from "@/components/PulseRing";
@@ -110,24 +110,35 @@ export default function PulseChatIndex() {
   };
 
   return (
-    <LinearGradient
-      colors={[tokens.colors.background, tokens.colors.surface]}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.headerBar}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-            <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pulse Chat™</Text>
-          <TouchableOpacity
-            style={styles.dmListButton}
-            onPress={() => router.push("/r3al/pulse-chat/dm-list")}
-            activeOpacity={0.7}
-          >
-            <Users size={24} color={tokens.colors.gold} strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
+    <>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: "Pulse Chat™",
+          headerStyle: {
+            backgroundColor: tokens.colors.background,
+          },
+          headerTintColor: tokens.colors.gold,
+          headerTitleStyle: {
+            fontWeight: "bold" as const,
+            fontSize: 20,
+          },
+          headerRight: () => (
+            <TouchableOpacity
+              style={{ marginRight: 8 }}
+              onPress={() => router.push("/r3al/pulse-chat/dm-list")}
+              activeOpacity={0.7}
+            >
+              <Users size={24} color={tokens.colors.gold} strokeWidth={2} />
+            </TouchableOpacity>
+          ),
+        }} 
+      />
+      <LinearGradient
+        colors={[tokens.colors.background, tokens.colors.surface]}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.header}>
             <Text style={styles.subtitle}>🫀 Secure • Encrypted • Ephemeral</Text>
@@ -293,6 +304,7 @@ export default function PulseChatIndex() {
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
+    </>
   );
 }
 
@@ -302,23 +314,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-  },
-  headerBar: {
-    flexDirection: "row" as const,
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: tokens.colors.gold + "30",
-  },
-  headerBackButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold" as const,
-    color: tokens.colors.gold,
   },
   content: {
     flexGrow: 1,
@@ -339,9 +334,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     alignItems: "center",
   },
-  dmListButton: {
-    padding: 4,
-  },
+
   subtitle: {
     fontSize: 16,
     color: tokens.colors.gold,
