@@ -23,19 +23,19 @@ function createQueryClient() {
       queries: {
         retry: (failureCount, error) => {
           const message = error instanceof Error ? error.message : String(error);
-          if (/HTTP\s(429|503)/.test(message) && failureCount < 4) return true;
+          if (/HTTP\s(429|503)/.test(message)) return false;
           if (/HTTP\s404/.test(message)) return false;
-          return failureCount < 2;
+          return failureCount < 1;
         },
         retryDelay: (attempt) => {
-          const baseDelay = 1000;
-          return Math.min(8000, baseDelay * Math.pow(2, attempt - 1)) + Math.floor(Math.random() * 500);
+          const baseDelay = 3000;
+          return Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000);
         },
-        staleTime: 30_000,
+        staleTime: 60_000,
         gcTime: 30 * 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        refetchOnReconnect: true,
+        refetchOnReconnect: false,
         networkMode: 'online',
         suspense: false,
       },

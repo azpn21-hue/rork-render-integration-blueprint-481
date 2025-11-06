@@ -83,7 +83,7 @@ const checkBackendHealth = async () => {
 
 const requestQueue: (() => Promise<Response>)[] = [];
 let isProcessingQueue = false;
-const MAX_CONCURRENT_REQUESTS = 2;
+const MAX_CONCURRENT_REQUESTS = 1;
 let activeRequests = 0;
 
 async function processQueue() {
@@ -98,7 +98,7 @@ async function processQueue() {
         .finally(() => {
           activeRequests--;
         });
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 500));
     }
   }
 
@@ -130,10 +130,10 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     });
 
     if (response.status === 429 || response.status === 503) {
-      const maxAttempts = 6;
+      const maxAttempts = 2;
       if (attempt < maxAttempts) {
-        const baseDelay = 1000;
-        const jitter = Math.floor(Math.random() * 500);
+        const baseDelay = 2000;
+        const jitter = Math.floor(Math.random() * 1000);
         const delay = Math.min(10000, baseDelay * Math.pow(2, attempt - 1)) + jitter;
         console.warn(`[tRPC] ${response.status} received. Retrying attempt ${attempt}/${maxAttempts} in ${delay}ms →`, urlString);
         await new Promise((r) => setTimeout(r, delay));
@@ -155,9 +155,9 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     if (error.stack) {
       console.error("[tRPC] Error stack:", error.stack);
     }
-    if (attempt <= 3) {
-      const delay = 500 + Math.floor(Math.random() * 500);
-      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/3) →`, urlString);
+    if (attempt <= 2) {
+      const delay = 1000 + Math.floor(Math.random() * 1000);
+      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/2) →`, urlString);
       await new Promise((r) => setTimeout(r, delay));
       return fetchWithRetry(url, options, attempt + 1);
     }
