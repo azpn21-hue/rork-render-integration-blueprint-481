@@ -7,6 +7,12 @@ import { Platform } from "react-native";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  if (envUrl && envUrl.trim().length > 0) {
+    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
+    return envUrl.replace(/\/$/, "");
+  }
+
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
 
@@ -15,19 +21,12 @@ const getBaseUrl = () => {
     }
 
     if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
-      const baseUrl = window.location.origin;
-      console.log("[tRPC] Detected Rork platform, using origin:", baseUrl);
-      return baseUrl;
+      console.log("[tRPC] Detected Rork platform, backend should be at localhost:10000");
+      return "http://localhost:10000";
     }
 
     console.log("[tRPC] Using window.location.origin:", window.location.origin);
     return window.location.origin;
-  }
-
-  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
-    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
-    return envUrl.replace(/\/$/, "");
   }
 
   console.log("[tRPC] Defaulting to localhost:10000");
