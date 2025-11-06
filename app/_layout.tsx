@@ -23,21 +23,30 @@ function createQueryClient() {
       queries: {
         retry: (failureCount, error) => {
           const message = error instanceof Error ? error.message : String(error);
-          if (/HTTP\s(429|503)/.test(message) && failureCount < 3) return true;
-          return false;
+          if (/HTTP\s(429|503)/.test(message) && failureCount < 4) return true;
+          if (/HTTP\s404/.test(message)) return false;
+          return failureCount < 2;
         },
-        retryDelay: (attempt) => Math.min(5000, 500 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 250),
-        staleTime: 10_000,
-        gcTime: 15 * 60 * 1000,
+        retryDelay: (attempt) => {
+          const baseDelay = 1000;
+          return Math.min(8000, baseDelay * Math.pow(2, attempt - 1)) + Math.floor(Math.random() * 500);
+        },
+        staleTime: 30_000,
+        gcTime: 30 * 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        refetchOnReconnect: false,
-        networkMode: 'offlineFirst',
+        refetchOnReconnect: true,
+        networkMode: 'online',
         suspense: false,
       },
       mutations: {
-        retry: 1,
-        networkMode: 'offlineFirst',
+        retry: (failureCount, error) => {
+          const message = error instanceof Error ? error.message : String(error);
+          if (/HTTP\s(429|503)/.test(message) && failureCount < 2) return true;
+          return false;
+        },
+        retryDelay: (attempt) => 1000 + Math.floor(Math.random() * 1000),
+        networkMode: 'online',
       },
     },
     logger: {
@@ -45,7 +54,7 @@ function createQueryClient() {
       warn: (...args) => console.warn('[ReactQuery]', ...args),
       error: (error) => {
         if (error instanceof Error && (error.message.includes('404') || error.message.includes('429'))) {
-          console.warn('[ReactQuery] Ignoring error:', error.message.substring(0, 50));
+          console.warn('[ReactQuery] Suppressed error:', error.message.substring(0, 50));
           return;
         }
         console.error('[ReactQuery]', error);

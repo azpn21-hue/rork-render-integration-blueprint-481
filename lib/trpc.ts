@@ -81,12 +81,44 @@ const checkBackendHealth = async () => {
   return backendIsHealthy;
 };
 
+const requestQueue: (() => Promise<Response>)[] = [];
+let isProcessingQueue = false;
+const MAX_CONCURRENT_REQUESTS = 2;
+let activeRequests = 0;
+
+async function processQueue() {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+
+  while (requestQueue.length > 0 && activeRequests < MAX_CONCURRENT_REQUESTS) {
+    const request = requestQueue.shift();
+    if (request) {
+      activeRequests++;
+      request()
+        .finally(() => {
+          activeRequests--;
+        });
+      await new Promise(r => setTimeout(r, 200));
+    }
+  }
+
+  isProcessingQueue = false;
+}
+
 async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | undefined, attempt = 1): Promise<Response> {
   const urlString = typeof url === 'string' ? url : url.toString();
 
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     await new Promise((r) => requestAnimationFrame(() => r(undefined)));
   }
+
+  await new Promise(resolve => {
+    requestQueue.push(async () => {
+      resolve(undefined);
+      return new Response();
+    });
+    processQueue();
+  });
 
   try {
     const response = await fetch(url, {
@@ -98,16 +130,16 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     });
 
     if (response.status === 429 || response.status === 503) {
-      const maxAttempts = 5;
+      const maxAttempts = 6;
       if (attempt < maxAttempts) {
-        const baseDelay = 500;
-        const jitter = Math.floor(Math.random() * 250);
-        const delay = Math.min(5000, baseDelay * 2 ** (attempt - 1)) + jitter;
-        console.warn(`[tRPC] ${response.status} received. Retrying attempt ${attempt} in ${delay}ms →`, urlString);
+        const baseDelay = 1000;
+        const jitter = Math.floor(Math.random() * 500);
+        const delay = Math.min(10000, baseDelay * Math.pow(2, attempt - 1)) + jitter;
+        console.warn(`[tRPC] ${response.status} received. Retrying attempt ${attempt}/${maxAttempts} in ${delay}ms →`, urlString);
         await new Promise((r) => setTimeout(r, delay));
         return fetchWithRetry(url, options, attempt + 1);
       }
-      console.error(`[tRPC] Exhausted retries (${attempt - 1}) for`, urlString);
+      console.error(`[tRPC] Exhausted retries (${maxAttempts}) for`, urlString);
     }
 
     if (!response.ok) {
@@ -123,9 +155,9 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     if (error.stack) {
       console.error("[tRPC] Error stack:", error.stack);
     }
-    if (attempt <= 2) {
-      const delay = 300 + Math.floor(Math.random() * 300);
-      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}) →`, urlString);
+    if (attempt <= 3) {
+      const delay = 500 + Math.floor(Math.random() * 500);
+      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/3) →`, urlString);
       await new Promise((r) => setTimeout(r, delay));
       return fetchWithRetry(url, options, attempt + 1);
     }

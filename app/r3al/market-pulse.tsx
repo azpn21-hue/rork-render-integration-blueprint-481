@@ -27,6 +27,7 @@ export default function MarketPulseScreen() {
   );
 
   const isLoading = activeTab === "summary" ? summaryQuery.isLoading : newsQuery.isLoading;
+  const error = activeTab === "summary" ? summaryQuery.error : newsQuery.error;
   const refetch = activeTab === "summary" ? summaryQuery.refetch : newsQuery.refetch;
 
   const renderChangeIndicator = (change: number) => {
@@ -78,9 +79,22 @@ export default function MarketPulseScreen() {
           <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#FF6B3D" />
         }
       >
-        {isLoading && (
+        {isLoading && !summaryQuery.data && !newsQuery.data && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#FF6B3D" />
+            <Text style={styles.loadingText}>Loading market data...</Text>
+          </View>
+        )}
+
+        {error && !summaryQuery.data && !newsQuery.data && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>Unable to load market data</Text>
+            <Text style={styles.errorSubtext}>
+              The server is experiencing high traffic. Cached data will be shown when available.
+            </Text>
+            <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -203,6 +217,11 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: "center",
     padding: 32,
+    gap: 12,
+  },
+  loadingText: {
+    color: "#8E92BC",
+    fontSize: 14,
   },
   sentimentCard: {
     backgroundColor: "#121212",
@@ -339,5 +358,32 @@ const styles = StyleSheet.create({
   newsTime: {
     color: "#8E92BC",
     fontSize: 12,
+  },
+  errorContainer: {
+    alignItems: "center",
+    padding: 48,
+    gap: 12,
+  },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 18,
+    fontWeight: "700" as const,
+  },
+  errorSubtext: {
+    color: "#8E92BC",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: "#FF6B3D",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600" as const,
   },
 });

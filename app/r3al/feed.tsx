@@ -56,6 +56,7 @@ export default function FeedScreen() {
 
   const posts = activeTab === "trending" ? trendingQuery.data?.posts : localQuery.data?.posts;
   const isLoading = activeTab === "trending" ? trendingQuery.isLoading : localQuery.isLoading;
+  const error = activeTab === "trending" ? trendingQuery.error : localQuery.error;
   const refetch = activeTab === "trending" ? trendingQuery.refetch : localQuery.refetch;
 
   return (
@@ -151,6 +152,18 @@ export default function FeedScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#FF6B3D" />
             <Text style={styles.loadingText}>Loading feed...</Text>
+          </View>
+        )}
+
+        {error && !posts && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>Unable to load feed</Text>
+            <Text style={styles.errorSubtext}>
+              The server is experiencing high traffic. Please try again.
+            </Text>
+            <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -433,5 +446,32 @@ const styles = StyleSheet.create({
   emptyStateSubtext: {
     color: "#8E92BC",
     fontSize: 14,
+  },
+  errorContainer: {
+    alignItems: "center",
+    padding: 48,
+    gap: 12,
+  },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 18,
+    fontWeight: "700" as const,
+  },
+  errorSubtext: {
+    color: "#8E92BC",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: "#FF6B3D",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600" as const,
   },
 });
