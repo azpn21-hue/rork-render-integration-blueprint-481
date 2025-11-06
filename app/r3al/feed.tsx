@@ -23,12 +23,22 @@ export default function FeedScreen() {
 
   const trendingQuery = trpc.r3al.feed.getTrending.useQuery(
     { limit: 25, offset: 0 },
-    { enabled: activeTab === "trending" }
+    { 
+      enabled: activeTab === "trending",
+      staleTime: 30000,
+      retry: 1,
+      retryDelay: 3000,
+    }
   );
 
   const localQuery = trpc.r3al.feed.getLocal.useQuery(
     { lat: 30.2672, lon: -97.7431, radius: 25, limit: 25 },
-    { enabled: activeTab === "local" }
+    { 
+      enabled: activeTab === "local",
+      staleTime: 30000,
+      retry: 1,
+      retryDelay: 3000,
+    }
   );
 
   const createPostMutation = trpc.r3al.feed.createPost.useMutation({
@@ -159,9 +169,17 @@ export default function FeedScreen() {
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>Unable to load feed</Text>
             <Text style={styles.errorSubtext}>
-              The server is experiencing high traffic. Please try again.
+              {error.message?.includes('Too many requests') || error.message?.includes('429')
+                ? "The server is experiencing high traffic. Please wait a moment before trying again."
+                : "The backend may be offline. Please check your connection and try again."}
             </Text>
-            <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+            <TouchableOpacity 
+              style={styles.retryButton} 
+              onPress={() => {
+                console.log("[Feed] Manual retry initiated");
+                refetch();
+              }}
+            >
               <Text style={styles.retryButtonText}>Retry</Text>
             </TouchableOpacity>
           </View>

@@ -105,8 +105,18 @@ async function processQueue() {
   isProcessingQueue = false;
 }
 
+const requestCache = new Map<string, { data: Response; timestamp: number }>();
+const CACHE_DURATION = 5000;
+
 async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | undefined, attempt = 1): Promise<Response> {
   const urlString = typeof url === 'string' ? url : url.toString();
+
+  const cacheKey = `${urlString}_${options?.method || 'GET'}`;
+  const cached = requestCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log("[tRPC] Using cached response for:", urlString);
+    return cached.data.clone();
+  }
 
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     await new Promise((r) => requestAnimationFrame(() => r(undefined)));
@@ -130,16 +140,17 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     });
 
     if (response.status === 429 || response.status === 503) {
-      const maxAttempts = 2;
+      const maxAttempts = 1;
       if (attempt < maxAttempts) {
-        const baseDelay = 2000;
-        const jitter = Math.floor(Math.random() * 1000);
-        const delay = Math.min(10000, baseDelay * Math.pow(2, attempt - 1)) + jitter;
+        const baseDelay = 5000;
+        const jitter = Math.floor(Math.random() * 2000);
+        const delay = Math.min(15000, baseDelay * Math.pow(2, attempt - 1)) + jitter;
         console.warn(`[tRPC] ${response.status} received. Retrying attempt ${attempt}/${maxAttempts} in ${delay}ms →`, urlString);
         await new Promise((r) => setTimeout(r, delay));
         return fetchWithRetry(url, options, attempt + 1);
       }
-      console.error(`[tRPC] Exhausted retries (${maxAttempts}) for`, urlString);
+      console.error(`[tRPC] Rate limited. Backing off for`, urlString);
+      throw new Error(`HTTP ${response.status}: Too many requests. Please wait a moment and try again.`);
     }
 
     if (!response.ok) {
@@ -148,16 +159,18 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
       throw new Error(`HTTP ${response.status}: ${response.statusText || text.substring(0, 100)}`);
     }
 
+    requestCache.set(cacheKey, { data: response.clone(), timestamp: Date.now() });
+
     return response;
   } catch (error: any) {
+    if (error.message?.includes('Too many requests')) {
+      throw error;
+    }
     console.error("[tRPC] ❌ Fetch failed for:", urlString);
     console.error("[tRPC] Error:", error.message);
-    if (error.stack) {
-      console.error("[tRPC] Error stack:", error.stack);
-    }
-    if (attempt <= 2) {
-      const delay = 1000 + Math.floor(Math.random() * 1000);
-      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/2) →`, urlString);
+    if (attempt === 1) {
+      const delay = 2000 + Math.floor(Math.random() * 1000);
+      console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/1) →`, urlString);
       await new Promise((r) => setTimeout(r, delay));
       return fetchWithRetry(url, options, attempt + 1);
     }

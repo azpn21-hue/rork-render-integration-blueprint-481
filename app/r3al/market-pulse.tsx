@@ -18,12 +18,22 @@ export default function MarketPulseScreen() {
 
   const summaryQuery = trpc.r3al.market.getSummary.useQuery(
     {},
-    { enabled: activeTab === "summary" }
+    { 
+      enabled: activeTab === "summary",
+      staleTime: 30000,
+      retry: 1,
+      retryDelay: 3000,
+    }
   );
 
   const newsQuery = trpc.r3al.market.getNews.useQuery(
     { limit: 20, category: "all" },
-    { enabled: activeTab === "news" }
+    { 
+      enabled: activeTab === "news",
+      staleTime: 30000,
+      retry: 1,
+      retryDelay: 3000,
+    }
   );
 
   const isLoading = activeTab === "summary" ? summaryQuery.isLoading : newsQuery.isLoading;
@@ -90,9 +100,17 @@ export default function MarketPulseScreen() {
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>Unable to load market data</Text>
             <Text style={styles.errorSubtext}>
-              The server is experiencing high traffic. Cached data will be shown when available.
+              {error.message?.includes('Too many requests') || error.message?.includes('429')
+                ? "The server is experiencing high traffic. Please wait a moment before trying again."
+                : "The backend may be offline. Please check your connection and try again."}
             </Text>
-            <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+            <TouchableOpacity 
+              style={styles.retryButton} 
+              onPress={() => {
+                console.log("[Market] Manual retry initiated");
+                refetch();
+              }}
+            >
               <Text style={styles.retryButtonText}>Retry</Text>
             </TouchableOpacity>
           </View>
