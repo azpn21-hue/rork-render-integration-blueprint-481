@@ -8,7 +8,8 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
   const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  if (envUrl && envUrl.trim().length > 0) {
+  
+  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
     console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
     return envUrl.replace(/\/$/, "");
   }
@@ -21,6 +22,10 @@ const getBaseUrl = () => {
     }
 
     if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
+      if (envUrl && envUrl.trim().length > 0) {
+        console.log("[tRPC] On Rork platform but using configured backend:", envUrl);
+        return envUrl.replace(/\/$/, "");
+      }
       const baseUrl = window.location.origin;
       console.log("[tRPC] Detected Rork platform, using origin:", baseUrl);
       return baseUrl;
