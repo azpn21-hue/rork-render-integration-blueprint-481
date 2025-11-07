@@ -26,18 +26,38 @@ require('ts-node').register({
 });
 
 console.log('📦 Loading backend application...');
-const app = require('./hono').default;
-console.log('✅ Backend application loaded successfully');
+let app;
+try {
+  app = require('./hono').default;
+  if (!app) {
+    throw new Error('App export is undefined');
+  }
+  console.log('✅ Backend application loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load backend application:', error);
+  console.error('Stack:', error.stack);
+  process.exit(1);
+}
 
 console.log(`\n🚀 Starting server on port ${port}...`);
 
-serve({
+const server = serve({
   fetch: app.fetch,
   port,
+  hostname: '0.0.0.0',
 }, (info) => {
   console.log('='.repeat(60));
   console.log(`✅ Server is running!`);
-  console.log(`📡 Listening on: http://localhost:${info.port}`);
-  console.log(`🧪 Try: http://localhost:${info.port}/health`);
+  console.log(`📡 Listening on: http://0.0.0.0:${info.port}`);
+  console.log(`🧪 Health check: http://0.0.0.0:${info.port}/health`);
+  console.log(`🔍 Routes: http://0.0.0.0:${info.port}/api/routes`);
   console.log('='.repeat(60));
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n📴 SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('👋 Server closed');
+    process.exit(0);
+  });
 });
