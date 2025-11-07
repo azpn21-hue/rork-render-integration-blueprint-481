@@ -1,0 +1,2 @@
+#!/bin/bash
+# Make this file executable: chmod +x scripts/deploy-backend.sh
