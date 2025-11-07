@@ -37,6 +37,7 @@ import { createPostProcedure } from "./feed/create-post";
 import { getTrendingProcedure } from "./feed/get-trending";
 import { getLocalProcedure } from "./feed/get-local";
 import { likePostProcedure } from "./feed/like-post";
+import { resonatePostProcedure, unresonatePostProcedure, amplifyPostProcedure, witnessPostProcedure } from "./feed/resonate-post";
 import { commentPostProcedure } from "./feed/comment-post";
 import { getMarketSummaryProcedure } from "./market/get-summary";
 import { getTrendingSymbolsProcedure } from "./market/get-trending-symbols";
@@ -47,6 +48,9 @@ import { analyzeTrendsProcedure } from "./ai/analyze-trends";
 import { getLocalNewsProcedure } from "./location/get-local-news";
 import { getLocalEventsProcedure } from "./location/get-local-events";
 import { getNearbyUsersProcedure } from "./location/get-nearby-users";
+import { getRecommendationsProcedure } from "./ml/get-recommendations";
+import { trackActivityProcedure, getActivityHistoryProcedure, getActivityStatsProcedure } from "./activity/track";
+import { followUserProcedure, unfollowUserProcedure, getFollowersProcedure, getFollowingProcedure, isFollowingProcedure, getSuggestedUsersProcedure } from "./social/follow";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -100,6 +104,10 @@ export const r3alRouter = createTRPCRouter({
     getTrending: getTrendingProcedure,
     getLocal: getLocalProcedure,
     likePost: likePostProcedure,
+    resonatePost: resonatePostProcedure,
+    unresonatePost: unresonatePostProcedure,
+    amplifyPost: amplifyPostProcedure,
+    witnessPost: witnessPostProcedure,
     commentPost: commentPostProcedure,
   }),
   market: createTRPCRouter({
@@ -116,5 +124,21 @@ export const r3alRouter = createTRPCRouter({
     getLocalNews: getLocalNewsProcedure,
     getLocalEvents: getLocalEventsProcedure,
     getNearbyUsers: getNearbyUsersProcedure,
+  }),
+  ml: createTRPCRouter({
+    getRecommendations: getRecommendationsProcedure,
+  }),
+  activity: createTRPCRouter({
+    track: trackActivityProcedure,
+    getHistory: getActivityHistoryProcedure,
+    getStats: getActivityStatsProcedure,
+  }),
+  social: createTRPCRouter({
+    followUser: followUserProcedure,
+    unfollowUser: unfollowUserProcedure,
+    getFollowers: getFollowersProcedure,
+    getFollowing: getFollowingProcedure,
+    isFollowing: isFollowingProcedure,
+    getSuggestedUsers: getSuggestedUsersProcedure,
   }),
 });

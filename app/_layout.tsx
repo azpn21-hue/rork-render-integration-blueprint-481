@@ -12,6 +12,7 @@ import { R3alContext } from "@/app/contexts/R3alContext";
 import { TutorialProvider } from "@/app/contexts/TutorialContext";
 import { PulseChatContext } from "@/app/contexts/PulseChatContext";
 import { CirclesContext } from "@/app/contexts/CirclesContext";
+import { TrailblazeContext } from "@/app/contexts/TrailblazeContext";
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -101,15 +102,17 @@ export default function RootLayout() {
             <R3alContext>
               <CirclesContext>
                 <PulseChatContext>
-                  <ThemeProvider>
-                    <AuthProvider>
-                      <TutorialProvider>
-                        <GestureHandlerRootView style={{ flex: 1 }}>
-                          <RootLayoutNav />
-                        </GestureHandlerRootView>
-                      </TutorialProvider>
-                    </AuthProvider>
-                  </ThemeProvider>
+                  <TrailblazeContext>
+                    <ThemeProvider>
+                      <AuthProvider>
+                        <TutorialProvider>
+                          <GestureHandlerRootView style={{ flex: 1 }}>
+                            <RootLayoutNav />
+                          </GestureHandlerRootView>
+                        </TutorialProvider>
+                      </AuthProvider>
+                    </ThemeProvider>
+                  </TrailblazeContext>
                 </PulseChatContext>
               </CirclesContext>
             </R3alContext>
