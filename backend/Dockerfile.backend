@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy root package manifests
+COPY package*.json ./
+
+# Avoid peer dependency resolution failures from frontend-only deps
+ENV NPM_CONFIG_LEGACY_PEER_DEPS=true
+
+# Install only production dependencies
+RUN npm ci --omit=dev
+
+# Copy full repository (server.js and backend code included)
+COPY . .
+
+ENV NODE_ENV=production
+ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["node", "server.js"]

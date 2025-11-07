@@ -1,0 +1,30 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build Image
+  args:
+    [
+      'build',
+      '-f','backend/Dockerfile.backend',
+      '-t','us-central1-docker.pkg.dev/$PROJECT_ID/optima-core-repo/optima-core:latest',
+      '..'
+    ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push Image
+  args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/optima-core-repo/optima-core:latest']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: Deploy to Cloud Run
+  entrypoint: gcloud
+  args:
+    [
+      'run','deploy','optima-core',
+      '--region','us-central1',
+      '--platform','managed',
+      '--image','us-central1-docker.pkg.dev/$PROJECT_ID/optima-core-repo/optima-core:latest',
+      '--allow-unauthenticated',
+      '--port','8080',
+      '--set-env-vars','NODE_ENV=production',
+      '--set-env-vars','EXPOSE_PORT=8080'
+    ]
+
+images:
+- us-central1-docker.pkg.dev/$PROJECT_ID/optima-core-repo/optima-core:latest
