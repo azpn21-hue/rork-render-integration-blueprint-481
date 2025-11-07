@@ -1,22 +1,22 @@
 # Rork API Configuration
 # For local development, use http://localhost:10000
 # For production/preview, use the deployed backend URL
-EXPO_PUBLIC_RORK_API_BASE_URL=https://rork-optima-api-prod-gq43sdrt-uc.a.run.app
-EXPO_PUBLIC_AI_BASE_URL=http://localhost:9000
+EXPO_PUBLIC_RORK_API_BASE_URL=https://optima-core-712497593637.us-central1.run.app
+EXPO_PUBLIC_AI_BASE_URL=https://optima-core-712497593637.us-central1.run.app
 
 # Optima-Core Configuration
-EXPO_PUBLIC_OPTIMA_CORE_URL=http://localhost:8080
+EXPO_PUBLIC_OPTIMA_CORE_URL=https://optima-core-712497593637.us-central1.run.app
 EXPO_PUBLIC_OPTIMA_GCP_PROJECT_ID=civic-origin-476705-j8
 EXPO_PUBLIC_OPTIMA_GCP_REGION=us-central1
-EXPO_PUBLIC_OPTIMA_ENV=development
+EXPO_PUBLIC_OPTIMA_ENV=production
 
 # Backend API Keys
 EXPO_PUBLIC_RORK_API_KEY=rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
 RORK_API_KEY=rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
-RORK_API_URL=https://rork-r3al-backend.onrender.com/inference
+RORK_API_URL=https://optima-core-712497593637.us-central1.run.app/inference
 GOOGLE_CLOUD_PROJECT=civic-origin-476705-j8
 GOOGLE_CLOUD_REGION=us-central1
 
 # API Environment
-API_ENV=development
-API_PORT=10000
+API_ENV=production
+API_PORT=8080
