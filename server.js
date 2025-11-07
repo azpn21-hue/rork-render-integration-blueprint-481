@@ -1,6 +1,6 @@
 const { serve } = require('@hono/node-server');
 
-const port = parseInt(process.env.PORT || '10000', 10);
+const port = parseInt(process.env.PORT || '8080', 10);
 
 console.log('='.repeat(60));
 console.log('🚀 Starting R3AL Connection Backend...');
