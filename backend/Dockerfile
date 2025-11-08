@@ -1,24 +1,24 @@
-# Use Node.js 20 for stability
+# Use Node.js 20
 FROM node:20-slim
 
-# Create and set the working directory
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /app
 
-# Copy package.json from root (contains all dependencies)
+# Copy package files from parent directory
 COPY package*.json ./
 
-# Install only production dependencies
+# Install dependencies
 RUN npm install --omit=dev --legacy-peer-deps
 
 # Copy backend code
-COPY backend/ ./backend/
+COPY backend ./backend
 
-# Set environment variables
+# Set environment
 ENV PORT=8080
 ENV NODE_ENV=production
 
-# Expose the port
+# Expose port
 EXPOSE 8080
 
-# Start the simple server (no TypeScript compilation needed)
+# Run the simple server
 CMD ["node", "backend/server-simple.js"]
