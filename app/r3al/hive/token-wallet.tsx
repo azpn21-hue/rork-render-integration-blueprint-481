@@ -1,14 +1,52 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeft, TrendingUp, TrendingDown, Award, RefreshCw } from "lucide-react-native";
+import { ArrowLeft, TrendingUp, TrendingDown, Award, RefreshCw, Zap, Coins, Shield, Star, Activity } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
-import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import { trpc } from "@/lib/trpc";
+import { useEffect, useRef } from "react";
+import CyberCard from "@/components/CyberCard";
+import GlitchText from "@/components/GlitchText";
+import ScanlineOverlay from "@/components/ScanlineOverlay";
 
 export default function TokenWallet() {
   const router = useRouter();
   const { tokenBalance: localBalance, nfts, userProfile } = useR3al();
+  
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+    
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [glowAnim, pulseAnim]);
   
   const balanceQuery = trpc.r3al.tokens.getBalance.useQuery(undefined, {
     refetchOnMount: false,
@@ -38,20 +76,6 @@ export default function TokenWallet() {
   };
 
   const isLoading = false;
-  
-  console.log('[TokenWallet] Balance query status:', {
-    isLoading: balanceQuery.isLoading,
-    isError: balanceQuery.isError,
-    error: balanceQuery.error?.message,
-    data: balanceQuery.data,
-  });
-  
-  console.log('[TokenWallet] Transactions query status:', {
-    isLoading: transactionsQuery.isLoading,
-    isError: transactionsQuery.isError,
-    error: transactionsQuery.error?.message,
-    data: transactionsQuery.data,
-  });
   
   const handleRefresh = () => {
     balanceQuery.refetch();
@@ -94,110 +118,188 @@ export default function TokenWallet() {
     .filter(tx => tx && tx.timestamp)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 1],
+  });
+
   return (
-    <LinearGradient
-      colors={[tokens.colors.background, tokens.colors.surface]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#0A0A0F', '#121218', '#0A0A0F']}
+        style={StyleSheet.absoluteFill}
+      />
+      <ScanlineOverlay opacity={0.05} />
+      
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={24} color={tokens.colors.gold} strokeWidth={2} />
+            <View style={styles.iconGlow}>
+              <ArrowLeft size={24} color="#00FFF0" strokeWidth={2} />
+            </View>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Token Wallet</Text>
+          
+          <GlitchText text="DIGITAL WALLET" style={styles.headerTitle} />
+          
           <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton} disabled={isLoading}>
-            <RefreshCw size={20} color={tokens.colors.gold} strokeWidth={2} />
+            <View style={styles.iconGlow}>
+              <RefreshCw size={20} color="#00FFF0" strokeWidth={2} />
+            </View>
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.balanceCard}>
-            <Text style={styles.balanceLabel}>Available Balance</Text>
-            <Text style={styles.balanceValue}>{tokenBalance?.available ?? 0} 🪙</Text>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <CyberCard style={styles.balanceCard}>
+            <Animated.View style={[styles.balanceGlow, { opacity: glowOpacity }]} />
+            
+            <View style={styles.balanceHeader}>
+              <View style={styles.balanceIconContainer}>
+                <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                  <Coins size={48} color="#00FFF0" strokeWidth={1.5} />
+                </Animated.View>
+                <View style={styles.balanceIconGlow} />
+              </View>
+            </View>
+            
+            <Text style={styles.balanceLabel}>TRUST-TOKEN BALANCE</Text>
+            
+            <View style={styles.balanceValueContainer}>
+              <GlitchText 
+                text={`${tokenBalance?.available ?? 0}`}
+                style={styles.balanceValue}
+                glitchIntensity="medium"
+              />
+              <Zap size={32} color="#FFE900" strokeWidth={2} />
+            </View>
+            
             <Text style={styles.balanceDate}>
-              Updated {tokenBalance?.lastUpdated ? new Date(tokenBalance.lastUpdated).toLocaleString() : 'Just now'}
+              SYS_UPDATED: {tokenBalance?.lastUpdated ? new Date(tokenBalance.lastUpdated).toLocaleTimeString() : 'LIVE'}
             </Text>
-          </View>
-
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <TrendingUp size={24} color="#4ade80" strokeWidth={2} />
-              <Text style={styles.statValue}>{tokenBalance?.earned ?? 0}</Text>
-              <Text style={styles.statLabel}>Total Earned</Text>
+            
+            <View style={styles.statsDivider} />
+            
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <TrendingUp size={20} color="#00FF66" strokeWidth={2} />
+                <Text style={styles.statLabel}>EARNED</Text>
+                <Text style={styles.statValueGreen}>{tokenBalance?.earned ?? 0}</Text>
+              </View>
+              
+              <View style={styles.statSeparator} />
+              
+              <View style={styles.statItem}>
+                <TrendingDown size={20} color="#FF2E97" strokeWidth={2} />
+                <Text style={styles.statLabel}>SPENT</Text>
+                <Text style={styles.statValueRed}>{tokenBalance?.spent ?? 0}</Text>
+              </View>
             </View>
+          </CyberCard>
 
-            <View style={styles.statCard}>
-              <TrendingDown size={24} color="#f87171" strokeWidth={2} />
-              <Text style={styles.statValue}>{tokenBalance?.spent ?? 0}</Text>
-              <Text style={styles.statLabel}>Total Spent</Text>
-            </View>
+          <View style={styles.quickActions}>
+            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+              <LinearGradient
+                colors={['#00FFF020', '#00FFF005']}
+                style={styles.actionGradient}
+              />
+              <Shield size={24} color="#00FFF0" strokeWidth={2} />
+              <Text style={styles.actionText}>SECURE</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+              <LinearGradient
+                colors={['#BD00FF20', '#BD00FF05']}
+                style={styles.actionGradient}
+              />
+              <Star size={24} color="#BD00FF" strokeWidth={2} />
+              <Text style={styles.actionText}>EARN</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+              <LinearGradient
+                colors={['#FFE90020', '#FFE90005']}
+                style={styles.actionGradient}
+              />
+              <Activity size={24} color="#FFE900" strokeWidth={2} />
+              <Text style={styles.actionText}>HISTORY</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Transaction History</Text>
+            <View style={styles.sectionTitleContainer}>
+              <View style={styles.sectionAccent} />
+              <Text style={styles.sectionTitle}>{'//'} TRANSACTION_LOG</Text>
+            </View>
           </View>
 
           {transactions.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>📜</Text>
-              <Text style={styles.emptyTitle}>No Transactions Yet</Text>
+            <CyberCard style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>⚡</Text>
+              <Text style={styles.emptyTitle}>NO_DATA_FOUND</Text>
               <Text style={styles.emptyText}>
-                Your token transactions will appear here
+                Your transaction history will be logged here
               </Text>
-            </View>
+            </CyberCard>
           ) : (
             <View style={styles.transactionList}>
               {transactions.map((tx, index) => (
-                <View key={index} style={styles.transactionCard}>
+                <CyberCard key={index} style={styles.transactionCard}>
                   <View style={[
                     styles.transactionIcon,
                     tx.type === 'earned' ? styles.transactionIconEarned : styles.transactionIconSpent
                   ]}>
                     {tx.type === 'earned' ? (
-                      <TrendingUp size={20} color="#4ade80" strokeWidth={2} />
+                      <TrendingUp size={20} color="#00FF66" strokeWidth={2} />
                     ) : (
-                      <TrendingDown size={20} color="#f87171" strokeWidth={2} />
+                      <TrendingDown size={20} color="#FF2E97" strokeWidth={2} />
                     )}
                   </View>
+                  
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionReason}>{tx.reason}</Text>
                     <Text style={styles.transactionDate}>
-                      {new Date(tx.timestamp).toLocaleDateString()} at {new Date(tx.timestamp).toLocaleTimeString()}
+                      {new Date(tx.timestamp).toLocaleDateString()} • {new Date(tx.timestamp).toLocaleTimeString()}
                     </Text>
                   </View>
+                  
                   <Text style={[
                     styles.transactionAmount,
                     tx.type === 'earned' ? styles.transactionAmountEarned : styles.transactionAmountSpent
                   ]}>
-                    {tx.type === 'earned' ? '+' : '-'}{tx.amount} 🪙
+                    {tx.type === 'earned' ? '+' : '-'}{tx.amount}
                   </Text>
-                </View>
+                </CyberCard>
               ))}
             </View>
           )}
 
-          <View style={styles.infoCard}>
-            <Award size={20} color={tokens.colors.gold} strokeWidth={2} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Earn More Tokens</Text>
-              <Text style={styles.infoText}>
-                • Complete verification steps{"\n"}
-                • Maintain high integrity scores{"\n"}
-                • Participate in community events{"\n"}
-                • Report bugs and violations{"\n"}
-                • Sell NFTs in the marketplace
-              </Text>
+          <CyberCard style={styles.infoCard}>
+            <View style={styles.infoHeader}>
+              <Award size={24} color="#FFE900" strokeWidth={2} />
+              <Text style={styles.infoTitle}>EARN_MORE_TOKENS</Text>
             </View>
-          </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoList}>
+              {[
+                '→ Complete verification protocols',
+                '→ Maintain high integrity scores',
+                '→ Participate in community events',
+                '→ Report system violations',
+                '→ Trade NFTs in marketplace',
+              ].map((item, i) => (
+                <Text key={i} style={styles.infoItem}>{item}</Text>
+              ))}
+            </View>
+          </CyberCard>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0A0A0F',
   },
   safeArea: {
     flex: 1,
@@ -208,79 +310,178 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: tokens.colors.gold + "30",
+    borderBottomWidth: 2,
+    borderBottomColor: "#00FFF020",
   },
   backButton: {
-    padding: 4,
+    padding: 8,
+  },
+  iconGlow: {
+    shadowColor: "#00FFF0",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold" as const,
-    color: tokens.colors.gold,
+    color: "#00FFF0",
+    letterSpacing: 2,
   },
   refreshButton: {
-    padding: 4,
+    padding: 8,
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   balanceCard: {
-    backgroundColor: tokens.colors.surface,
-    padding: 32,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 2,
-    borderColor: tokens.colors.gold,
-    alignItems: "center",
+    padding: 28,
     marginBottom: 20,
+    alignItems: "center",
+    position: "relative" as const,
+  },
+  balanceGlow: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#00FFF0",
+    borderRadius: 12,
+    opacity: 0.1,
+  },
+  balanceHeader: {
+    marginBottom: 16,
+  },
+  balanceIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: "#0A0A0F",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#00FFF0",
+    position: "relative" as const,
+  },
+  balanceIconGlow: {
+    position: "absolute" as const,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: "#00FFF0",
+    opacity: 0.2,
   },
   balanceLabel: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "700" as const,
+    color: "#A0A0B0",
+    marginBottom: 12,
+    letterSpacing: 2,
+  },
+  balanceValueContainer: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 12,
     marginBottom: 8,
   },
   balanceValue: {
-    fontSize: 48,
+    fontSize: 64,
     fontWeight: "bold" as const,
-    color: tokens.colors.gold,
-    marginBottom: 8,
+    color: "#00FFF0",
+    textShadowColor: "#00FFF080",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
   balanceDate: {
-    fontSize: 12,
-    color: tokens.colors.textSecondary,
+    fontSize: 10,
+    color: "#606070",
+    marginBottom: 20,
+    fontFamily: "monospace",
+    letterSpacing: 1,
   },
-  statsGrid: {
+  statsDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#00FFF020",
+    marginBottom: 20,
+  },
+  statsRow: {
     flexDirection: "row" as const,
-    gap: 12,
-    marginBottom: 24,
+    width: "100%",
+    justifyContent: "space-around",
   },
-  statCard: {
-    flex: 1,
-    backgroundColor: tokens.colors.surface,
-    padding: 20,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 1,
-    borderColor: tokens.colors.gold + "20",
+  statItem: {
     alignItems: "center",
-    gap: 8,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold" as const,
-    color: tokens.colors.text,
+    gap: 6,
   },
   statLabel: {
-    fontSize: 12,
-    color: tokens.colors.textSecondary,
+    fontSize: 11,
+    color: "#A0A0B0",
+    fontWeight: "600" as const,
+    letterSpacing: 1,
+  },
+  statValueGreen: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: "#00FF66",
+  },
+  statValueRed: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    color: "#FF2E97",
+  },
+  statSeparator: {
+    width: 1,
+    backgroundColor: "#00FFF020",
+  },
+  quickActions: {
+    flexDirection: "row" as const,
+    gap: 12,
+    marginBottom: 28,
+  },
+  actionButton: {
+    flex: 1,
+    height: 80,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#00FFF030",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    overflow: "hidden",
+    position: "relative" as const,
+  },
+  actionGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  actionText: {
+    fontSize: 11,
+    fontWeight: "700" as const,
+    color: "#FFFFFF",
+    letterSpacing: 1,
   },
   sectionHeader: {
     marginBottom: 16,
   },
+  sectionTitleContainer: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 12,
+  },
+  sectionAccent: {
+    width: 4,
+    height: 20,
+    backgroundColor: "#00FFF0",
+  },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold" as const,
-    color: tokens.colors.gold,
+    color: "#00FFF0",
+    fontFamily: "monospace",
+    letterSpacing: 1,
   },
   emptyState: {
     alignItems: "center",
@@ -291,13 +492,15 @@ const styles = StyleSheet.create({
     fontSize: 64,
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold" as const,
-    color: tokens.colors.gold,
+    color: "#00FFF0",
+    fontFamily: "monospace",
+    letterSpacing: 2,
   },
   emptyText: {
-    fontSize: 16,
-    color: tokens.colors.textSecondary,
+    fontSize: 14,
+    color: "#A0A0B0",
     textAlign: "center",
   },
   transactionList: {
@@ -308,24 +511,23 @@ const styles = StyleSheet.create({
     flexDirection: "row" as const,
     alignItems: "center",
     gap: 12,
-    backgroundColor: tokens.colors.surface,
     padding: 16,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 1,
-    borderColor: tokens.colors.gold + "20",
   },
   transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
   },
   transactionIconEarned: {
-    backgroundColor: "#4ade8020",
+    backgroundColor: "#00FF6615",
+    borderColor: "#00FF66",
   },
   transactionIconSpent: {
-    backgroundColor: "#f8717120",
+    backgroundColor: "#FF2E9715",
+    borderColor: "#FF2E97",
   },
   transactionInfo: {
     flex: 1,
@@ -334,75 +536,52 @@ const styles = StyleSheet.create({
   transactionReason: {
     fontSize: 14,
     fontWeight: "600" as const,
-    color: tokens.colors.text,
+    color: "#FFFFFF",
   },
   transactionDate: {
-    fontSize: 12,
-    color: tokens.colors.textSecondary,
+    fontSize: 11,
+    color: "#606070",
+    fontFamily: "monospace",
   },
   transactionAmount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold" as const,
   },
   transactionAmountEarned: {
-    color: "#4ade80",
+    color: "#00FF66",
   },
   transactionAmountSpent: {
-    color: "#f87171",
+    color: "#FF2E97",
   },
   infoCard: {
-    flexDirection: "row" as const,
-    backgroundColor: tokens.colors.surface,
     padding: 20,
-    borderRadius: tokens.dimensions.borderRadius,
-    borderWidth: 1,
-    borderColor: tokens.colors.gold + "20",
-    gap: 12,
   },
-  infoContent: {
-    flex: 1,
-    gap: 8,
+  infoHeader: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 16,
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: "bold" as const,
-    color: tokens.colors.gold,
+    color: "#FFE900",
+    fontFamily: "monospace",
+    letterSpacing: 1,
   },
-  infoText: {
-    fontSize: 14,
-    color: tokens.colors.text,
-    lineHeight: 22,
+  infoDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#FFE90030",
+    marginBottom: 16,
   },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 60,
-    gap: 16,
+  infoList: {
+    gap: 12,
   },
-  loadingText: {
-    fontSize: 16,
-    color: tokens.colors.textSecondary,
-  },
-  errorContainer: {
-    alignItems: "center",
-    paddingVertical: 60,
-    gap: 16,
-  },
-  errorText: {
-    fontSize: 16,
-    color: tokens.colors.textSecondary,
-    textAlign: "center",
-  },
-  retryButton: {
-    backgroundColor: tokens.colors.gold,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: tokens.dimensions.borderRadius,
-  },
-  retryButtonText: {
-    fontSize: 14,
-    fontWeight: "bold" as const,
-    color: tokens.colors.background,
+  infoItem: {
+    fontSize: 13,
+    color: "#A0A0B0",
+    lineHeight: 20,
+    fontFamily: "monospace",
   },
 });
