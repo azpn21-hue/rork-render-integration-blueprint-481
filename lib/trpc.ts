@@ -9,11 +9,6 @@ export const trpc = createTRPCReact<AppRouter>();
 const getBaseUrl = () => {
   const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   
-  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
-    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
-    return envUrl.replace(/\/$/, "");
-  }
-
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
 
@@ -23,17 +18,18 @@ const getBaseUrl = () => {
     }
 
     if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
-      if (envUrl && envUrl.trim().length > 0) {
-        console.log("[tRPC] Detected Rork platform, using env URL:", envUrl);
-        return envUrl.replace(/\/$/, "");
-      }
-      console.log("[tRPC] Detected Rork platform but no backend URL configured!");
-      console.warn("[tRPC] ⚠️ Please set EXPO_PUBLIC_RORK_API_BASE_URL in your .env file");
-      return "http://localhost:10000";
+      const rorkBackendUrl = `https://a-${process.env.EXPO_PUBLIC_PROJECT_ID || 'wozcefc4wlzlbxsknqi3r'}.rorktest.dev`;
+      console.log("[tRPC] Detected Rork platform, using Rork backend:", rorkBackendUrl);
+      return rorkBackendUrl;
     }
 
     console.log("[tRPC] Using window.location.origin:", window.location.origin);
     return window.location.origin;
+  }
+
+  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
+    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
+    return envUrl.replace(/\/$/, "");
   }
 
   console.log("[tRPC] Defaulting to localhost:10000");
