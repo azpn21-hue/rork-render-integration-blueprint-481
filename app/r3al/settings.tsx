@@ -28,6 +28,7 @@ import {
   HelpCircle,
   BookOpen,
   TestTube,
+  Activity,
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -273,6 +274,13 @@ export default function SettingsPage() {
       title: "Developer",
       icon: <TestTube size={20} color={tokens.colors.gold} strokeWidth={2} />,
       items: [
+        {
+          id: "system_test",
+          label: "System Test Suite",
+          type: "navigation",
+          icon: <Activity size={18} color={tokens.colors.textSecondary} strokeWidth={2} />,
+          onPress: () => router.push("/system-test"),
+        },
         {
           id: "test_features",
           label: "Test Backend Features",
