@@ -44,6 +44,12 @@ pool.on('remove', () => {
 });
 
 export async function testConnection() {
+  // Skip database if no connection info provided
+  if (!process.env.DB_PASSWORD && !process.env.CLOUD_SQL_CONNECTION_NAME) {
+    console.log('[Database] ⚠️  No database credentials found - skipping connection');
+    return false;
+  }
+  
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT NOW()');
