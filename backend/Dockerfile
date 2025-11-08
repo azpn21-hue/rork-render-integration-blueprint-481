@@ -2,23 +2,24 @@
 FROM node:20-slim
 
 # Set working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package files from parent directory
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install ALL dependencies (we need devDependencies for ts-node if using server.js)
+# But for server-simple.js, we only need production dependencies
 RUN npm install --omit=dev --legacy-peer-deps
 
-# Copy backend code
-COPY backend ./backend
+# Copy all application code
+COPY . .
 
-# Set environment
+# Set environment variables
 ENV PORT=8080
 ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 8080
 
-# Run the simple server
+# Use the simple server that doesn't need TypeScript compilation
 CMD ["node", "backend/server-simple.js"]
