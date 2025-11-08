@@ -44,6 +44,7 @@ const checkBackendHealth = async () => {
   
   try {
     const baseUrl = getBaseUrl();
+    console.log("[tRPC] ========================================");
     console.log("[tRPC] Checking backend health at:", `${baseUrl}/health`);
     
     const response = await fetch(`${baseUrl}/health`, {
@@ -55,7 +56,9 @@ const checkBackendHealth = async () => {
     backendHealthChecked = true;
     
     if (backendIsHealthy) {
+      const healthData = await response.json();
       console.log("[tRPC] ✅ Backend is healthy");
+      console.log("[tRPC] Backend info:", healthData);
       
       const routesResponse = await fetch(`${baseUrl}/api/routes`, {
         method: 'GET',
@@ -64,13 +67,24 @@ const checkBackendHealth = async () => {
       
       if (routesResponse.ok) {
         const routesData = await routesResponse.json();
-        console.log("[tRPC] Available routes:", routesData.routes);
+        console.log("[tRPC] ✅ Total routes available:", routesData.count);
+        console.log("[tRPC] ✅ R3AL routes available:", routesData.r3alCount);
+        if (routesData.r3alCount > 0) {
+          console.log("[tRPC] R3AL routes sample:", routesData.r3alRoutes.slice(0, 5));
+        } else {
+          console.warn("[tRPC] ⚠️  No R3AL routes found in backend!");
+        }
       }
     } else {
+      const errorText = await response.text().catch(() => 'Unknown error');
       console.error("[tRPC] ❌ Backend health check failed:", response.status);
+      console.error("[tRPC] Response:", errorText);
     }
+    console.log("[tRPC] ========================================");
   } catch (error: any) {
     console.error("[tRPC] ❌ Backend health check error:", error.message);
+    console.error("[tRPC] This usually means the backend is not running or not accessible");
+    console.error("[tRPC] Backend URL:", getBaseUrl());
     backendIsHealthy = false;
     backendHealthChecked = true;
   }
