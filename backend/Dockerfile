@@ -5,14 +5,13 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including hono/cors which is needed)
+# Install ALL dependencies (including dev dependencies for ts-node)
 RUN npm install --legacy-peer-deps
 
-# Copy backend directory
+# Copy all necessary directories
 COPY backend ./backend
-
-# Copy lib directory (for trpc client)
 COPY lib ./lib
+COPY tsconfig.json ./
 
 # Set working directory to backend
 WORKDIR /usr/src/app/backend
@@ -23,5 +22,5 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Start the simple server
-CMD ["node", "server-simple.js"]
+# Start the server with tRPC support
+CMD ["node", "server.js"]
