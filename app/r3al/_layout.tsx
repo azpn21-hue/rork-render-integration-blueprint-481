@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
+import { VerificationProvider } from "@/app/contexts/VerificationContext";
 
 export default function R3alLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <VerificationProvider>
+      <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="splash" />
       <Stack.Screen name="promo-beta" />
       <Stack.Screen name="onboarding/welcome" />
@@ -43,6 +45,13 @@ export default function R3alLayout() {
       <Stack.Screen name="market-pulse" />
       <Stack.Screen name="ai-insights" />
       <Stack.Screen name="local-discover" />
+      <Stack.Screen name="verification/email" />
+      <Stack.Screen name="verification/sms" />
+      <Stack.Screen name="verification/id" />
+      <Stack.Screen name="verification/status" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="trailblaze" />
     </Stack>
+    </VerificationProvider>
   );
 }

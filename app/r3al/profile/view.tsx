@@ -19,7 +19,9 @@ import {
   Sparkles
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
+import { useVerification } from "@/app/contexts/VerificationContext";
 import PhotoCameraModal from "@/components/PhotoCameraModal";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import SafeImage from "@/components/SafeImage";
 
@@ -27,6 +29,7 @@ export default function ProfileView() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userProfile, truthScore, uploadPhoto, deletePhoto, saveProfile } = useR3al();
+  const { status: verificationStatus } = useVerification();
   
   const [cameraVisible, setCameraVisible] = useState(false);
   const [cameraType, setCameraType] = useState<"avatar" | "cover" | "gallery">("avatar");
@@ -243,9 +246,16 @@ export default function ProfileView() {
                   </View>
                 ) : (
                   <View style={styles.nameRow}>
-                    <Text style={[styles.userName, { color: tokens.colors.text }]}>
-                      {userProfile?.name || "User"}
-                    </Text>
+                    <View style={styles.nameWithBadge}>
+                      <Text style={[styles.userName, { color: tokens.colors.text }]}>
+                        {userProfile?.name || "User"}
+                      </Text>
+                      <VerifiedBadge 
+                        isVerified={verificationStatus.isFullyVerified} 
+                        size="small" 
+                        showLabel={false}
+                      />
+                    </View>
                     <TouchableOpacity onPress={() => setIsEditingName(true)}>
                       <Edit3 size={18} color={tokens.colors.textSecondary} />
                     </TouchableOpacity>
@@ -510,7 +520,13 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 12,
+  },
+  nameWithBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   userName: {
     fontSize: 28,

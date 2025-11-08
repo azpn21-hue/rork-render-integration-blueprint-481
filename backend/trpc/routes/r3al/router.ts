@@ -51,6 +51,12 @@ import { getNearbyUsersProcedure } from "./location/get-nearby-users";
 import { getRecommendationsProcedure } from "./ml/get-recommendations";
 import { trackActivityProcedure, getActivityHistoryProcedure, getActivityStatsProcedure } from "./activity/track";
 import { followUserProcedure, unfollowUserProcedure, getFollowersProcedure, getFollowingProcedure, isFollowingProcedure, getSuggestedUsersProcedure } from "./social/follow";
+import { sendEmailVerificationProcedure } from "./verification/send-email";
+import { confirmEmailVerificationProcedure } from "./verification/confirm-email";
+import { sendSmsVerificationProcedure } from "./verification/send-sms";
+import { confirmSmsVerificationProcedure } from "./verification/confirm-sms";
+import { verifyIdProcedure } from "./verification/verify-id";
+import { getVerificationStatusProcedure, updateVerificationStatusProcedure } from "./verification/get-status";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -140,5 +146,14 @@ export const r3alRouter = createTRPCRouter({
     getFollowing: getFollowingProcedure,
     isFollowing: isFollowingProcedure,
     getSuggestedUsers: getSuggestedUsersProcedure,
+  }),
+  verification: createTRPCRouter({
+    sendEmail: sendEmailVerificationProcedure,
+    confirmEmail: confirmEmailVerificationProcedure,
+    sendSms: sendSmsVerificationProcedure,
+    confirmSms: confirmSmsVerificationProcedure,
+    verifyId: verifyIdProcedure,
+    getStatus: getVerificationStatusProcedure,
+    updateStatus: updateVerificationStatusProcedure,
   }),
 });
