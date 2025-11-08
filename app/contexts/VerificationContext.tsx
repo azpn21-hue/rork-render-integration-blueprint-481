@@ -32,11 +32,16 @@ export const [VerificationProvider, useVerification] = createContextHook(() => {
 
   const statusQuery = trpc.r3al.verification.getStatus.useQuery(undefined, {
     staleTime: 60000,
+    retry: 2,
+    retryDelay: 1000,
     onSuccess: (data) => {
       if (data) {
         setStatus(data as VerificationStatus);
         AsyncStorage.setItem(VERIFICATION_STORAGE_KEY, JSON.stringify(data));
       }
+    },
+    onError: (error) => {
+      console.error("[Verification] Failed to fetch status:", error.message);
     },
   });
 

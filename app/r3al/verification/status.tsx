@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useVerification } from "@/app/contexts/VerificationContext";
@@ -7,6 +8,18 @@ import { CheckCircle, XCircle, Shield, Mail, Smartphone, Camera, Award } from "l
 export default function VerificationStatusScreen() {
   const router = useRouter();
   const { status, isLoading, refetchStatus } = useVerification();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refetchStatus();
+    } catch (error) {
+      console.error("[Verification] Refresh error:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const verificationSteps = [
     {
@@ -31,6 +44,18 @@ export default function VerificationStatusScreen() {
       route: "/r3al/verification/id",
     },
   ];
+
+  if (isLoading && !status.lastUpdated) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Stack.Screen options={{ title: "Verification Status", headerShown: true }} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00D4AA" />
+          <Text style={styles.loadingText}>Loading verification status...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,9 +139,14 @@ export default function VerificationStatusScreen() {
         ) : (
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => refetchStatus()}
+            onPress={handleRefresh}
+            disabled={isRefreshing}
           >
-            <Text style={styles.secondaryButtonText}>Refresh Status</Text>
+            {isRefreshing ? (
+              <ActivityIndicator size="small" color="#00D4AA" />
+            ) : (
+              <Text style={styles.secondaryButtonText}>Refresh Status</Text>
+            )}
           </TouchableOpacity>
         )}
 
@@ -269,5 +299,16 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginBottom: 24,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  loadingText: {
+    color: "#888",
+    fontSize: 16,
+    marginTop: 16,
   },
 });
