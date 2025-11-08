@@ -9,9 +9,12 @@ export const trpc = createTRPCReact<AppRouter>();
 const getBaseUrl = () => {
   const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   
-  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
-    console.log("[tRPC] Using EXPO_PUBLIC_RORK_API_BASE_URL:", envUrl);
-    return envUrl.replace(/\/$/, "");
+  if (envUrl && envUrl.trim().length > 0) {
+    const cleanUrl = envUrl.replace(/\/$/, "");
+    if (!cleanUrl.includes('localhost') || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) {
+      console.log("[tRPC] ✅ Using EXPO_PUBLIC_RORK_API_BASE_URL:", cleanUrl);
+      return cleanUrl;
+    }
   }
   
   if (typeof window !== "undefined") {
@@ -21,12 +24,9 @@ const getBaseUrl = () => {
       console.log("[tRPC] Running on localhost");
       return "http://localhost:10000";
     }
-
-    console.log("[tRPC] Using window.location.origin:", window.location.origin);
-    return window.location.origin;
   }
 
-  console.log("[tRPC] Defaulting to localhost:10000");
+  console.log("[tRPC] ⚠️  No backend URL configured, defaulting to localhost:10000");
   return "http://localhost:10000";
 };
 
