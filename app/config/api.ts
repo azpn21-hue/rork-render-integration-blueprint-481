@@ -1,28 +1,48 @@
 import axios from "axios";
 
 const getBaseUrl = () => {
-  if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:10000";
-    }
+  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  
+  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
+    return envUrl.replace(/\/$/, "");
   }
   
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:10000";
+    }
+    
+    if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
+      if (envUrl && envUrl.trim().length > 0) {
+        return envUrl.replace(/\/$/, "");
+      }
+    }
   }
   
   return "http://localhost:10000";
 };
 
 const getAIBaseUrl = () => {
-  if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:9000";
-    }
+  const envUrl = process.env.EXPO_PUBLIC_AI_BASE_URL;
+  
+  if (envUrl && envUrl.trim().length > 0 && !envUrl.includes('localhost')) {
+    return envUrl.replace(/\/$/, "");
   }
   
-  if (process.env.EXPO_PUBLIC_AI_BASE_URL) {
-    return process.env.EXPO_PUBLIC_AI_BASE_URL;
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:9000";
+    }
+    
+    if (hostname.includes('.rork.live') || hostname.includes('.rork.app') || hostname.includes('.rorktest.dev')) {
+      if (envUrl && envUrl.trim().length > 0) {
+        return envUrl.replace(/\/$/, "");
+      }
+    }
   }
   
   return "http://localhost:9000";
