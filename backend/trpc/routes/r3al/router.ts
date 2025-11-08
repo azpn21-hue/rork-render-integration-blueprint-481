@@ -62,6 +62,12 @@ import { compareUsersProcedure } from "./match/compare";
 import { recordFeedbackProcedure } from "./match/learn";
 import { getMatchHistoryProcedure } from "./match/history";
 import { getMatchInsightsProcedure } from "./match/insights";
+import { generateTestProfilesProcedure } from "./testing/generate-profiles";
+import { generateFeedContentProcedure } from "./testing/generate-feed-content";
+import { generateInteractionsProcedure } from "./testing/generate-interactions";
+import { testMatchingProcedure } from "./testing/test-matching";
+import { cleanupTestDataProcedure } from "./testing/cleanup-test-data";
+import { runFullTestSuiteProcedure } from "./testing/run-full-test-suite";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -167,5 +173,13 @@ export const r3alRouter = createTRPCRouter({
     learn: recordFeedbackProcedure,
     history: getMatchHistoryProcedure,
     insights: getMatchInsightsProcedure,
+  }),
+  testing: createTRPCRouter({
+    generateProfiles: generateTestProfilesProcedure,
+    generateFeed: generateFeedContentProcedure,
+    generateInteractions: generateInteractionsProcedure,
+    testMatching: testMatchingProcedure,
+    cleanup: cleanupTestDataProcedure,
+    runFullSuite: runFullTestSuiteProcedure,
   }),
 });
