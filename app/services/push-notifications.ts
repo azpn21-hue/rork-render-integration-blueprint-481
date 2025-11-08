@@ -4,23 +4,25 @@ import Constants from 'expo-constants';
 let Notifications: any = null;
 let Device: any = null;
 
-try {
-  if (Constants.appOwnership !== 'expo') {
-    Notifications = require('expo-notifications');
-    Device = require('expo-device');
+if (Platform.OS !== 'web') {
+  try {
+    Notifications = require('expo-notifications').default || require('expo-notifications');
+    Device = require('expo-device').default || require('expo-device');
     
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-      }),
-    });
-  } else {
-    console.log('[Push] Push notifications are not supported in Expo Go (SDK 53+). Use a development build.');
+    if (Notifications && Notifications.setNotificationHandler) {
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+      });
+    }
+  } catch (error) {
+    console.log('[Push] Push notifications not available in Expo Go (SDK 53+). Use a development build.');
+    Notifications = null;
+    Device = null;
   }
-} catch (error) {
-  console.log('[Push] Push notifications module not available:', error);
 }
 
 export interface PushNotificationToken {
