@@ -11,13 +11,12 @@ RUN npm install --legacy-peer-deps
 # Copy necessary files
 COPY backend ./backend
 COPY lib ./lib
-COPY tsconfig.json ./
 
-# Set environment
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8080
 
 EXPOSE 8080
 
-# Start the simple server from root
+# Start the simple server
 CMD ["node", "backend/server-simple.js"]
