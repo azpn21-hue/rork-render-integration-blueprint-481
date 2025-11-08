@@ -2,7 +2,7 @@
 # For local development, use http://localhost:10000
 # For production/preview, use the deployed backend URL
 EXPO_PUBLIC_PROJECT_ID=9wjyl0e4hila7inz8ajca
-EXPO_PUBLIC_RORK_API_BASE_URL=https://a-wozcefc4wlzlbxsknqi3r.rorktest.dev
+EXPO_PUBLIC_RORK_API_BASE_URL=https://r3al-app-271493276620.us-central1.run.app
 EXPO_PUBLIC_AI_BASE_URL=https://optima-core-712497593637.us-central1.run.app
 
 # Optima-Core Configuration
