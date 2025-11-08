@@ -14,7 +14,10 @@ console.log('[Backend] ========================================');
 setImmediate(async () => {
   try {
     console.log('[Backend] Testing database connection...');
-    const dbConnected = await testConnection();
+    const dbConnected = await Promise.race([
+      testConnection(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Database connection timeout')), 5000))
+    ]);
     if (dbConnected) {
       console.log('[Backend] ✅ Database connected successfully');
       await initializeDatabase();
