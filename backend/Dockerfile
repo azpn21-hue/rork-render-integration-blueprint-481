@@ -2,6 +2,9 @@ FROM node:20-slim
 
 WORKDIR /usr/src/app
 
+# Install dependencies for Cloud SQL Proxy (optional but recommended)
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 # Copy package files
 COPY package*.json ./
 
