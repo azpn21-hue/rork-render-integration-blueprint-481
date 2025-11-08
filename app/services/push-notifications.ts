@@ -19,7 +19,6 @@ if (Platform.OS !== 'web') {
       });
     }
   } catch (error) {
-    console.log('[Push] Push notifications not available in Expo Go (SDK 53+). Use a development build.');
     Notifications = null;
     Device = null;
   }
