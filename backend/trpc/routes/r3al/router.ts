@@ -57,6 +57,11 @@ import { sendSmsVerificationProcedure } from "./verification/send-sms";
 import { confirmSmsVerificationProcedure } from "./verification/confirm-sms";
 import { verifyIdProcedure } from "./verification/verify-id";
 import { getVerificationStatusProcedure, updateVerificationStatusProcedure } from "./verification/get-status";
+import { suggestMatchesProcedure } from "./match/suggest";
+import { compareUsersProcedure } from "./match/compare";
+import { recordFeedbackProcedure } from "./match/learn";
+import { getMatchHistoryProcedure } from "./match/history";
+import { getMatchInsightsProcedure } from "./match/insights";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -155,5 +160,12 @@ export const r3alRouter = createTRPCRouter({
     verifyId: verifyIdProcedure,
     getStatus: getVerificationStatusProcedure,
     updateStatus: updateVerificationStatusProcedure,
+  }),
+  match: createTRPCRouter({
+    suggest: suggestMatchesProcedure,
+    compare: compareUsersProcedure,
+    learn: recordFeedbackProcedure,
+    history: getMatchHistoryProcedure,
+    insights: getMatchInsightsProcedure,
   }),
 });

@@ -13,7 +13,8 @@ import {
   Users,
   TrendingUp,
   Zap,
-  Sparkles
+  Sparkles,
+  UserPlus
 } from "lucide-react-native";
 import { useR3al } from "@/app/contexts/R3alContext";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
@@ -287,6 +288,18 @@ export default function R3alHome() {
                 <Text style={styles.featureTitle}>Local Discovery</Text>
                 <Text style={styles.featureDescription}>
                   Explore nearby news and events
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => router.push("/r3al/match")}
+                activeOpacity={0.8}
+              >
+                <UserPlus size={32} color="#EC4899" strokeWidth={2} />
+                <Text style={styles.featureTitle}>AI Match</Text>
+                <Text style={styles.featureDescription}>
+                  Discover compatible connections
                 </Text>
               </TouchableOpacity>
             </View>
