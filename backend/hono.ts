@@ -3,32 +3,10 @@ import { trpcServer } from "@hono/trpc-server";
 import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
-import { testConnection, initializeDatabase } from "./db/config";
-
 console.log('[Backend] ========================================');
 console.log('[Backend] Initializing Hono application...');
 console.log('[Backend] Environment:', process.env.NODE_ENV || 'development');
 console.log('[Backend] ========================================');
-
-// Initialize database in background - don't block server startup
-setImmediate(async () => {
-  try {
-    console.log('[Backend] Testing database connection...');
-    const dbConnected = await Promise.race([
-      testConnection(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Database connection timeout')), 5000))
-    ]);
-    if (dbConnected) {
-      console.log('[Backend] ✅ Database connected successfully');
-      await initializeDatabase();
-    } else {
-      console.error('[Backend] ⚠️  Database connection failed - server will run without persistent storage');
-    }
-  } catch (error) {
-    console.error('[Backend] ⚠️  Database initialization error:', error);
-    console.error('[Backend] Server will continue without persistent storage');
-  }
-});
 
 const app = new Hono();
 
@@ -109,11 +87,9 @@ app.get("/", (c) => {
 
 app.get("/health", async (c) => {
   console.log('[Backend] Health check endpoint hit');
-  const dbHealthy = await testConnection();
   return c.json({ 
-    status: dbHealthy ? "healthy" : "degraded", 
+    status: "healthy", 
     message: "R3AL Connection API health check",
-    database: dbHealthy ? "connected" : "disconnected",
     timestamp: new Date().toISOString(),
     routes: Object.keys(appRouter._def.procedures).length
   });
