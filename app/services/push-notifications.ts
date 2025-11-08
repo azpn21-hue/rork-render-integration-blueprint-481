@@ -3,10 +3,19 @@ import Constants from 'expo-constants';
 
 let Notifications: any = null;
 let Device: any = null;
+let hasInitialized = false;
 
-if (Platform.OS !== 'web') {
+function initializeNotifications() {
+  if (hasInitialized || Platform.OS === 'web') {
+    return;
+  }
+  
+  hasInitialized = true;
+  
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     Notifications = require('expo-notifications').default || require('expo-notifications');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     Device = require('expo-device').default || require('expo-device');
     
     if (Notifications && Notifications.setNotificationHandler) {
@@ -18,7 +27,9 @@ if (Platform.OS !== 'web') {
         }),
       });
     }
-  } catch (error) {
+    console.log('[Push] Notifications initialized successfully');
+  } catch {
+    console.log('[Push] Push notifications not available in Expo Go SDK 53+. Use a development build.');
     Notifications = null;
     Device = null;
   }
@@ -30,6 +41,8 @@ export interface PushNotificationToken {
 }
 
 export async function registerForPushNotificationsAsync(): Promise<PushNotificationToken | null> {
+  initializeNotifications();
+  
   if (!Notifications || !Device) {
     console.log('[Push] Push notifications not available - requires development build');
     return null;
@@ -96,6 +109,8 @@ export async function schedulePushNotification(
   data?: Record<string, any>,
   trigger?: any
 ) {
+  initializeNotifications();
+  
   if (!Notifications) {
     console.log('[Push] Push notifications not available - requires development build');
     return null;
@@ -121,6 +136,8 @@ export async function schedulePushNotification(
 }
 
 export async function cancelNotification(notificationId: string) {
+  initializeNotifications();
+  
   if (!Notifications) {
     return;
   }
@@ -134,6 +151,8 @@ export async function cancelNotification(notificationId: string) {
 }
 
 export async function cancelAllNotifications() {
+  initializeNotifications();
+  
   if (!Notifications) {
     return;
   }
@@ -149,6 +168,8 @@ export async function cancelAllNotifications() {
 export function addNotificationReceivedListener(
   handler: (notification: any) => void
 ) {
+  initializeNotifications();
+  
   if (!Notifications) {
     return { remove: () => {} };
   }
@@ -158,6 +179,8 @@ export function addNotificationReceivedListener(
 export function addNotificationResponseReceivedListener(
   handler: (response: any) => void
 ) {
+  initializeNotifications();
+  
   if (!Notifications) {
     return { remove: () => {} };
   }
