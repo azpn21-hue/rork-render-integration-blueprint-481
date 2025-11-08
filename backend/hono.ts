@@ -10,16 +10,22 @@ console.log('[Backend] Initializing Hono application...');
 console.log('[Backend] Environment:', process.env.NODE_ENV || 'development');
 console.log('[Backend] ========================================');
 
-(async () => {
-  console.log('[Backend] Testing database connection...');
-  const dbConnected = await testConnection();
-  if (dbConnected) {
-    console.log('[Backend] ✅ Database connected successfully');
-    await initializeDatabase();
-  } else {
-    console.error('[Backend] ❌ Database connection failed - continuing without database');
+// Initialize database in background - don't block server startup
+setImmediate(async () => {
+  try {
+    console.log('[Backend] Testing database connection...');
+    const dbConnected = await testConnection();
+    if (dbConnected) {
+      console.log('[Backend] ✅ Database connected successfully');
+      await initializeDatabase();
+    } else {
+      console.error('[Backend] ⚠️  Database connection failed - server will run without persistent storage');
+    }
+  } catch (error) {
+    console.error('[Backend] ⚠️  Database initialization error:', error);
+    console.error('[Backend] Server will continue without persistent storage');
   }
-})();
+});
 
 const app = new Hono();
 

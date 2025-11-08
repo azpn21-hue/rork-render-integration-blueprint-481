@@ -21,3 +21,11 @@ GOOGLE_CLOUD_REGION=us-central1
 # API Environment
 API_ENV=production
 API_PORT=8080
+
+# Cloud SQL Configuration (for backend)
+CLOUD_SQL_CONNECTION_NAME=r3al-app-1:us-central1:system32-fdc
+DB_USER=postgres
+DB_PASSWORD=
+DB_NAME=r3al
+DB_HOST=34.59.125.192
+DB_PORT=5432
