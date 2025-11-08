@@ -25,14 +25,18 @@ app.use("*", cors({
     if (allowed.includes(origin)) return origin;
     
     if (origin.includes('.rork.live') || origin.includes('.rork.app') || origin.includes('.rorktest.dev')) {
+      console.log('[Backend] ✅ CORS allowed for Rork domain:', origin);
       return origin;
     }
     
+    console.log('[Backend] ⚠️  CORS blocked for origin:', origin);
     return false;
   },
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
+  allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
+  exposeHeaders: ["Content-Type"],
+  maxAge: 86400,
 }));
 
 console.log('[Backend] Registering tRPC server at /api/trpc/*');

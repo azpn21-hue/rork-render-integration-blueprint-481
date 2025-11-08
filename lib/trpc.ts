@@ -173,6 +173,17 @@ async function fetchWithRetry(url: RequestInfo | URL, options: RequestInit | und
     }
     console.error("[tRPC] ❌ Fetch failed for:", urlString);
     console.error("[tRPC] Error:", error.message);
+    console.error("[tRPC] Error name:", error.name);
+    console.error("[tRPC] Full error:", error);
+    
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      console.error("[tRPC] ⚠️  Network error - this usually means:");
+      console.error("[tRPC]    1. Backend is not running or not accessible");
+      console.error("[tRPC]    2. CORS is blocking the request");
+      console.error("[tRPC]    3. Backend URL is incorrect:", getBaseUrl());
+      console.error("[tRPC]    4. SSL/TLS certificate issue (if using HTTPS)");
+    }
+    
     if (attempt === 1) {
       const delay = 2000 + Math.floor(Math.random() * 1000);
       console.warn(`[tRPC] Network error. Retrying in ${delay}ms (attempt ${attempt}/1) →`, urlString);
