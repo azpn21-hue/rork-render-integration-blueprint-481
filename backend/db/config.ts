@@ -45,13 +45,18 @@ pool.on('remove', () => {
 
 export async function testConnection() {
   // Skip database if no connection info provided
-  if (!process.env.DB_PASSWORD && !process.env.CLOUD_SQL_CONNECTION_NAME) {
-    console.log('[Database] ⚠️  No database credentials found - skipping connection');
+  if (!process.env.DB_PASSWORD) {
+    console.log('[Database] ⚠️  No database password found - skipping connection');
     return false;
   }
   
   try {
-    const client = await pool.connect();
+    console.log('[Database] Attempting to connect...');
+    const client = await Promise.race([
+      pool.connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 3000))
+    ]) as any;
+    console.log('[Database] Connection acquired, testing query...');
     const result = await client.query('SELECT NOW()');
     client.release();
     console.log('[Database] ✅ Connection test successful:', result.rows[0]);
