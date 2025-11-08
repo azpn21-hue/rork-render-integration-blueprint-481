@@ -7,6 +7,9 @@ import tokens from "@/schemas/r3al/theme/ui_tokens.json";
 import manifest from "@/schemas/r3al/manifest.json";
 import { useR3al } from "@/app/contexts/R3alContext";
 import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
+import { cyberpunkTheme } from "@/app/theme";
+import ScanlineOverlay from "@/components/ScanlineOverlay";
+import GlitchText from "@/components/GlitchText";
 
 export default function R3alSplash() {
   const router = useRouter();
@@ -15,6 +18,8 @@ export default function R3alSplash() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [tapCount, setTapCount] = useState(0);
   const tapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const glowAnim = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
     console.log("[Splash] Starting boot pulse (3000ms)");
@@ -44,7 +49,23 @@ export default function R3alSplash() {
       ])
     );
 
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.5,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
     pulseAnimation.start();
+    glowAnimation.start();
 
     const navigationTimer = setTimeout(() => {
       const betaEndsAt = manifest.beta_promo?.ends_at;
@@ -64,12 +85,13 @@ export default function R3alSplash() {
 
     return () => {
       pulseAnimation.stop();
+      glowAnimation.stop();
       clearTimeout(navigationTimer);
       if (tapTimeoutRef.current) {
         clearTimeout(tapTimeoutRef.current);
       }
     };
-  }, [pulseAnim, fadeAnim, router, hasConsented]);
+  }, [pulseAnim, glowAnim, fadeAnim, router, hasConsented]);
 
   const handleLogoTap = async () => {
     const newCount = tapCount + 1;
@@ -100,9 +122,10 @@ export default function R3alSplash() {
 
   return (
     <LinearGradient
-      colors={[tokens.colors.background, tokens.colors.secondary]}
+      colors={[cyberpunkTheme.colors.background, "#121218", cyberpunkTheme.colors.background]}
       style={styles.container}
     >
+      <ScanlineOverlay speed={4000} opacity={0.03} color={cyberpunkTheme.colors.primary} />
       <TouchableOpacity onPress={handleLogoTap} activeOpacity={1}>
         <Animated.View
           style={[
@@ -114,6 +137,18 @@ export default function R3alSplash() {
           ]}
         >
           <View style={styles.logo}>
+            <Animated.View
+              style={[
+                styles.glowRing,
+                {
+                  opacity: glowAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0.3, 0.7],
+                  }),
+                  transform: [{ scale: glowAnim }],
+                },
+              ]}
+            />
             <Image 
               source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/etwz6wynbmclnaf4sb7bm' }}
               style={styles.logoImage}
@@ -124,17 +159,44 @@ export default function R3alSplash() {
       </TouchableOpacity>
 
       <Animated.View style={[styles.mottoContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.motto}>Reveal • Relate • Respect</Text>
+        <GlitchText style={styles.motto} glitchIntensity="low">
+          Reveal • Relate • Respect
+        </GlitchText>
         <View style={styles.pulseIndicator}>
           <Animated.View
             style={[
               styles.pulseDot,
               {
                 transform: [{ scale: pulseAnim }],
+                shadowColor: cyberpunkTheme.colors.primary,
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: glowAnim.interpolate({
+                  inputRange: [0.5, 1],
+                  outputRange: [0.5, 1],
+                }),
+                shadowRadius: 10,
+                elevation: 10,
               },
             ]}
           />
-          <Text style={styles.bpmText}>60 BPM</Text>
+          <Text style={styles.bpmText}>INITIALIZING...</Text>
+        </View>
+        <View style={styles.hexGrid}>
+          {[...Array(5)].map((_, i) => (
+            <Animated.View
+              key={i}
+              style={[
+                styles.hexLine,
+                {
+                  opacity: glowAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0.1, 0.3],
+                  }),
+                  height: 1 + i * 0.5,
+                },
+              ]}
+            />
+          ))}
         </View>
       </Animated.View>
     </LinearGradient>
@@ -156,6 +218,14 @@ const styles = StyleSheet.create({
     height: 200,
     justifyContent: "center",
     alignItems: "center",
+    position: "relative" as const,
+  },
+  glowRing: {
+    position: "absolute" as const,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: cyberpunkTheme.colors.primary,
   },
   logoImage: {
     width: 200,
@@ -167,10 +237,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   motto: {
-    fontSize: 18,
-    color: tokens.colors.gold,
-    letterSpacing: 1,
-    marginBottom: 20,
+    fontSize: 20,
+    color: cyberpunkTheme.colors.primary,
+    letterSpacing: 2,
+    marginBottom: 24,
+    fontWeight: "700" as const,
+    textTransform: "uppercase" as const,
   },
   pulseIndicator: {
     flexDirection: "row" as const,
@@ -181,10 +253,22 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: tokens.colors.accent,
+    backgroundColor: cyberpunkTheme.colors.primary,
   },
   bpmText: {
-    fontSize: 14,
-    color: tokens.colors.textSecondary,
+    fontSize: 12,
+    color: cyberpunkTheme.colors.textSecondary,
+    fontWeight: "600" as const,
+    letterSpacing: 1,
+  },
+  hexGrid: {
+    marginTop: 20,
+    width: 100,
+    gap: 8,
+    alignItems: "center",
+  },
+  hexLine: {
+    width: "100%",
+    backgroundColor: cyberpunkTheme.colors.primary,
   },
 });
