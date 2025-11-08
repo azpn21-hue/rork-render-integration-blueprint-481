@@ -1,15 +1,27 @@
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+let Notifications: any = null;
+let Device: any = null;
+
+try {
+  if (Constants.appOwnership !== 'expo') {
+    Notifications = require('expo-notifications');
+    Device = require('expo-device');
+    
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  } else {
+    console.log('[Push] Push notifications are not supported in Expo Go (SDK 53+). Use a development build.');
+  }
+} catch (error) {
+  console.log('[Push] Push notifications module not available:', error);
+}
 
 export interface PushNotificationToken {
   token: string;
@@ -17,6 +29,11 @@ export interface PushNotificationToken {
 }
 
 export async function registerForPushNotificationsAsync(): Promise<PushNotificationToken | null> {
+  if (!Notifications || !Device) {
+    console.log('[Push] Push notifications not available - requires development build');
+    return null;
+  }
+
   if (Platform.OS === 'web') {
     console.log('[Push] Web platform - notifications not fully supported');
     return null;
@@ -76,8 +93,13 @@ export async function schedulePushNotification(
   title: string,
   body: string,
   data?: Record<string, any>,
-  trigger?: Notifications.NotificationTriggerInput
+  trigger?: any
 ) {
+  if (!Notifications) {
+    console.log('[Push] Push notifications not available - requires development build');
+    return null;
+  }
+
   try {
     const id = await Notifications.scheduleNotificationAsync({
       content: {
@@ -98,6 +120,10 @@ export async function schedulePushNotification(
 }
 
 export async function cancelNotification(notificationId: string) {
+  if (!Notifications) {
+    return;
+  }
+
   try {
     await Notifications.cancelScheduledNotificationAsync(notificationId);
     console.log('[Push] Cancelled notification:', notificationId);
@@ -107,6 +133,10 @@ export async function cancelNotification(notificationId: string) {
 }
 
 export async function cancelAllNotifications() {
+  if (!Notifications) {
+    return;
+  }
+
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     console.log('[Push] Cancelled all notifications');
@@ -116,13 +146,19 @@ export async function cancelAllNotifications() {
 }
 
 export function addNotificationReceivedListener(
-  handler: (notification: Notifications.Notification) => void
+  handler: (notification: any) => void
 ) {
+  if (!Notifications) {
+    return { remove: () => {} };
+  }
   return Notifications.addNotificationReceivedListener(handler);
 }
 
 export function addNotificationResponseReceivedListener(
-  handler: (response: Notifications.NotificationResponse) => void
+  handler: (response: any) => void
 ) {
+  if (!Notifications) {
+    return { remove: () => {} };
+  }
   return Notifications.addNotificationResponseReceivedListener(handler);
 }
