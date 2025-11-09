@@ -1,170 +1,29 @@
 {
-  "name": "R3AL - Authentic Connection Platform",
   "short_name": "R3AL",
-  "description": "A balanced fusion of technology and humanity. Connect authentically with Pulse Hive, NFT Hive Tokens, and Optima II AI.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#ff0044",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en-US",
-  "dir": "ltr",
-  "categories": ["social", "lifestyle", "networking"],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
-  "prefer_related_applications": false,
+  "name": "R3AL - Authentic Connection Platform",
+  "description": "Join the R3AL Revolution - Authentic connection powered by Optima II AI",
   "icons": [
     {
-      "src": "/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
     },
     {
-      "src": "/icon-96x96.png",
-      "sizes": "96x96",
+      "src": "/favicon-192.png",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-384x384.png",
-      "sizes": "384x384",
+      "src": "/favicon-512.png",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/home.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "R3AL Home Screen"
-    },
-    {
-      "src": "/screenshots/pulse.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Pulse Chat Interface"
-    },
-    {
-      "src": "/screenshots/nft.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "NFT Hive Tokens"
-    },
-    {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "R3AL Home Screen (Desktop)"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Pulse Chat",
-      "short_name": "Pulse",
-      "description": "Start a Pulse Chat conversation",
-      "url": "/r3al/pulse-chat",
-      "icons": [
-        {
-          "src": "/shortcuts/pulse.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "NFT Hive",
-      "short_name": "NFT",
-      "description": "Create and manage NFT Hive Tokens",
-      "url": "/r3al/hive",
-      "icons": [
-        {
-          "src": "/shortcuts/nft.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Explore",
-      "short_name": "Explore",
-      "description": "Discover new connections",
-      "url": "/r3al/explore",
-      "icons": [
-        {
-          "src": "/shortcuts/explore.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "share_target": {
-    "action": "/r3al/feed",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "media",
-          "accept": ["image/*", "video/*"]
-        }
-      ]
-    }
-  },
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=app.r3al",
-      "id": "app.r3al"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/app/r3al/id123456789"
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+r3al",
-      "url": "/?action=%s"
-    }
-  ]
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ff0044",
+  "background_color": "#0a0a0a",
+  "orientation": "portrait-primary"
 }
