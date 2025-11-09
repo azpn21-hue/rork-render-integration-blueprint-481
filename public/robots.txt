@@ -1,0 +1,39 @@
+# R3AL - robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+
+# Crawl-delay for polite bots
+Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://r3al.app/sitemap.xml
+
+# Major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 10
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 5
+
+# Block AI scrapers (optional - uncomment if needed)
+# User-agent: GPTBot
+# Disallow: /
+# 
+# User-agent: CCBot
+# Disallow: /
+# 
+# User-agent: anthropic-ai
+# Disallow: /
