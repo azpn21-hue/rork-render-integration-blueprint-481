@@ -34,65 +34,70 @@ export const [VerificationProvider, useVerification] = createContextHook(() => {
     staleTime: 60000,
     retry: 2,
     retryDelay: 1000,
-    onSuccess: (data) => {
-      if (data) {
-        setStatus(data as VerificationStatus);
-        AsyncStorage.setItem(VERIFICATION_STORAGE_KEY, JSON.stringify(data));
-      }
-    },
-    onError: (error) => {
-      console.error("[Verification] Failed to fetch status:", error.message);
-    },
   });
+
+  useEffect(() => {
+    if (statusQuery.data) {
+      setStatus(statusQuery.data as VerificationStatus);
+      AsyncStorage.setItem(VERIFICATION_STORAGE_KEY, JSON.stringify(statusQuery.data));
+    }
+  }, [statusQuery.data]);
+
+  useEffect(() => {
+    if (statusQuery.error) {
+      console.error("[Verification] Failed to fetch status:", statusQuery.error.message);
+    }
+  }, [statusQuery.error]);
 
   const sendEmailMutation = trpc.r3al.verification.sendEmail.useMutation();
-  const confirmEmailMutation = trpc.r3al.verification.confirmEmail.useMutation({
-    onSuccess: (data) => {
-      if (data.verified) {
-        updateStatusMutation.mutate({ emailVerified: true });
-      }
-    },
-  });
+  const confirmEmailMutation = trpc.r3al.verification.confirmEmail.useMutation();
 
   const sendSmsMutation = trpc.r3al.verification.sendSms.useMutation();
-  const confirmSmsMutation = trpc.r3al.verification.confirmSms.useMutation({
-    onSuccess: (data) => {
-      if (data.verified) {
-        updateStatusMutation.mutate({ phoneVerified: true });
-      }
-    },
-  });
+  const confirmSmsMutation = trpc.r3al.verification.confirmSms.useMutation();
 
-  const verifyIdMutation = trpc.r3al.verification.verifyId.useMutation({
-    onSuccess: (data) => {
-      if (data.verified) {
-        updateStatusMutation.mutate({
-          idVerified: true,
-          aiConfidenceScore: data.aiConfidenceScore,
-        });
-      }
-    },
-  });
+  const verifyIdMutation = trpc.r3al.verification.verifyId.useMutation();
 
-  const updateStatusMutation = trpc.r3al.verification.updateStatus.useMutation({
-    onSuccess: (data) => {
-      if (data.status) {
-        setStatus({
-          ...data.status,
-          isFullyVerified: data.isFullyVerified,
-          completionPercentage: Math.round(
-            ((data.status.emailVerified ? 1 : 0) +
-              (data.status.phoneVerified ? 1 : 0) +
-              (data.status.idVerified ? 1 : 0) +
-              (data.status.voiceVerified ? 0.5 : 0)) /
-              3.5 *
-              100
-          ),
-        });
-        statusQuery.refetch();
-      }
-    },
-  });
+  const updateStatusMutation = trpc.r3al.verification.updateStatus.useMutation();
+
+  useEffect(() => {
+    if (confirmEmailMutation.data?.verified) {
+      updateStatusMutation.mutate({ emailVerified: true });
+    }
+  }, [confirmEmailMutation.data]);
+
+  useEffect(() => {
+    if (confirmSmsMutation.data?.verified) {
+      updateStatusMutation.mutate({ phoneVerified: true });
+    }
+  }, [confirmSmsMutation.data]);
+
+  useEffect(() => {
+    if (verifyIdMutation.data?.verified) {
+      updateStatusMutation.mutate({
+        idVerified: true,
+        aiConfidenceScore: verifyIdMutation.data.aiConfidenceScore,
+      });
+    }
+  }, [verifyIdMutation.data]);
+
+  useEffect(() => {
+    if (updateStatusMutation.data?.status) {
+      const data = updateStatusMutation.data;
+      setStatus({
+        ...data.status,
+        isFullyVerified: data.isFullyVerified,
+        completionPercentage: Math.round(
+          ((data.status.emailVerified ? 1 : 0) +
+            (data.status.phoneVerified ? 1 : 0) +
+            (data.status.idVerified ? 1 : 0) +
+            (data.status.voiceVerified ? 0.5 : 0)) /
+            3.5 *
+            100
+        ),
+      });
+      statusQuery.refetch();
+    }
+  }, [updateStatusMutation.data]);
 
   useEffect(() => {
     const loadCachedStatus = async () => {
