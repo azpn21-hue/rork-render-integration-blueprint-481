@@ -140,3 +140,61 @@ export async function getTruthScore(userId: string): Promise<TruthScoreResponse>
     return { success: false };
   }
 }
+
+export interface ApiConnectivityStatus {
+  aiGateway: {
+    reachable: boolean;
+    status?: number;
+    attemptedUrls: string[];
+    error?: string;
+  };
+  coreGateway: {
+    reachable: boolean;
+    status?: number;
+    attemptedUrls: string[];
+    error?: string;
+  };
+}
+
+async function verifyEndpoint(baseUrl: string, candidatePaths: string[]): Promise<{
+  reachable: boolean;
+  status?: number;
+  attemptedUrls: string[];
+  error?: string;
+}> {
+  const attemptedUrls: string[] = [];
+  for (const path of candidatePaths) {
+    const url = `${baseUrl}${path}`;
+    attemptedUrls.push(url);
+    console.log("verifyEndpoint probing", url);
+    try {
+      const response = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("verifyEndpoint response", url, response.status);
+      if (response.ok) {
+        return { reachable: true, status: response.status, attemptedUrls };
+      }
+    } catch (error) {
+      console.log("verifyEndpoint error", url, error);
+      return {
+        reachable: false,
+        attemptedUrls,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
+  return { reachable: false, attemptedUrls };
+}
+
+export async function verifyApiConnectivity(): Promise<ApiConnectivityStatus> {
+  const aiBase = process.env.EXPO_PUBLIC_AI_BASE_URL || "http://localhost:9000";
+  const coreBase = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "http://localhost:10000";
+  console.log("verifyApiConnectivity start", { aiBase, coreBase });
+  const [aiGateway, coreGateway] = await Promise.all([
+    verifyEndpoint(aiBase, ["/health", "/api/health", "/healthz"]),
+    verifyEndpoint(coreBase, ["/health", "/api/health", "/healthz"]),
+  ]);
+  console.log("verifyApiConnectivity result", { aiGateway, coreGateway });
+  return { aiGateway, coreGateway };
+}
