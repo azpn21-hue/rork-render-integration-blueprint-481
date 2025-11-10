@@ -3,6 +3,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
+import foundingMemberRoute from "./routes/founding-member";
 console.log('[Backend] ========================================');
 console.log('[Backend] Initializing Hono application...');
 console.log('[Backend] Environment:', process.env.NODE_ENV || 'development');
@@ -38,6 +39,9 @@ app.use("*", cors({
   exposeHeaders: ["Content-Type"],
   maxAge: 86400,
 }));
+
+console.log('[Backend] Registering marketing lead routes');
+app.route("/", foundingMemberRoute);
 
 console.log('[Backend] Registering tRPC server at /api/trpc/*');
 try {
