@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Sparkles, Send, Lightbulb, MessageCircle, Zap } from "lucide-react-native";
 import { useState, useRef, useEffect } from "react";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
-import { generateText } from "@rork/toolkit-sdk";
+import { generateText } from "@rork-ai/toolkit-sdk";
 
 interface Message {
   id: string;
