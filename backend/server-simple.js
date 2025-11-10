@@ -13,6 +13,35 @@ console.log('='.repeat(60));
 
 const app = new Hono();
 
+const envSnapshot = [
+  { key: 'DB_USER', value: process.env.DB_USER },
+  { key: 'DB_NAME', value: process.env.DB_NAME },
+  { key: 'CLOUD_SQL_CONNECTION_NAME', value: process.env.CLOUD_SQL_CONNECTION_NAME },
+  { key: 'EXPO_PUBLIC_RORK_API_BASE_URL', value: process.env.EXPO_PUBLIC_RORK_API_BASE_URL },
+  { key: 'EXPO_PUBLIC_AI_BASE_URL', value: process.env.EXPO_PUBLIC_AI_BASE_URL },
+];
+
+const missingEnvVars = envSnapshot
+  .filter(({ value }) => !value || value.trim().length === 0)
+  .map(({ key }) => key);
+
+console.log('🛠️ Environment diagnostics:');
+envSnapshot.forEach(({ key, value }) => {
+  if (!value) {
+    console.log(`   • ${key}: (missing)`);
+  } else {
+    const redacted = key.includes('PASSWORD') || key.includes('KEY') ? '***' : value;
+    console.log(`   • ${key}: ${redacted}`);
+  }
+});
+
+if (missingEnvVars.length > 0) {
+  console.log('⚠️  Missing environment variables detected:', missingEnvVars.join(', '));
+  console.log('   The service will continue to start, but upstream calls may fail until these are provided.');
+} else {
+  console.log('✅ All critical environment variables are present.');
+}
+
 // CORS setup
 app.use("*", cors({
   origin: (origin) => {
