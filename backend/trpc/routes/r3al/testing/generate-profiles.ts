@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure } from "../../../create-context";
-import { generateObject, generateText } from "@rork/toolkit-sdk";
+import { generateObject, generateText } from "@rork-ai/toolkit-sdk";
 import { createUser, createProfile, updateUserTruthScore, createVerification, updateTokenBalance } from "../../../../db/queries";
 import crypto from "crypto";
 

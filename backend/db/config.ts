@@ -189,6 +189,18 @@ export async function initializeDatabase() {
     `);
     console.log('[Database] ✅ Sessions table ready');
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS leads (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(50) NOT NULL,
+        name VARCHAR(255),
+        email VARCHAR(255),
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('[Database] ✅ Leads table ready');
+
     console.log('[Database] ✅ Database initialization complete');
     return true;
   } catch (error) {
