@@ -6,7 +6,7 @@ export const APP_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  baseURL: process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "https://rork-gateway.onrender.com",
+  baseURL: process.env.EXPO_PUBLIC_RORK_API_BASE_URL || process.env.REACT_APP_RORK_API_BASE_URL || "https://optima-core-271493276620.us-central1.run.app",
   timeout: 30000,
   retryAttempts: 3,
   retryDelay: 1000,

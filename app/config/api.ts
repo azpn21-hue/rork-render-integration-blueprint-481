@@ -1,44 +1,60 @@
 import axios from "axios";
 
+const resolveEnvValue = (keys: string[]) => {
+  for (const key of keys) {
+    const value = process.env?.[key];
+    if (value && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return undefined;
+};
+
 const getBaseUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  
-  if (envUrl && envUrl.trim().length > 0) {
+  const envUrl = resolveEnvValue([
+    "EXPO_PUBLIC_RORK_API_BASE_URL",
+    "REACT_APP_RORK_API_BASE_URL",
+  ]);
+
+  if (envUrl) {
     const cleanUrl = envUrl.replace(/\/$/, "");
-    if (!cleanUrl.includes('localhost') || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) {
+    if (!cleanUrl.includes("localhost") || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) {
       return cleanUrl;
     }
   }
-  
+
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    
+
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:10000";
     }
   }
-  
+
   return "http://localhost:10000";
 };
 
 const getAIBaseUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_AI_BASE_URL;
-  
-  if (envUrl && envUrl.trim().length > 0) {
+  const envUrl = resolveEnvValue([
+    "EXPO_PUBLIC_AI_BASE_URL",
+    "REACT_APP_AI_BASE_URL",
+  ]);
+
+  if (envUrl) {
     const cleanUrl = envUrl.replace(/\/$/, "");
-    if (!cleanUrl.includes('localhost') || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) {
+    if (!cleanUrl.includes("localhost") || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) {
       return cleanUrl;
     }
   }
-  
+
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    
+
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:9000";
     }
   }
-  
+
   return "http://localhost:9000";
 };
 
