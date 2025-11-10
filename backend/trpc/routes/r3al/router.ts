@@ -68,6 +68,18 @@ import { generateInteractionsProcedure } from "./testing/generate-interactions";
 import { testMatchingProcedure } from "./testing/test-matching";
 import { cleanupTestDataProcedure } from "./testing/cleanup-test-data";
 import { runFullTestSuiteProcedure } from "./testing/run-full-test-suite";
+import { getPulseStateProcedure } from "./pulse/get-state";
+import { updatePulseStateProcedure } from "./pulse/update-state";
+import { sharePulseProcedure } from "./pulse/share-pulse";
+import { logHistoryEventProcedure } from "./history/log-event";
+import { getHistoryProcedure } from "./history/get-history";
+import { deleteHistoryProcedure } from "./history/delete-history";
+import { getHistorySummaryProcedure } from "./history/get-summary";
+import { getHiveConnectionsProcedure } from "./hive/get-connections";
+import { requestHiveConnectionProcedure } from "./hive/request-connection";
+import { respondHiveConnectionProcedure } from "./hive/respond-connection";
+import { generateHiveNFTProcedure } from "./hive/generate-nft";
+import { getHiveNFTProcedure } from "./hive/get-nft";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -181,5 +193,23 @@ export const r3alRouter = createTRPCRouter({
     testMatching: testMatchingProcedure,
     cleanup: cleanupTestDataProcedure,
     runFullSuite: runFullTestSuiteProcedure,
+  }),
+  pulse: createTRPCRouter({
+    getState: getPulseStateProcedure,
+    updateState: updatePulseStateProcedure,
+    sharePulse: sharePulseProcedure,
+  }),
+  history: createTRPCRouter({
+    logEvent: logHistoryEventProcedure,
+    getHistory: getHistoryProcedure,
+    deleteHistory: deleteHistoryProcedure,
+    getSummary: getHistorySummaryProcedure,
+  }),
+  hive: createTRPCRouter({
+    getConnections: getHiveConnectionsProcedure,
+    requestConnection: requestHiveConnectionProcedure,
+    respondConnection: respondHiveConnectionProcedure,
+    generateNFT: generateHiveNFTProcedure,
+    getNFT: getHiveNFTProcedure,
   }),
 });
