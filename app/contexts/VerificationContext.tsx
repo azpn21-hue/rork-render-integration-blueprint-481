@@ -1,5 +1,5 @@
 import createContextHook from "@nkzw/create-context-hook";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -29,8 +29,10 @@ export const [VerificationProvider, useVerification] = createContextHook(() => {
     completionPercentage: 0,
     lastUpdated: new Date(),
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const statusQuery = trpc.r3al.verification.getStatus.useQuery(undefined, {
+    enabled: false,
     staleTime: 60000,
     retry: 2,
     retryDelay: 1000,
@@ -115,15 +117,24 @@ export const [VerificationProvider, useVerification] = createContextHook(() => {
     loadCachedStatus();
   }, []);
 
+  const refetchStatus = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await statusQuery.refetch();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [statusQuery]);
+
   return {
     status,
-    isLoading: statusQuery.isLoading,
+    isLoading: isLoading || statusQuery.isLoading,
     sendEmail: sendEmailMutation.mutate,
     confirmEmail: confirmEmailMutation.mutate,
     sendSms: sendSmsMutation.mutate,
     confirmSms: confirmSmsMutation.mutate,
     verifyId: verifyIdMutation.mutate,
-    refetchStatus: statusQuery.refetch,
+    refetchStatus,
     isSendingEmail: sendEmailMutation.isPending,
     isConfirmingEmail: confirmEmailMutation.isPending,
     isSendingSms: sendSmsMutation.isPending,
