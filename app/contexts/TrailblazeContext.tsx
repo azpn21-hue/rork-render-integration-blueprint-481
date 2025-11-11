@@ -1,6 +1,5 @@
 import createContextHook from "@nkzw/create-context-hook";
 import { useState, useCallback, useMemo } from "react";
-import { trpcClient } from "@/lib/trpc";
 
 export type ActivityType =
   | 'resonate'
@@ -108,24 +107,16 @@ export const [TrailblazeContext, useTrailblaze] = createContextHook(() => {
     if (!isTracking) return;
 
     try {
-      const result = await trpcClient.r3al.activity.track.mutate({
-        userId,
-        activityType,
-        targetId,
-        targetType,
-        metadata,
-      });
-
-      console.log(`[Trailblaze] Tracked: ${activityType}`, result);
+      console.log(`[Trailblaze] Tracked: ${activityType} (local only)`);
 
       const newActivity: Activity = {
-        id: result.activityId,
+        id: `activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         activityType,
         targetId,
         targetType,
         metadata,
-        timestamp: result.timestamp,
+        timestamp: new Date().toISOString(),
       };
 
       setActivities(prev => [newActivity, ...prev].slice(0, 100));
@@ -146,20 +137,10 @@ export const [TrailblazeContext, useTrailblaze] = createContextHook(() => {
   ) => {
     setIsLoading(true);
     try {
-      const result = await trpcClient.r3al.activity.getHistory.query({
-        userId,
-        limit: options?.limit || 50,
-        offset: options?.offset || 0,
-        activityTypes: options?.activityTypes,
-        startDate: options?.startDate,
-        endDate: options?.endDate,
-      });
-
-      setActivities(result.activities);
-      console.log(`[Trailblaze] Loaded ${result.activities.length} activities`);
+      console.log(`[Trailblaze] Loading history for user: ${userId} (local only)`);
+      setIsLoading(false);
     } catch (error) {
       console.error('[Trailblaze] Error loading history:', error);
-    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -170,19 +151,39 @@ export const [TrailblazeContext, useTrailblaze] = createContextHook(() => {
   ) => {
     setIsLoading(true);
     try {
-      const result = await trpcClient.r3al.activity.getStats.query({
-        userId,
+      const mockStats: ActivityStats = {
         period,
-      });
+        stats: {
+          totalActivities: activities.length,
+          resonanceGiven: 0,
+          amplificationsGiven: 0,
+          witnessesGiven: 0,
+          circlesJoined: 0,
+          postsCreated: 0,
+          dmsExchanged: 0,
+          profileViews: 0,
+          nftsCreated: 0,
+          tokensEarned: 0,
+          tokensSpent: 0,
+          followersGained: 0,
+          usersFollowed: 0,
+          endorsementsReceived: 0,
+          endorsementsGiven: 0,
+          qotdAnswered: 0,
+          truthScoreChange: 0,
+        },
+        topActivities: [],
+        timestamp: new Date().toISOString(),
+      };
 
-      setStats(result);
-      console.log(`[Trailblaze] Loaded stats for ${period}:`, result);
+      setStats(mockStats);
+      console.log(`[Trailblaze] Loaded stats for ${period} (local only)`);
     } catch (error) {
       console.error('[Trailblaze] Error loading stats:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activities]);
 
   const enableTracking = useCallback(() => {
     setIsTracking(true);
