@@ -80,6 +80,14 @@ import { requestHiveConnectionProcedure } from "./hive/request-connection";
 import { respondHiveConnectionProcedure } from "./hive/respond-connection";
 import { generateHiveNFTProcedure } from "./hive/generate-nft";
 import { getHiveNFTProcedure } from "./hive/get-nft";
+import { createHiveEventProcedure } from "./hive-events/create";
+import { getCircleEventsProcedure } from "./hive-events/get-circle-events";
+import { getEventDetailProcedure } from "./hive-events/get-detail";
+import { joinEventProcedure } from "./hive-events/join";
+import { leaveEventProcedure } from "./hive-events/leave";
+import { submitLiveDataProcedure } from "./hive-events/submit-live-data";
+import { getLiveStreamProcedure } from "./hive-events/get-live-stream";
+import { completeEventProcedure } from "./hive-events/complete";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -211,5 +219,15 @@ export const r3alRouter = createTRPCRouter({
     respondConnection: respondHiveConnectionProcedure,
     generateNFT: generateHiveNFTProcedure,
     getNFT: getHiveNFTProcedure,
+  }),
+  hiveEvents: createTRPCRouter({
+    create: createHiveEventProcedure,
+    getCircleEvents: getCircleEventsProcedure,
+    getDetail: getEventDetailProcedure,
+    join: joinEventProcedure,
+    leave: leaveEventProcedure,
+    submitLiveData: submitLiveDataProcedure,
+    getLiveStream: getLiveStreamProcedure,
+    complete: completeEventProcedure,
   }),
 });

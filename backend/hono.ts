@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
 import foundingMemberRoute from "./routes/founding-member";
+import { startEventScheduler } from "./services/event-scheduler";
 console.log('[Backend] ========================================');
 console.log('[Backend] Initializing Hono application...');
 console.log('[Backend] Environment:', process.env.NODE_ENV || 'development');
@@ -175,6 +176,10 @@ setInterval(async () => {
     console.error("[WATCHDOG] gateway error", e?.message || String(e));
   }
 }, WATCH_INTERVAL);
+
+console.log('[Backend] Starting Event Scheduler...');
+startEventScheduler();
+console.log('[Backend] ✅ Event Scheduler started');
 
 console.log('[Backend] ========================================');
 console.log('[Backend] ✅ Backend initialization complete');
