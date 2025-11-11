@@ -88,6 +88,12 @@ import { leaveEventProcedure } from "./hive-events/leave";
 import { submitLiveDataProcedure } from "./hive-events/submit-live-data";
 import { getLiveStreamProcedure } from "./hive-events/get-live-stream";
 import { completeEventProcedure } from "./hive-events/complete";
+import { createNodeProcedure } from "./memory/create-node";
+import { createEdgeProcedure } from "./memory/create-edge";
+import { getContextProcedure } from "./memory/get-context";
+import { querySimilarityProcedure } from "./memory/query-similarity";
+import { explainActionProcedure } from "./memory/explain-action";
+import { getPairingsProcedure } from "./memory/get-pairings";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -229,5 +235,13 @@ export const r3alRouter = createTRPCRouter({
     submitLiveData: submitLiveDataProcedure,
     getLiveStream: getLiveStreamProcedure,
     complete: completeEventProcedure,
+  }),
+  memory: createTRPCRouter({
+    createNode: createNodeProcedure,
+    createEdge: createEdgeProcedure,
+    getContext: getContextProcedure,
+    querySimilarity: querySimilarityProcedure,
+    explainAction: explainActionProcedure,
+    getPairings: getPairingsProcedure,
   }),
 });
