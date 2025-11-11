@@ -94,6 +94,15 @@ import { getContextProcedure } from "./memory/get-context";
 import { querySimilarityProcedure } from "./memory/query-similarity";
 import { explainActionProcedure } from "./memory/explain-action";
 import { getPairingsProcedure } from "./memory/get-pairings";
+import { trainModelProcedure } from "./training/train-model";
+import { evaluateModelProcedure } from "./training/evaluate-model";
+import { deployModelProcedure } from "./training/deploy-model";
+import { getModelVersionsProcedure } from "./training/get-model-versions";
+import { monitorModelProcedure } from "./training/monitor-model";
+import { rollbackModelProcedure } from "./training/rollback-model";
+import { anonymizeDataProcedure } from "./training/anonymize-data";
+import { generateSyntheticDataProcedure } from "./training/generate-synthetic";
+import { calculateRewardProcedure } from "./training/calculate-reward";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -243,5 +252,16 @@ export const r3alRouter = createTRPCRouter({
     querySimilarity: querySimilarityProcedure,
     explainAction: explainActionProcedure,
     getPairings: getPairingsProcedure,
+  }),
+  training: createTRPCRouter({
+    trainModel: trainModelProcedure,
+    evaluateModel: evaluateModelProcedure,
+    deployModel: deployModelProcedure,
+    getModelVersions: getModelVersionsProcedure,
+    monitorModel: monitorModelProcedure,
+    rollbackModel: rollbackModelProcedure,
+    anonymizeData: anonymizeDataProcedure,
+    generateSynthetic: generateSyntheticDataProcedure,
+    calculateReward: calculateRewardProcedure,
   }),
 });
