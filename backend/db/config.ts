@@ -71,6 +71,9 @@ export async function initializeDatabase() {
   console.log('[Database] Initializing database schema...');
   
   try {
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    console.log('[Database] ✅ UUID extension enabled');
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(255) PRIMARY KEY,
@@ -201,11 +204,34 @@ export async function initializeDatabase() {
     `);
     console.log('[Database] ✅ Leads table ready');
 
+    console.log('[Database] ✅ Core tables initialized, running extended schema...');
+    await initializeExtendedSchema();
+
     console.log('[Database] ✅ Database initialization complete');
     return true;
   } catch (error) {
     console.error('[Database] ❌ Failed to initialize database:', error);
     throw error;
+  }
+}
+
+export async function initializeExtendedSchema() {
+  console.log('[Database] Initializing extended schema (Memory Graph, Training, Writers Guild, etc.)...');
+  
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const schemaPath = path.join(__dirname, 'comprehensive-schema.sql');
+    
+    if (fs.existsSync(schemaPath)) {
+      const schemaSQL = fs.readFileSync(schemaPath, 'utf-8');
+      await pool.query(schemaSQL);
+      console.log('[Database] ✅ Extended schema applied successfully');
+    } else {
+      console.log('[Database] ⚠️  Extended schema file not found, skipping...');
+    }
+  } catch (error) {
+    console.error('[Database] ❌ Failed to initialize extended schema:', error);
   }
 }
 

@@ -1,84 +1,110 @@
-import { publicProcedure } from "../../../create-context";
 import { z } from "zod";
+import { publicProcedure } from "../../../create-context";
+import { pool } from "../../../../db/config";
+import { generateText } from "@rork-ai/toolkit-sdk";
 
 export const getOptimaSRAnalysisProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string(),
-    analysisType: z.enum(['situational', 'risk', 'resource', 'tactical']),
-    context: z.any().optional(),
-  }))
-  .query(async ({ input }) => {
-    console.log("[Tactical] Optima SR analysis:", input.analysisType);
+  .input(
+    z.object({
+      userId: z.string(),
+      sessionType: z.enum(['stress_assessment', 'pre_deployment', 'post_incident', 'routine_check', 'crisis']),
+      stressIndicators: z.object({
+        heartRate: z.number().optional(),
+        sleepQuality: z.number().min(0).max(10).optional(),
+        moodRating: z.number().min(0).max(10).optional(),
+        recentIncidents: z.array(z.string()).optional(),
+      }),
+    })
+  )
+  .mutation(async ({ input }) => {
+    console.log('[Tactical-HQ] Generating Optima SR analysis:', input.sessionType);
 
-    // Mock implementation - Optima SR provides tactical AI insights
-    let analysis = {};
+    try {
+      const tacticalCheck = await pool.query(
+        `SELECT tactical_id, role, organization, clearance_level 
+        FROM tactical_users 
+        WHERE user_id = $1`,
+        [input.userId]
+      );
 
-    switch (input.analysisType) {
-      case 'situational':
-        analysis = {
-          overallThreatLevel: 'medium',
-          activeSituations: 3,
-          predictedIncidents: [
-            {
-              type: 'traffic',
-              location: 'Downtown',
-              probability: 0.7,
-              timeframe: '2 hours',
-            },
-          ],
-          recommendations: [
-            'Increase patrols in high-traffic areas',
-            'Pre-position resources in sector 4',
-          ],
-        };
-        break;
+      if (tacticalCheck.rows.length === 0) {
+        throw new Error('User not registered in Tactical HQ');
+      }
 
-      case 'risk':
-        analysis = {
-          riskScore: 6.5,
-          factors: [
-            { name: 'Weather conditions', impact: 'moderate', weight: 0.3 },
-            { name: 'Event concentration', impact: 'high', weight: 0.5 },
-            { name: 'Historical patterns', impact: 'low', weight: 0.2 },
-          ],
-          mitigationSteps: [
-            'Deploy additional units to high-risk zones',
-            'Enhance coordination with neighboring jurisdictions',
-          ],
-        };
-        break;
+      const tacticalUser = tacticalCheck.rows[0];
 
-      case 'resource':
-        analysis = {
-          availableUnits: 12,
-          deployedUnits: 8,
-          utilizationRate: 0.67,
-          predictedShortfalls: [],
-          optimizationSuggestions: [
-            'Reallocate Unit 5 to Sector 7 for better coverage',
-          ],
-        };
-        break;
+      const analysisPrompt = `You are Optima SR, an AI specialized in supporting military personnel and first responders with stress resilience and mental health.
 
-      case 'tactical':
-        analysis = {
-          optimalApproach: 'Standard response protocol',
-          timeToTarget: '4 minutes',
-          backupRequired: false,
-          alternativeRoutes: ['Route A via Main St', 'Route B via Oak Ave'],
-          safetyConsiderations: [
-            'Heavy traffic expected on primary route',
-            'Construction zone at intersection 5',
-          ],
-        };
-        break;
+User Role: ${tacticalUser.role}
+Organization: ${tacticalUser.organization}
+Session Type: ${input.sessionType}
+
+Current Indicators:
+- Heart Rate: ${input.stressIndicators.heartRate || 'Not provided'}
+- Sleep Quality: ${input.stressIndicators.sleepQuality || 'Not provided'}/10
+- Mood Rating: ${input.stressIndicators.moodRating || 'Not provided'}/10
+- Recent Incidents: ${input.stressIndicators.recentIncidents?.join(', ') || 'None reported'}
+
+Provide a compassionate, professional stress resilience analysis including:
+1. Current stress level assessment
+2. Specific recommendations for this ${input.sessionType} session
+3. Coping strategies tailored to ${tacticalUser.role}
+4. Warning signs to monitor
+5. When to seek additional support
+
+Keep it concise, actionable, and supportive. Acknowledge the unique challenges of their role.`;
+
+      const analysis = await generateText({
+        messages: [
+          { role: 'user', content: analysisPrompt }
+        ]
+      });
+
+      const stressLevel = input.stressIndicators.moodRating 
+        ? (10 - input.stressIndicators.moodRating) / 10 
+        : 0.5;
+
+      const recommendations = [
+        'Practice box breathing: 4 seconds in, 4 hold, 4 out, 4 hold',
+        'Maintain regular sleep schedule',
+        'Connect with peer support network',
+        'Physical activity for stress release',
+        'Professional counseling if symptoms persist',
+      ];
+
+      const sessionResult = await pool.query(
+        `INSERT INTO optima_sr_sessions 
+        (tactical_user_id, session_type, stress_level, recommendations, interventions, created_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        RETURNING *`,
+        [
+          tacticalUser.tactical_id,
+          input.sessionType,
+          stressLevel,
+          recommendations,
+          JSON.stringify({ indicators: input.stressIndicators }),
+        ]
+      );
+
+      console.log('[Tactical-HQ] Optima SR session created:', sessionResult.rows[0].session_id);
+
+      return {
+        success: true,
+        session: {
+          sessionId: sessionResult.rows[0].session_id,
+          sessionType: input.sessionType,
+          stressLevel,
+        },
+        analysis,
+        recommendations,
+        supportResources: {
+          veteransCrisisLine: '1-800-273-8255',
+          militaryOneSource: '1-800-342-9647',
+          copline: '1-800-267-5463',
+        },
+      };
+    } catch (error) {
+      console.error('[Tactical-HQ] Failed to generate Optima SR analysis:', error);
+      throw error;
     }
-
-    return {
-      success: true,
-      analysisType: input.analysisType,
-      timestamp: new Date().toISOString(),
-      analysis,
-      confidence: 0.85,
-    };
   });
