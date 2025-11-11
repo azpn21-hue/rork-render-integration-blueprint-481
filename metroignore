@@ -1,0 +1,6 @@
+backend/**/*
+scripts/**/*
+*.md
+*.sh
+server.js
+*.sql
