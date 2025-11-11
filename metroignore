@@ -1,6 +1,51 @@
+# Metro bundler ignore patterns
+# Prevent Metro from trying to bundle backend Node.js code
+
+# Backend server code (contains Node.js modules like pg, hono, etc.)
 backend/**/*
+
+# Build and deployment scripts
 scripts/**/*
+
+# AI Gateway (contains Node.js-specific code)
+ai-gateway/**/*
+
+# Documentation
 *.md
+
+# Shell scripts
 *.sh
-server.js
+
+# SQL files
 *.sql
+
+# Docker files
+Dockerfile*
+*.dockerignore
+
+# Cloud Build
+cloudbuild.yaml
+.gcloudignore
+
+# Server entry points
+server.js
+backend/server.js
+
+# Public web files
+public/**/*
+
+# Firebase files
+firebase.json
+.firebaserc
+
+# Render config
+render.yaml
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Schema files (JSON files are fine, but just in case)
+schemas/**/*.sql
