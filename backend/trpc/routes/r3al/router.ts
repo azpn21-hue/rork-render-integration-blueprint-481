@@ -103,6 +103,23 @@ import { rollbackModelProcedure } from "./training/rollback-model";
 import { anonymizeDataProcedure } from "./training/anonymize-data";
 import { generateSyntheticDataProcedure } from "./training/generate-synthetic";
 import { calculateRewardProcedure } from "./training/calculate-reward";
+import { getUserTierProcedure } from "./subscription/get-user-tier";
+import { checkFeatureAccessProcedure } from "./subscription/check-feature-access";
+import { trackUsageProcedure } from "./subscription/track-usage";
+import { upgradeTierProcedure } from "./subscription/upgrade-tier";
+import { sendAiMessageProcedure } from "./ai-chat/send-message";
+import { getSessionHistoryProcedure } from "./ai-chat/get-session-history";
+import { createProjectProcedure } from "./writers-guild/create-project";
+import { getProjectsProcedure } from "./writers-guild/get-projects";
+import { startWritingSessionProcedure } from "./writers-guild/start-session";
+import { getGuildMemberProcedure } from "./writers-guild/get-member";
+import { registerTacticalUserProcedure } from "./tactical/register";
+import { getTacticalDashboardProcedure } from "./tactical/get-dashboard";
+import { sendTacticalCommProcedure } from "./tactical/send-comm";
+import { getOptimaSRAnalysisProcedure } from "./tactical/optima-sr-analysis";
+import { generateImageProcedure } from "./premium/generate-image";
+import { getImageHistoryProcedure } from "./premium/get-image-history";
+import { getUsageSummaryProcedure } from "./premium/get-usage-summary";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -263,5 +280,32 @@ export const r3alRouter = createTRPCRouter({
     anonymizeData: anonymizeDataProcedure,
     generateSynthetic: generateSyntheticDataProcedure,
     calculateReward: calculateRewardProcedure,
+  }),
+  subscription: createTRPCRouter({
+    getUserTier: getUserTierProcedure,
+    checkFeatureAccess: checkFeatureAccessProcedure,
+    trackUsage: trackUsageProcedure,
+    upgradeTier: upgradeTierProcedure,
+  }),
+  aiChat: createTRPCRouter({
+    sendMessage: sendAiMessageProcedure,
+    getSessionHistory: getSessionHistoryProcedure,
+  }),
+  writersGuild: createTRPCRouter({
+    createProject: createProjectProcedure,
+    getProjects: getProjectsProcedure,
+    startSession: startWritingSessionProcedure,
+    getMember: getGuildMemberProcedure,
+  }),
+  tactical: createTRPCRouter({
+    register: registerTacticalUserProcedure,
+    getDashboard: getTacticalDashboardProcedure,
+    sendComm: sendTacticalCommProcedure,
+    getOptimaSRAnalysis: getOptimaSRAnalysisProcedure,
+  }),
+  premium: createTRPCRouter({
+    generateImage: generateImageProcedure,
+    getImageHistory: getImageHistoryProcedure,
+    getUsageSummary: getUsageSummaryProcedure,
   }),
 });
