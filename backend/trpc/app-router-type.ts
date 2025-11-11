@@ -1,7 +1,5 @@
-// This file ONLY exports the type, not the implementation
-// It avoids Metro bundler trying to load backend dependencies into the frontend
-// Using import type ensures we only get the type, not the runtime code
+// CRITICAL: This file uses type-only import to prevent bundling backend code
+// Metro bundler will strip this import at build time since it's type-only
+// Do NOT change "import type" to "import" or it will break the build
 
-import type { AppRouter as AppRouterImpl } from "./app-router";
-
-export type AppRouter = AppRouterImpl;
+export type { AppRouter } from "./app-router";
