@@ -8,7 +8,7 @@ import {
   useSharePulse,
   type EmotionalState,
   getEmotionalStateColor,
-} from "@/services/pulse";
+} from "@/app/services/pulse";
 
 export default function PulseScreen() {
   const [selectedState, setSelectedState] = useState<EmotionalState>("calm");

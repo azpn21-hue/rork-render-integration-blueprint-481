@@ -7,7 +7,7 @@ import {
   useDeleteHistory,
   getEventTypeLabel,
   getEventTypeIcon,
-} from "@/services/history";
+} from "@/app/services/history";
 
 export default function HistoryScreen() {
   const [historyEnabled, setHistoryEnabled] = useState(true);
