@@ -120,6 +120,14 @@ import { getOptimaSRAnalysisProcedure } from "./tactical/optima-sr-analysis";
 import { generateImageProcedure } from "./premium/generate-image";
 import { getImageHistoryProcedure } from "./premium/get-image-history";
 import { getUsageSummaryProcedure } from "./premium/get-usage-summary";
+import { createMusicProjectProcedure } from "./studio/create-project";
+import { generateMusicProcedure } from "./studio/generate-music";
+import { getMusicProjectsProcedure } from "./studio/get-projects";
+import { shareMusicProcedure } from "./studio/share-music";
+import { getWritingAssistanceProcedure } from "./writers-guild/get-assistance";
+import { upgradeMemberProcedure } from "./writers-guild/upgrade-member";
+import { sendSecureCommProcedure } from "./tactical/send-secure-comm";
+import { getCommsProcedure } from "./tactical/get-comms";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -291,21 +299,31 @@ export const r3alRouter = createTRPCRouter({
     sendMessage: sendAiMessageProcedure,
     getSessionHistory: getSessionHistoryProcedure,
   }),
+  premium: createTRPCRouter({
+    generateImage: generateImageProcedure,
+    getImageHistory: getImageHistoryProcedure,
+    getUsageSummary: getUsageSummaryProcedure,
+  }),
+  studio: createTRPCRouter({
+    createProject: createMusicProjectProcedure,
+    generateMusic: generateMusicProcedure,
+    getProjects: getMusicProjectsProcedure,
+    shareMusic: shareMusicProcedure,
+  }),
   writersGuild: createTRPCRouter({
     createProject: createProjectProcedure,
     getProjects: getProjectsProcedure,
     startSession: startWritingSessionProcedure,
     getMember: getGuildMemberProcedure,
+    getAssistance: getWritingAssistanceProcedure,
+    upgradeMember: upgradeMemberProcedure,
   }),
   tactical: createTRPCRouter({
     register: registerTacticalUserProcedure,
     getDashboard: getTacticalDashboardProcedure,
     sendComm: sendTacticalCommProcedure,
     getOptimaSRAnalysis: getOptimaSRAnalysisProcedure,
-  }),
-  premium: createTRPCRouter({
-    generateImage: generateImageProcedure,
-    getImageHistory: getImageHistoryProcedure,
-    getUsageSummary: getUsageSummaryProcedure,
+    sendSecureComm: sendSecureCommProcedure,
+    getComms: getCommsProcedure,
   }),
 });
