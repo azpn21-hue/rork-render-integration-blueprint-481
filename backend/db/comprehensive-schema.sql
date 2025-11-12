@@ -11,6 +11,53 @@ CREATE EXTENSION IF NOT EXISTS "pgvector";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- ============================================
+-- AI CHAT SYSTEM
+-- ============================================
+
+-- Chat sessions and messages
+CREATE TABLE IF NOT EXISTS r3al_ai_chat_sessions (
+    session_id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    context VARCHAR(50) DEFAULT 'general',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    message_count INT DEFAULT 0,
+    metadata JSONB DEFAULT '{}',
+    CHECK (context IN ('writing', 'general', 'tactical'))
+);
+
+CREATE TABLE IF NOT EXISTS r3al_ai_chat_messages (
+    message_id VARCHAR(255) PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    context VARCHAR(50) DEFAULT 'general',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CHECK (role IN ('user', 'assistant', 'system'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_session ON r3al_ai_chat_messages(session_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_user ON r3al_ai_chat_messages(user_id, created_at);
+
+-- Subscription tiers
+CREATE TABLE IF NOT EXISTS r3al_subscription (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    tier VARCHAR(50) NOT NULL DEFAULT 'free',
+    stripe_subscription_id VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'active',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CHECK (tier IN ('free', 'premium', 'pro')),
+    CHECK (status IN ('active', 'canceled', 'expired', 'pending'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_subscription_user ON r3al_subscription(user_id, created_at DESC);
+
+-- ============================================
 -- MEMORY GRAPH ENGINE (Blueprint #5)
 -- ============================================
 
