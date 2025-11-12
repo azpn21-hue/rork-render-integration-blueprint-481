@@ -128,6 +128,15 @@ import { getWritingAssistanceProcedure } from "./writers-guild/get-assistance";
 import { upgradeMemberProcedure } from "./writers-guild/upgrade-member";
 import { sendSecureCommProcedure } from "./tactical/send-secure-comm";
 import { getCommsProcedure } from "./tactical/get-comms";
+import { verifyAge } from "./age/verify-age";
+import { requestParentalConsent } from "./age/request-parental-consent";
+import { grantParentalConsent } from "./age/grant-parental-consent";
+import { linkChildAccount } from "./parent/link-child-account";
+import { getChildActivity } from "./parent/get-child-activity";
+import { updateControls } from "./parent/update-controls";
+import { emergencyPause } from "./parent/emergency-pause";
+import { approveContact } from "./parent/approve-contact";
+import { checkContent } from "./filter/check-content";
 
 export const r3alRouter = createTRPCRouter({
   verifyIdentity: verifyIdentityProcedure,
@@ -325,5 +334,20 @@ export const r3alRouter = createTRPCRouter({
     getOptimaSRAnalysis: getOptimaSRAnalysisProcedure,
     sendSecureComm: sendSecureCommProcedure,
     getComms: getCommsProcedure,
+  }),
+  age: createTRPCRouter({
+    verifyAge: verifyAge,
+    requestParentalConsent: requestParentalConsent,
+    grantParentalConsent: grantParentalConsent,
+  }),
+  parent: createTRPCRouter({
+    linkChildAccount: linkChildAccount,
+    getChildActivity: getChildActivity,
+    updateControls: updateControls,
+    emergencyPause: emergencyPause,
+    approveContact: approveContact,
+  }),
+  filter: createTRPCRouter({
+    checkContent: checkContent,
   }),
 });
