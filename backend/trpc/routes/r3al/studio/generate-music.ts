@@ -2,6 +2,9 @@ import { z } from "zod";
 import { publicProcedure } from "../../../create-context";
 import { pool } from "../../../../db/config";
 
+const STABILITY_API_KEY = process.env.STABILITY_API_KEY;
+const STABILITY_API_URL = 'https://api.stability.ai/v2beta/stable-audio/generate/music';
+
 export const generateMusicProcedure = publicProcedure
   .input(
     z.object({
@@ -31,7 +34,33 @@ export const generateMusicProcedure = publicProcedure
         throw new Error('Premium subscription required for music generation');
       }
 
-      const mockAudioUrl = `https://example.com/music/${input.projectId}_${Date.now()}.mp3`;
+      if (!STABILITY_API_KEY) {
+        throw new Error('Stability API key not configured');
+      }
+
+      // Generate music using Stable Audio API
+      const stableAudioResponse = await fetch(STABILITY_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${STABILITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: input.prompt,
+          duration: input.duration,
+          output_format: 'mp3',
+        }),
+      });
+
+      if (!stableAudioResponse.ok) {
+        const error = await stableAudioResponse.text();
+        console.error('[Studio] Stable Audio API error:', error);
+        throw new Error(`Music generation failed: ${stableAudioResponse.statusText}`);
+      }
+
+      const audioBuffer = await stableAudioResponse.arrayBuffer();
+      const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+      const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
 
       const stemResult = await pool.query(
         `INSERT INTO music_stems 
@@ -40,7 +69,7 @@ export const generateMusicProcedure = publicProcedure
         RETURNING *`,
         [
           input.projectId,
-          mockAudioUrl,
+          audioUrl,
           input.duration,
           input.instrument || 'synth',
           JSON.stringify({ prompt: input.prompt, style: input.style })
@@ -67,11 +96,11 @@ export const generateMusicProcedure = publicProcedure
         success: true,
         stem: {
           stemId: stemResult.rows[0].stem_id,
-          fileUrl: mockAudioUrl,
+          fileUrl: audioUrl,
           duration: input.duration,
           instrument: input.instrument || 'synth',
         },
-        message: 'Music generation complete. In production, this would use Mubert, Aiva, or similar API.',
+        message: 'Music generated successfully using Stable Audio',
       };
     } catch (error) {
       console.error('[Studio] Failed to generate music:', error);
