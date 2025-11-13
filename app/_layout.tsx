@@ -21,7 +21,6 @@ import { TutorialProvider } from "@/app/contexts/TutorialContext";
 import { PulseChatContext } from "@/app/contexts/PulseChatContext";
 import { CirclesContext } from "@/app/contexts/CirclesContext";
 import { TrailblazeContext } from "@/app/contexts/TrailblazeContext";
-import { MemoryGraphProvider } from "@/app/contexts/MemoryGraphContext";
 
 type Styles = {
   errorContainer: ViewStyle;
@@ -111,13 +110,11 @@ function RootProviders({ children }: { children: ReactNode }) {
           <CirclesContext>
             <PulseChatContext>
               <TrailblazeContext>
-                <MemoryGraphProvider>
-                  <ThemeProvider>
-                    <AuthProvider>
-                      <TutorialProvider>{children}</TutorialProvider>
-                    </AuthProvider>
-                  </ThemeProvider>
-                </MemoryGraphProvider>
+                <ThemeProvider>
+                  <AuthProvider>
+                    <TutorialProvider>{children}</TutorialProvider>
+                  </AuthProvider>
+                </ThemeProvider>
               </TrailblazeContext>
             </PulseChatContext>
           </CirclesContext>
