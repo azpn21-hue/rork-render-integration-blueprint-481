@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, View, StyleSheet, Platform } from "react-native";
+import { Text, View, StyleSheet, Platform, TextStyle, ViewStyle } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -130,34 +130,44 @@ export default function RootLayout() {
   );
 }
 
+const errorContainerStyle: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  padding: 20,
+  backgroundColor: "#1a1a1a",
+};
+
+const errorTitleStyle: TextStyle = {
+  fontSize: 24,
+  fontWeight: "700",
+  color: "#ff4444",
+  marginBottom: 10,
+};
+
+const errorMessageStyle: TextStyle = {
+  fontSize: 16,
+  color: "#ffffff",
+  textAlign: "center",
+  marginBottom: 20,
+};
+
+const errorHelpStyle: TextStyle = {
+  fontSize: 14,
+  color: "#888888",
+};
+
+const loadingContainerStyle: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#0F172A",
+};
+
 const styles = StyleSheet.create({
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#1a1a1a',
-  },
-  errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ff4444',
-    marginBottom: 10,
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  errorHelp: {
-    fontSize: 14,
-    color: '#888888',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0F172A',
-  },
+  errorContainer: errorContainerStyle,
+  errorTitle: errorTitleStyle,
+  errorMessage: errorMessageStyle,
+  errorHelp: errorHelpStyle,
+  loadingContainer: loadingContainerStyle,
 });
