@@ -22,6 +22,9 @@ EXPO_PUBLIC_OPTIMA_ENV=production
 EXPO_PUBLIC_RORK_API_KEY=rnd_w0obVzrvycssNp2SbIA3q2sbZZW0
 EXPO_PUBLIC_ANTHROPIC_API_KEY=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
 
+# Hugging Face API (Backend-only, used for MusicGen)
+HUGGINGFACE_API_KEY=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
+
 # Firebase Configuration (Public Keys)
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyBuoYuI-zZ12IlEXMfpmHaXR2l5YFoBx7s
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=r3al-app-1.firebaseapp.com
