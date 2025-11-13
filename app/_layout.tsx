@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View, type TextStyle, type ViewStyle } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -125,7 +125,7 @@ export default function RootLayout() {
           </trpc.Provider>
         ) : (
           <View style={styles.loadingContainer} testID="web-hydration-gate">
-            <Text style={styles.loadingText}>Loading…</Text>
+            <Text style={styles.loadingText}>Loading...</Text>
           </View>
         )}
       </QueryClientProvider>
@@ -133,7 +133,17 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+type Styles = {
+  errorContainer: ViewStyle;
+  errorTitle: TextStyle;
+  errorMessage: TextStyle;
+  errorHelp: TextStyle;
+  loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  gestureRoot: ViewStyle;
+};
+
+const styleObject: Styles = {
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -170,4 +180,6 @@ const styles = StyleSheet.create({
   gestureRoot: {
     flex: 1,
   },
-});
+};
+
+const styles = StyleSheet.create(styleObject);
