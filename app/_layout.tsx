@@ -105,23 +105,25 @@ function ErrorFallback({ error }: { error: Error }) {
 
 function RootProviders({ children }: { children: ReactNode }) {
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <R3alContext>
-        <CirclesContext>
-          <PulseChatContext>
-            <TrailblazeContext>
-              <MemoryGraphProvider>
-                <ThemeProvider>
-                  <AuthProvider>
-                    <TutorialProvider>{children}</TutorialProvider>
-                  </AuthProvider>
-                </ThemeProvider>
-              </MemoryGraphProvider>
-            </TrailblazeContext>
-          </PulseChatContext>
-        </CirclesContext>
-      </R3alContext>
-    </trpc.Provider>
+    <QueryClientProvider client={queryClient}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <R3alContext>
+          <CirclesContext>
+            <PulseChatContext>
+              <TrailblazeContext>
+                <MemoryGraphProvider>
+                  <ThemeProvider>
+                    <AuthProvider>
+                      <TutorialProvider>{children}</TutorialProvider>
+                    </AuthProvider>
+                  </ThemeProvider>
+                </MemoryGraphProvider>
+              </TrailblazeContext>
+            </PulseChatContext>
+          </CirclesContext>
+        </R3alContext>
+      </trpc.Provider>
+    </QueryClientProvider>
   );
 }
 
@@ -157,15 +159,13 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <QueryClientProvider client={queryClient}>
-        {webReady ? (
-          providerTree
-        ) : (
-          <View style={styles.loadingContainer} testID="web-hydration-gate">
-            <Text style={styles.loadingText}>Loading…</Text>
-          </View>
-        )}
-      </QueryClientProvider>
+      {webReady ? (
+        providerTree
+      ) : (
+        <View style={styles.loadingContainer} testID="web-hydration-gate">
+          <Text style={styles.loadingText}>Loading…</Text>
+        </View>
+      )}
     </ErrorBoundary>
   );
 }
