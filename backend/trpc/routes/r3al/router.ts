@@ -128,7 +128,6 @@ import { getWritingAssistanceProcedure } from "./writers-guild/get-assistance";
 import { upgradeMemberProcedure } from "./writers-guild/upgrade-member";
 import { sendSecureCommProcedure } from "./tactical/send-secure-comm";
 import { getCommsProcedure } from "./tactical/get-comms";
-import { getSecureSessionsProcedure } from "./tactical/get-secure-sessions";
 import { verifyAge } from "./age/verify-age";
 import { requestParentalConsent } from "./age/request-parental-consent";
 import { grantParentalConsent } from "./age/grant-parental-consent";
@@ -335,7 +334,6 @@ export const r3alRouter = createTRPCRouter({
     getOptimaSRAnalysis: getOptimaSRAnalysisProcedure,
     sendSecureComm: sendSecureCommProcedure,
     getComms: getCommsProcedure,
-    getSecureSessions: getSecureSessionsProcedure,
   }),
   age: createTRPCRouter({
     verifyAge: verifyAge,
