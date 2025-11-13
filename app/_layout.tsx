@@ -1,11 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import type { TextStyle, ViewStyle } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -19,7 +18,7 @@ if (Platform.OS !== "web") {
   SplashScreen.preventAutoHideAsync().catch(() => {});
 }
 
-function createQueryClient() {
+function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -37,8 +36,8 @@ function createQueryClient() {
           const baseDelay = 3000;
           return Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000);
         },
-        staleTime: 60_000,
-        gcTime: 30 * 60 * 1000,
+        staleTime: 60000,
+        gcTime: 1800000,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
@@ -71,8 +70,6 @@ function createQueryClient() {
   });
 }
 
-const queryClient = createQueryClient();
-
 function ErrorFallback({ error }: { error: Error }) {
   return (
     <View style={styles.errorContainer}>
@@ -94,6 +91,13 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [webReady, setWebReady] = useState<boolean>(Platform.OS !== "web");
+  const queryClientRef = useRef<QueryClient | null>(null);
+
+  if (queryClientRef.current === null) {
+    queryClientRef.current = createQueryClient();
+  }
+
+  const queryClient = queryClientRef.current;
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -134,17 +138,7 @@ export default function RootLayout() {
   );
 }
 
-type Styles = {
-  errorContainer: ViewStyle;
-  errorTitle: TextStyle;
-  errorMessage: TextStyle;
-  errorHelp: TextStyle;
-  loadingContainer: ViewStyle;
-  loadingText: TextStyle;
-  gestureRoot: ViewStyle;
-};
-
-const styleObject: Styles = {
+const styles = StyleSheet.create({
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -181,6 +175,4 @@ const styleObject: Styles = {
   gestureRoot: {
     flex: 1,
   },
-};
-
-const styles = StyleSheet.create(styleObject);
+});
