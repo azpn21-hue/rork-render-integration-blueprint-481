@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
 import { Platform, StyleSheet, Text, View } from "react-native";
+import type { TextStyle, ViewStyle } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -70,6 +71,8 @@ function createQueryClient() {
   });
 }
 
+const queryClient = createQueryClient();
+
 function ErrorFallback({ error }: { error: Error }) {
   return (
     <View style={styles.errorContainer}>
@@ -91,7 +94,6 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [webReady, setWebReady] = useState<boolean>(Platform.OS !== "web");
-  const [queryClient] = useState<QueryClient>(() => createQueryClient());
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -132,7 +134,17 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+type Styles = {
+  errorContainer: ViewStyle;
+  errorTitle: TextStyle;
+  errorMessage: TextStyle;
+  errorHelp: TextStyle;
+  loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  gestureRoot: ViewStyle;
+};
+
+const styleObject: Styles = {
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -169,4 +181,6 @@ const styles = StyleSheet.create({
   gestureRoot: {
     flex: 1,
   },
-});
+};
+
+const styles = StyleSheet.create(styleObject);
