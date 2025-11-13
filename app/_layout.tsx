@@ -16,11 +16,6 @@ import {
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
-import { R3alContext } from "@/app/contexts/R3alContext";
-import { TutorialProvider } from "@/app/contexts/TutorialContext";
-import { PulseChatContext } from "@/app/contexts/PulseChatContext";
-import { CirclesContext } from "@/app/contexts/CirclesContext";
-import { TrailblazeContext } from "@/app/contexts/TrailblazeContext";
 
 type Styles = {
   errorContainer: ViewStyle;
@@ -106,19 +101,9 @@ function RootProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <R3alContext>
-          <CirclesContext>
-            <PulseChatContext>
-              <TrailblazeContext>
-                <ThemeProvider>
-                  <AuthProvider>
-                    <TutorialProvider>{children}</TutorialProvider>
-                  </AuthProvider>
-                </ThemeProvider>
-              </TrailblazeContext>
-            </PulseChatContext>
-          </CirclesContext>
-        </R3alContext>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </trpc.Provider>
     </QueryClientProvider>
   );
