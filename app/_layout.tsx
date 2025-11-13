@@ -1,10 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, View, StyleSheet, Platform } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -15,51 +23,69 @@ import { CirclesContext } from "@/app/contexts/CirclesContext";
 import { TrailblazeContext } from "@/app/contexts/TrailblazeContext";
 import { MemoryGraphProvider } from "@/app/contexts/MemoryGraphContext";
 
-if (Platform.OS !== 'web') {
+type Styles = {
+  errorContainer: ViewStyle;
+  errorTitle: TextStyle;
+  errorMessage: TextStyle;
+  errorHelp: TextStyle;
+  loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  gestureRoot: ViewStyle;
+};
+
+if (Platform.OS !== "web") {
   SplashScreen.preventAutoHideAsync().catch(() => {});
 }
 
-function createQueryClient() {
+function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
         retry: (failureCount, error) => {
           const message = error instanceof Error ? error.message : String(error);
-          if (/HTTP\s(429|503)/.test(message)) return false;
-          if (/HTTP\s404/.test(message)) return false;
+          if (/HTTP\s(429|503)/.test(message)) {
+            return false;
+          }
+          if (/HTTP\s404/.test(message)) {
+            return false;
+          }
           return failureCount < 1;
         },
         retryDelay: (attempt) => {
           const baseDelay = 3000;
-          return Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000);
+          return (
+            Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000)
+          );
         },
         staleTime: 60_000,
         gcTime: 30 * 60 * 1000,
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
         refetchOnReconnect: false,
-        networkMode: 'online',
+        refetchOnMount: false,
+        networkMode: "online",
         suspense: false,
       },
       mutations: {
         retry: (failureCount, error) => {
           const message = error instanceof Error ? error.message : String(error);
-          if (/HTTP\s(429|503)/.test(message) && failureCount < 2) return true;
+          if (/HTTP\s(429|503)/.test(message) && failureCount < 2) {
+            return true;
+          }
           return false;
         },
-        retryDelay: (attempt) => 1000 + Math.floor(Math.random() * 1000),
-        networkMode: 'online',
+        retryDelay: () => 1000 + Math.floor(Math.random() * 1000),
+        networkMode: "online",
       },
     },
     logger: {
-      log: (...args) => console.log('[ReactQuery]', ...args),
-      warn: (...args) => console.warn('[ReactQuery]', ...args),
+      log: (...args) => console.log("[ReactQuery]", ...args),
+      warn: (...args) => console.warn("[ReactQuery]", ...args),
       error: (error) => {
-        if (error instanceof Error && (error.message.includes('404') || error.message.includes('429'))) {
-          console.warn('[ReactQuery] Suppressed error:', error.message.substring(0, 50));
+        if (error instanceof Error && (error.message.includes("404") || error.message.includes("429"))) {
+          console.warn("[ReactQuery] Suppressed error:", error.message.substring(0, 50));
           return;
         }
-        console.error('[ReactQuery]', error);
+        console.error("[ReactQuery]", error);
       },
     },
   });
@@ -77,6 +103,28 @@ function ErrorFallback({ error }: { error: Error }) {
   );
 }
 
+function RootProviders({ children }: { children: ReactNode }) {
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <R3alContext>
+        <CirclesContext>
+          <PulseChatContext>
+            <TrailblazeContext>
+              <MemoryGraphProvider>
+                <ThemeProvider>
+                  <AuthProvider>
+                    <TutorialProvider>{children}</TutorialProvider>
+                  </AuthProvider>
+                </ThemeProvider>
+              </MemoryGraphProvider>
+            </TrailblazeContext>
+          </PulseChatContext>
+        </CirclesContext>
+      </R3alContext>
+    </trpc.Provider>
+  );
+}
+
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -87,42 +135,34 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const [webReady, setWebReady] = useState<boolean>(Platform.OS !== 'web');
+  const initialReady = Platform.OS !== "web";
+  const [webReady, setWebReady] = useState<boolean>(initialReady);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       requestAnimationFrame(() => setWebReady(true));
     }
   }, []);
+
+  const providerTree = useMemo<ReactNode>(
+    () => (
+      <RootProviders>
+        <GestureHandlerRootView style={styles.gestureRoot}>
+          <RootLayoutNav />
+        </GestureHandlerRootView>
+      </RootProviders>
+    ),
+    []
+  );
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
         {webReady ? (
-          <trpc.Provider client={trpcClient} queryClient={queryClient}>
-            <R3alContext>
-              <CirclesContext>
-                <PulseChatContext>
-                  <TrailblazeContext>
-                    <MemoryGraphProvider>
-                      <ThemeProvider>
-                        <AuthProvider>
-                          <TutorialProvider>
-                            <GestureHandlerRootView style={{ flex: 1 }}>
-                              <RootLayoutNav />
-                            </GestureHandlerRootView>
-                          </TutorialProvider>
-                        </AuthProvider>
-                      </ThemeProvider>
-                    </MemoryGraphProvider>
-                  </TrailblazeContext>
-                </PulseChatContext>
-              </CirclesContext>
-            </R3alContext>
-          </trpc.Provider>
+          providerTree
         ) : (
           <View style={styles.loadingContainer} testID="web-hydration-gate">
-            <Text style={{ color: '#94A3B8' }}>Loading…</Text>
+            <Text style={styles.loadingText}>Loading…</Text>
           </View>
         )}
       </QueryClientProvider>
@@ -130,7 +170,7 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<Styles>({
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -159,5 +199,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#0F172A",
+  },
+  loadingText: {
+    color: "#94A3B8",
+    fontSize: 16,
+  },
+  gestureRoot: {
+    flex: 1,
   },
 });
