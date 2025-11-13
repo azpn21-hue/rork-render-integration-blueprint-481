@@ -1,79 +1,66 @@
 #!/bin/bash
 
-echo "🚨 BUNDLING ERROR FIX SCRIPT"
-echo "===================================="
+echo "🔧 Comprehensive React Native Bundling Fix"
+echo "==========================================="
 echo ""
 
-# Step 1: Check package.json for invalid zod version
-echo "🔍 Step 1: Checking package.json for invalid Zod version..."
-if grep -q '"zod": "^4' package.json; then
-    echo "❌ FOUND: Invalid Zod version 4.x (this version doesn't exist!)"
-    echo "✏️  Fixing: Changing to Zod 3.23.8..."
-    
-    # Create backup
-    cp package.json package.json.backup
-    
-    # Fix the version
-    sed -i.bak 's/"zod": "\^4\.[0-9]*\.[0-9]*"/"zod": "^3.23.8"/g' package.json
-    rm package.json.bak
-    
-    echo "✅ Fixed! package.json updated"
-    echo "   📋 Backup saved as: package.json.backup"
-else
-    echo "✅ Zod version looks okay"
-fi
-echo ""
+# Stop all running processes
+echo "1️⃣ Stopping all running processes..."
+pkill -f "metro" 2>/dev/null || true
+pkill -f "expo" 2>/dev/null || true
+pkill -f "react-native" 2>/dev/null || true
+pkill -f "node" 2>/dev/null || true
+sleep 2
 
-# Step 2: Kill running processes
-echo "🛑 Step 2: Killing existing processes..."
-pkill -f "metro" || true
-pkill -f "expo start" || true
-pkill -f "expo" || true
-sleep 1
-echo "✅ Processes killed"
+# Clear all caches
 echo ""
-
-# Step 3: Clean everything
-echo "🧹 Step 3: Cleaning all caches and dependencies..."
-rm -rf node_modules
-rm -rf .expo
-rm -rf bun.lock
-rm -rf /tmp/metro-* 2>/dev/null || true
-rm -rf /tmp/haste-* 2>/dev/null || true
-rm -rf /tmp/react-* 2>/dev/null || true
+echo "2️⃣ Clearing all caches..."
 rm -rf node_modules/.cache 2>/dev/null || true
-echo "✅ Everything cleaned"
-echo ""
+rm -rf .expo 2>/dev/null || true
+rm -rf $TMPDIR/react-* 2>/dev/null || true
+rm -rf $TMPDIR/metro-* 2>/dev/null || true
+rm -rf $TMPDIR/haste-* 2>/dev/null || true
+rm -rf $TMPDIR/metro-cache-* 2>/dev/null || true
+rm -rf ~/.expo/metro-cache 2>/dev/null || true
 
-# Step 4: Clear watchman
+# Clear watchman if available
+echo ""
+echo "3️⃣ Clearing watchman..."
 if command -v watchman &> /dev/null; then
-    echo "👀 Step 4: Clearing watchman..."
-    watchman watch-del-all 2>/dev/null || true
-    echo "✅ Watchman cleared"
+    watchman watch-del-all
+    echo "   ✅ Watchman cleared"
 else
-    echo "⏭️  Step 4: Watchman not installed, skipping..."
+    echo "   ⚠️  Watchman not installed (optional)"
 fi
-echo ""
 
-# Step 5: Reinstall dependencies
-echo "📦 Step 5: Reinstalling dependencies (this may take a minute)..."
-bun install
-if [ $? -eq 0 ]; then
-    echo "✅ Dependencies installed successfully"
-else
-    echo "❌ Failed to install dependencies"
-    echo "   Try running: bun install manually"
-    exit 1
+# Clear Expo cache
+echo ""
+echo "4️⃣ Clearing Expo internal cache..."
+rm -rf ~/.expo/cache 2>/dev/null || true
+
+# Reset iOS Simulator (if on Mac)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ""
+    echo "5️⃣ Resetting iOS Simulator..."
+    xcrun simctl erase all 2>/dev/null || echo "   ⚠️  Could not reset simulators (optional)"
 fi
-echo ""
 
-# Step 6: Success message
-echo "===================================="
-echo "✨ FIX COMPLETE!"
-echo "===================================="
+# Clear Bun cache
 echo ""
-echo "Now try starting your app:"
-echo "   bun start"
+echo "6️⃣ Clearing Bun cache..."
+rm -rf ~/.bun/install/cache 2>/dev/null || true
+
 echo ""
-echo "The bundling error should be fixed now!"
+echo "✅ All caches cleared successfully!"
 echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Now run one of these commands to start:"
+echo ""
+echo "  For mobile:"
+echo "    bun start"
+echo ""
+echo "  For web:"
+echo "    bun start-web"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
