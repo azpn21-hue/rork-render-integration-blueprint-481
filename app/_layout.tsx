@@ -152,7 +152,7 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<Styles>({
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -189,4 +189,4 @@ const styles = StyleSheet.create({
   gestureRoot: {
     flex: 1,
   },
-}) as Styles;
+});
