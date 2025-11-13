@@ -1,37 +1,24 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-  type TextStyle,
-  type ViewStyle,
-} from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
-
-type Styles = {
-  errorContainer: ViewStyle;
-  errorTitle: TextStyle;
-  errorMessage: TextStyle;
-  errorHelp: TextStyle;
-  loadingContainer: ViewStyle;
-  loadingText: TextStyle;
-  gestureRoot: ViewStyle;
-};
+import { R3alContext } from "@/app/contexts/R3alContext";
+import { TutorialProvider } from "@/app/contexts/TutorialContext";
+import { PulseChatContext } from "@/app/contexts/PulseChatContext";
+import { CirclesContext } from "@/app/contexts/CirclesContext";
+import { TrailblazeContext } from "@/app/contexts/TrailblazeContext";
 
 if (Platform.OS !== "web") {
   SplashScreen.preventAutoHideAsync().catch(() => {});
 }
 
-function createQueryClient(): QueryClient {
+function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -47,9 +34,7 @@ function createQueryClient(): QueryClient {
         },
         retryDelay: (attempt) => {
           const baseDelay = 3000;
-          return (
-            Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000)
-          );
+          return Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000);
         },
         staleTime: 60_000,
         gcTime: 30 * 60 * 1000,
@@ -97,18 +82,6 @@ function ErrorFallback({ error }: { error: Error }) {
   );
 }
 
-function RootProviders({ children }: { children: ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
-      </trpc.Provider>
-    </QueryClientProvider>
-  );
-}
-
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -119,8 +92,7 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const initialReady = Platform.OS !== "web";
-  const [webReady, setWebReady] = useState<boolean>(initialReady);
+  const [webReady, setWebReady] = useState<boolean>(Platform.OS !== "web");
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -128,26 +100,35 @@ export default function RootLayout() {
     }
   }, []);
 
-  const providerTree = useMemo<ReactNode>(
-    () => (
-      <RootProviders>
-        <GestureHandlerRootView style={styles.gestureRoot}>
-          <RootLayoutNav />
-        </GestureHandlerRootView>
-      </RootProviders>
-    ),
-    []
-  );
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      {webReady ? (
-        providerTree
-      ) : (
-        <View style={styles.loadingContainer} testID="web-hydration-gate">
-          <Text style={styles.loadingText}>Loading…</Text>
-        </View>
-      )}
+      <QueryClientProvider client={queryClient}>
+        {webReady ? (
+          <trpc.Provider client={trpcClient} queryClient={queryClient}>
+            <R3alContext>
+              <CirclesContext>
+                <PulseChatContext>
+                  <TrailblazeContext>
+                    <ThemeProvider>
+                      <AuthProvider>
+                        <TutorialProvider>
+                          <GestureHandlerRootView style={styles.gestureRoot}>
+                            <RootLayoutNav />
+                          </GestureHandlerRootView>
+                        </TutorialProvider>
+                      </AuthProvider>
+                    </ThemeProvider>
+                  </TrailblazeContext>
+                </PulseChatContext>
+              </CirclesContext>
+            </R3alContext>
+          </trpc.Provider>
+        ) : (
+          <View style={styles.loadingContainer} testID="web-hydration-gate">
+            <Text style={styles.loadingText}>Loading…</Text>
+          </View>
+        )}
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
@@ -189,4 +170,4 @@ const styles = StyleSheet.create({
   gestureRoot: {
     flex: 1,
   },
-}) as Styles;
+});
