@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Sparkles, Send, Lightbulb, MessageCircle, Zap } from "lucide-react-native";
 import { useState, useRef, useEffect } from "react";
 import tokens from "@/schemas/r3al/theme/ui_tokens.json";
-import { generateText } from "@rork-ai/toolkit-sdk";
+import { trpc } from "@/lib/trpc";
 
 interface Message {
   id: string;
@@ -69,23 +69,17 @@ export default function OptimaAI() {
     setIsLoading(true);
 
     try {
-      const conversationHistory = messages.map(m => ({
-        role: m.role,
-        content: m.content,
-      }));
-
-      const response = await generateText({
-        messages: [
-          { role: "user", content: SYSTEM_PROMPT },
-          ...conversationHistory,
-          { role: "user", content: userInput },
-        ],
+      const response = await trpc.r3al.aiChat.sendMessage.mutate({
+        userId: 'guest_user',
+        message: userInput,
+        context: 'general',
+        sessionId: `session_${Date.now()}`,
       });
 
       const assistantMessage: Message = {
         id: Date.now().toString() + "-assistant",
         role: "assistant",
-        content: response,
+        content: response.data.response,
         timestamp: new Date(),
       };
 
