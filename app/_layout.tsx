@@ -133,21 +133,21 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   errorContainer: {
     flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#1a1a1a',
   },
   errorTitle: {
     fontSize: 24,
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: '#ff4444',
     marginBottom: 10,
   },
   errorMessage: {
     fontSize: 16,
     color: '#ffffff',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     marginBottom: 20,
   },
   errorHelp: {
@@ -156,8 +156,8 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#0F172A',
   },
 });
