@@ -29,6 +29,8 @@ type Styles = {
   errorMessage: TextStyle;
   errorHelp: TextStyle;
   loadingContainer: ViewStyle;
+  loadingText: TextStyle;
+  gestureRoot: ViewStyle;
 };
 
 if (Platform.OS !== "web") {

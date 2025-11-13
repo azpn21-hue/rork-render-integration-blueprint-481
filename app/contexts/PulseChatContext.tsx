@@ -1,7 +1,6 @@
 import createContextHook from "@nkzw/create-context-hook";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useR3al } from "./R3alContext";
 
 export interface Message {
   id: string;
@@ -104,7 +103,6 @@ export interface PulseChatState {
 const STORAGE_KEY = "@pulse_chat_state";
 
 export const [PulseChatContext, usePulseChat] = createContextHook(() => {
-  const { earnTokens } = useR3al();
   const [state, setState] = useState<PulseChatState>({
     sessions: [],
     activeSessionId: null,
@@ -389,7 +387,6 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
     };
 
     console.log(`🫀 [PulseChat] Realification verdict: ${randomVerdict.title}`);
-    earnTokens(5, `Realification: ${randomVerdict.title}`);
     saveState({ realificationSession: updatedSession });
 
     return randomVerdict;
@@ -497,7 +494,6 @@ export const [PulseChatContext, usePulseChat] = createContextHook(() => {
     };
 
     console.log(`🧠 [PulseChat] Honesty Check verdict: ${randomVerdict.title}`);
-    earnTokens(randomVerdict.trustBonus, `Honesty Check: ${randomVerdict.title}`);
     saveState({ honestyCheckSession: updatedSession });
 
     return randomVerdict;
