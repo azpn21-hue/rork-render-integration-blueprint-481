@@ -30,7 +30,61 @@ const getBaseUrl = () => {
   return "http://localhost:10000";
 };
 
+let backendHealthChecked = false;
+let backendIsHealthy = false;
 
+const checkBackendHealth = async () => {
+  if (backendHealthChecked) return backendIsHealthy;
+  
+  try {
+    const baseUrl = getBaseUrl();
+    console.log("[tRPC] ========================================");
+    console.log("[tRPC] Checking backend health at:", `${baseUrl}/health`);
+    
+    const response = await fetch(`${baseUrl}/health`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+    backendIsHealthy = response.ok;
+    backendHealthChecked = true;
+    
+    if (backendIsHealthy) {
+      const healthData = await response.json();
+      console.log("[tRPC] ✅ Backend is healthy");
+      console.log("[tRPC] Backend info:", healthData);
+      
+      const routesResponse = await fetch(`${baseUrl}/api/routes`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (routesResponse.ok) {
+        const routesData = await routesResponse.json();
+        console.log("[tRPC] ✅ Total routes available:", routesData.count);
+        console.log("[tRPC] ✅ R3AL routes available:", routesData.r3alCount);
+        if (routesData.r3alCount > 0) {
+          console.log("[tRPC] R3AL routes sample:", routesData.r3alRoutes.slice(0, 5));
+        } else {
+          console.warn("[tRPC] ⚠️  No R3AL routes found in backend!");
+        }
+      }
+    } else {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error("[tRPC] ❌ Backend health check failed:", response.status);
+      console.error("[tRPC] Response:", errorText);
+    }
+    console.log("[tRPC] ========================================");
+  } catch (error: any) {
+    console.error("[tRPC] ❌ Backend health check error:", error.message);
+    console.error("[tRPC] This usually means the backend is not running or not accessible");
+    console.error("[tRPC] Backend URL:", getBaseUrl());
+    backendIsHealthy = false;
+    backendHealthChecked = true;
+  }
+  
+  return backendIsHealthy;
+};
 
 const requestQueue: (() => Promise<Response>)[] = [];
 let isProcessingQueue = false;
@@ -146,7 +200,19 @@ const client = trpc.createClient({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
       fetch: async (url, options) => {
-        return fetchWithRetry(url, options);
+        const urlString = typeof url === 'string' ? url : url.toString();
+        console.log("[tRPC] Request:", urlString, "Method:", options?.method || 'GET');
+        console.log("[tRPC] Base URL:", getBaseUrl());
+        
+        await checkBackendHealth();
+        
+        if (!backendIsHealthy) {
+          console.warn("[tRPC] ⚠️  Backend might not be available. Attempting request anyway...");
+        }
+        
+        const res = await fetchWithRetry(url, options);
+        console.log("[tRPC] ✅ Request successful:", urlString, "Status:", res.status);
+        return res;
       },
     }),
   ],
