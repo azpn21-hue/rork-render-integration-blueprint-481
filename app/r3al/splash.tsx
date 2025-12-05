@@ -1,90 +1,274 @@
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Animated, TouchableOpacity, Alert, Image } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import tokens from "@/schemas/r3al/theme/ui_tokens.json";
+import manifest from "@/schemas/r3al/manifest.json";
+import { useR3al } from "@/app/contexts/R3alContext";
+import { AUTH_STORAGE_KEYS } from "@/app/config/constants";
+import { cyberpunkTheme } from "@/app/theme";
+import ScanlineOverlay from "@/components/ScanlineOverlay";
+import GlitchText from "@/components/GlitchText";
 
 export default function R3alSplash() {
   const router = useRouter();
+  const { hasConsented } = useR3al();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [isReady, setIsReady] = useState(false);
+  const [tapCount, setTapCount] = useState(0);
+  const tapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const glowAnim = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
+    console.log("[Splash] Starting boot pulse (3000ms)");
+    console.log("[Splash] Current state:", { hasConsented });
+    
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 800,
       useNativeDriver: true,
     }).start();
 
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 2000);
+    const pulseDuration = tokens.animations.pulse_duration_ms;
+    const pulseScale = tokens.animations.pulse_scale;
+    
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: pulseScale,
+          duration: pulseDuration / 2,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: pulseDuration / 2,
+          useNativeDriver: true,
+        }),
+      ])
+    );
 
-    return () => clearTimeout(timer);
-  }, [fadeAnim]);
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.5,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
 
-  const handleContinue = () => {
-    router.replace("/r3al/home");
+    pulseAnimation.start();
+    glowAnimation.start();
+
+    const navigationTimer = setTimeout(() => {
+      const betaEndsAt = manifest.beta_promo?.ends_at;
+      const isBetaActive = manifest.beta_promo?.enabled && betaEndsAt && new Date() < new Date(betaEndsAt);
+      
+      console.log("[Splash] Boot pulse complete, navigating next...");
+      console.log("[Splash] Beta active:", isBetaActive);
+      
+      if (isBetaActive) {
+        console.log("[Splash] → /r3al/promo-beta");
+        router.replace("/r3al/promo-beta");
+      } else {
+        console.log("[Splash] → /r3al/onboarding/welcome");
+        router.replace("/r3al/onboarding/welcome");
+      }
+    }, 3000);
+
+    return () => {
+      pulseAnimation.stop();
+      glowAnimation.stop();
+      clearTimeout(navigationTimer);
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
+    };
+  }, [pulseAnim, glowAnim, fadeAnim, router, hasConsented]);
+
+  const handleLogoTap = async () => {
+    const newCount = tapCount + 1;
+    setTapCount(newCount);
+
+    if (tapTimeoutRef.current) {
+      clearTimeout(tapTimeoutRef.current);
+    }
+
+    if (newCount >= 7) {
+      const currentDevMode = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.devMode);
+      const isEnabled = currentDevMode === "true";
+      
+      if (isEnabled) {
+        await AsyncStorage.removeItem(AUTH_STORAGE_KEYS.devMode);
+        Alert.alert("Developer Mode", "Developer mode disabled");
+      } else {
+        await AsyncStorage.setItem(AUTH_STORAGE_KEYS.devMode, "true");
+        Alert.alert("Developer Mode", "Developer mode enabled! You can now login before verification.");
+      }
+      setTapCount(0);
+    } else {
+      tapTimeoutRef.current = setTimeout(() => {
+        setTapCount(0);
+      }, 2000);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#0F172A", "#1E293B", "#0F172A"]}
-        style={styles.gradient}
-      >
-        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-          <Text style={styles.title}>R3AL</Text>
-          <Text style={styles.subtitle}>Reality Verification System</Text>
-          
-          {isReady && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleContinue}
-            >
-              <Text style={styles.buttonText}>Continue</Text>
-            </TouchableOpacity>
-          )}
+    <LinearGradient
+      colors={[cyberpunkTheme.colors.background, "#121218", cyberpunkTheme.colors.background]}
+      style={styles.container}
+    >
+      <ScanlineOverlay speed={4000} opacity={0.03} color={cyberpunkTheme.colors.primary} />
+      <TouchableOpacity onPress={handleLogoTap} activeOpacity={1}>
+        <Animated.View
+          style={[
+            styles.logoContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: pulseAnim }],
+            },
+          ]}
+        >
+          <View style={styles.logo}>
+            <Animated.View
+              style={[
+                styles.glowRing,
+                {
+                  opacity: glowAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0.3, 0.7],
+                  }),
+                  transform: [{ scale: glowAnim }],
+                },
+              ]}
+            />
+            <Image 
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/etwz6wynbmclnaf4sb7bm' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </View>
         </Animated.View>
-      </LinearGradient>
-    </View>
+      </TouchableOpacity>
+
+      <Animated.View style={[styles.mottoContainer, { opacity: fadeAnim }]}>
+        <GlitchText style={styles.motto} glitchIntensity="low">
+          Reveal • Relate • Respect
+        </GlitchText>
+        <View style={styles.pulseIndicator}>
+          <Animated.View
+            style={[
+              styles.pulseDot,
+              {
+                transform: [{ scale: pulseAnim }],
+                shadowColor: cyberpunkTheme.colors.primary,
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: glowAnim.interpolate({
+                  inputRange: [0.5, 1],
+                  outputRange: [0.5, 1],
+                }),
+                shadowRadius: 10,
+                elevation: 10,
+              },
+            ]}
+          />
+          <Text style={styles.bpmText}>INITIALIZING...</Text>
+        </View>
+        <View style={styles.hexGrid}>
+          {[...Array(5)].map((_, i) => (
+            <Animated.View
+              key={i}
+              style={[
+                styles.hexLine,
+                {
+                  opacity: glowAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0.1, 0.3],
+                  }),
+                  height: 1 + i * 0.5,
+                },
+              ]}
+            />
+          ))}
+        </View>
+      </Animated.View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  content: {
+  logoContainer: {
     alignItems: "center",
-    gap: 20,
+    marginBottom: 60,
   },
-  title: {
-    fontSize: 64,
-    fontWeight: "700",
-    color: "#F59E0B",
-    letterSpacing: 8,
+  logo: {
+    width: 200,
+    height: 200,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative" as const,
   },
-  subtitle: {
-    fontSize: 18,
-    color: "#94A3B8",
+  glowRing: {
+    position: "absolute" as const,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: cyberpunkTheme.colors.primary,
+  },
+  logoImage: {
+    width: 200,
+    height: 200,
+  },
+  mottoContainer: {
+    position: "absolute" as const,
+    bottom: 100,
+    alignItems: "center",
+  },
+  motto: {
+    fontSize: 20,
+    color: cyberpunkTheme.colors.primary,
     letterSpacing: 2,
+    marginBottom: 24,
+    fontWeight: "700" as const,
+    textTransform: "uppercase" as const,
   },
-  button: {
-    marginTop: 40,
-    paddingHorizontal: 40,
-    paddingVertical: 16,
-    backgroundColor: "#F59E0B",
-    borderRadius: 8,
+  pulseIndicator: {
+    flexDirection: "row" as const,
+    alignItems: "center",
+    gap: 10,
   },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#0F172A",
+  pulseDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: cyberpunkTheme.colors.primary,
+  },
+  bpmText: {
+    fontSize: 12,
+    color: cyberpunkTheme.colors.textSecondary,
+    fontWeight: "600" as const,
     letterSpacing: 1,
+  },
+  hexGrid: {
+    marginTop: 20,
+    width: 100,
+    gap: 8,
+    alignItems: "center",
+  },
+  hexLine: {
+    width: "100%",
+    backgroundColor: cyberpunkTheme.colors.primary,
   },
 });

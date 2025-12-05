@@ -1,13 +1,6 @@
 import { Pool } from 'pg';
 
-// CRITICAL FIX: Check if we're in a browser/mobile environment
-const isBrowser = typeof window !== 'undefined';
-
-if (isBrowser) {
-  console.log('[Database] ⚠️  Browser environment detected - using mock pool');
-} else {
-  console.log('[Database] Initializing PostgreSQL connection...');
-}
+console.log('[Database] Initializing PostgreSQL connection...');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -36,13 +29,7 @@ console.log('[Database] Configuration:', {
   isProduction,
 });
 
-// Export mock pool for browser, real pool for server
-export const pool = isBrowser ? {
-  connect: () => Promise.reject(new Error('Database not available in browser')),
-  query: () => Promise.reject(new Error('Database not available in browser')),
-  end: () => Promise.resolve(),
-  on: () => {},
-} as any : new Pool(dbConfig);
+export const pool = new Pool(dbConfig);
 
 pool.on('error', (err) => {
   console.error('[Database] ❌ Unexpected error on idle client', err);

@@ -1,7 +1,9 @@
 import { Stack } from "expo-router";
+import { VerificationProvider } from "@/app/contexts/VerificationContext";
 
 export default function R3alLayout() {
   return (
+    <VerificationProvider>
       <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="splash" />
       <Stack.Screen name="promo-beta" />
@@ -50,5 +52,6 @@ export default function R3alLayout() {
       <Stack.Screen name="settings" />
       <Stack.Screen name="trailblaze" />
     </Stack>
+    </VerificationProvider>
   );
 }

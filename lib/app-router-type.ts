@@ -1,12 +1,10 @@
 // Frontend type definitions for tRPC router
-// NOTE: This file should only contain TYPE imports, never runtime imports
-// The actual router is only used on the backend
+// Imports the actual router type from backend
 
+import type { appRouter } from "@/backend/trpc/app-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
-// Create a placeholder type that matches the backend router structure
-// This avoids importing the actual backend code into the frontend bundle
-export type AppRouter = any;
+export type AppRouter = typeof appRouter;
 
 // Helper types for usage in frontend
 export type RouterOutput = inferRouterOutputs<AppRouter>;
