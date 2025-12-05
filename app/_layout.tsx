@@ -70,6 +70,8 @@ function createQueryClient() {
   });
 }
 
+const queryClient = createQueryClient();
+
 function ErrorFallback({ error }: { error: Error }) {
   return (
     <View style={styles.errorContainer}>
@@ -91,7 +93,6 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [webReady, setWebReady] = useState<boolean>(Platform.OS !== "web");
-  const [queryClient] = useState<QueryClient>(() => createQueryClient());
 
   useEffect(() => {
     if (Platform.OS === "web") {
