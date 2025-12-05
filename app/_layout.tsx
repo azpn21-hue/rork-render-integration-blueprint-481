@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ErrorBoundary } from "react-error-boundary";
 import { Platform, StyleSheet, Text, View } from "react-native";
@@ -18,7 +18,7 @@ if (Platform.OS !== "web") {
   SplashScreen.preventAutoHideAsync().catch(() => {});
 }
 
-function createQueryClient(): QueryClient {
+function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -36,8 +36,8 @@ function createQueryClient(): QueryClient {
           const baseDelay = 3000;
           return Math.min(10000, baseDelay * Math.pow(2, attempt)) + Math.floor(Math.random() * 1000);
         },
-        staleTime: 60000,
-        gcTime: 1800000,
+        staleTime: 60_000,
+        gcTime: 30 * 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
@@ -91,13 +91,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [webReady, setWebReady] = useState<boolean>(Platform.OS !== "web");
-  const queryClientRef = useRef<QueryClient | null>(null);
-
-  if (queryClientRef.current === null) {
-    queryClientRef.current = createQueryClient();
-  }
-
-  const queryClient = queryClientRef.current;
+  const [queryClient] = useState<QueryClient>(() => createQueryClient());
 
   useEffect(() => {
     if (Platform.OS === "web") {
